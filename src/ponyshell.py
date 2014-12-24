@@ -135,6 +135,7 @@ class PonyShell(Cmd):
         self._save_manager = SaveManager(savefile, base64.b64decode(gluid))
         self._xml_handle = XmlHandler(decompress_data(self._save_manager.load())
                                       .decode('utf-8'))
+        self._xml_handle.pre_load()
         self._show_functions = {
             'currencies': show_currencies,
             'currency': show_currency,
@@ -236,6 +237,28 @@ Options:
                 print("Was unable to write file, reason: {}".format(str(e)))
         else:
             print(self._xml_handle)
+
+    @docopt_cmd
+    def do_import_xml(self, args):
+        """Import an XML tree. Use with caution.
+
+Usage:
+  import_xml <file>
+
+Arguments:
+  file          Path to a file containing an XML tree.
+
+Options:
+  -h --help     Show this help."""
+        try:
+            with open(args['<file>']) as f:
+                xml_data = f.read()
+            new_xml_handle = XmlHandler(xml_data)
+            new_xml_handle.pre_load()
+        except Exception as e:
+            print("Was unable to load from file, reason: {}".format(str(e)))
+        else:
+            self._xml_handle = new_xml_handle
 
     @docopt_cmd
     def do_write_save(self, args):
