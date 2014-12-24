@@ -178,6 +178,13 @@ class XmlHandler(object):
             self._actions = self._get_actions()
         return self._actions
 
+    def pre_load(self):
+        self.currencies
+        self.ponies
+        self.inventory_ponies
+        self.zones
+        self.actions
+
     def __repr__(self):
         return xmltodict.unparse(self.xmlobj, full_document=False)
 
