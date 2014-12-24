@@ -62,14 +62,14 @@ def show_zone(xml_handle, args):
             print(xml_handle.zones[zone_id])
 
 def set_currency(xml_handle, args):
-    for typ in xml_handle.currencies.values():
-        for val in typ.values():
-            if args['<currency_id>'] == val.name:
-                try:
-                    val.value = args['<value>']
-                except ValueError as e:
-                    print(str(e))
-                return
+    for currency_id in args['<currency_id>']:
+        for typ in xml_handle.currencies.values():
+            for val in typ.values():
+                if currency_id == val.name:
+                    try:
+                        val.value = args['<value>']
+                    except ValueError as e:
+                        print(str(e))
 
 def process_set_pony(xml_handle, pony, args):
     if args['level']:
@@ -173,6 +173,11 @@ Usage:
   show zones
   show zone <zone_id>...
 
+Arguments:
+  currency_id   Id of a currency. Can be retrieved with "show currencies".
+  pony_id       Id of a pony. Can be retrieved with "show ponies".
+  zone_id       Id of a zone. Can be retrieved with "show zones".
+
 Options:
   -i            Displays ponies in inventory.
   -h --help     Show this help."""
@@ -186,17 +191,26 @@ Options:
         """Set what you requested.
 
 Usage:
-  set currency <value> <currency_id>
+  set currency <value> <currency_id>...
   set ponies (level|shards) (up|down)
   set ponies (level|shards) <value>
+  set ponies reset_game_timer
   set pony (level|shards) (up|down) <pony_id>...
   set pony (level|shards|next_game) <value> <pony_id>...
   set pony reset_game_timer <pony_id>...
   set zones clear [clearables|foes]
   set zone clear [clearables|foes] <zone_id>...
 
+Arguments:
+  currency_id           Id of a currency. Can be retrieved with "show currencies".
+  pony_id               Id of a pony. Can be retrieved with "show ponies".
+  zone_id               Id of a zone. Can be retrieved with "show zones".
+  level value           An integer between 0 and 5.
+  shards value          An integer between 0 and 10.
+  next_game             One of Ball, Apple or Book.
+
 Options:
-  -h --help     Show this help."""
+  -h --help             Show this help."""
         for i in self._set_functions:
             if args[i]:
                 self._set_functions[i](self._xml_handle, args)
