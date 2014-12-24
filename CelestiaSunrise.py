@@ -11,7 +11,7 @@ from src import (SaveManager,
 from docopt import docopt
 
 PRGM = os.path.basename(__file__)
-VERSION = "0.4.0a"
+VERSION = "0.4.1b"
 
 __doc__ = """
 {prgm} {ver}
