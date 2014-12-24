@@ -9,7 +9,7 @@
 from __future__ import print_function
 import zlib
 import struct
-import xxtea
+import src.xxtea as xxtea
 
 def read_or_raise(file, size):
     data = file.read(size)
@@ -35,8 +35,7 @@ class SaveManager(object):
         crc_offset = len(decrypt_data) + 4
         decrypt_data += struct.pack('I', crc_res)
         raw_data = xxtea.encrypt(decrypt_data,
-                                 self.gluid if gluid is None else gluid,
-                                 xxtea.RESULT_TYPE_RAW)
+                                 self.gluid if gluid is None else gluid)
         data_size = len(raw_data)
         file.write(struct.pack('3I', uncompress_size, crc_offset, data_size))
         file.write(raw_data)
@@ -48,8 +47,7 @@ class SaveManager(object):
             raise SaveError("Bad size or crc_offset")
         raw_data = read_or_raise(file, data_size)
         decrypt_data = xxtea.decrypt(raw_data,
-                                     self.gluid,
-                                     xxtea.RESULT_TYPE_RAW)
+                                     self.gluid)
         crc_value = struct.unpack('I', decrypt_data[crc_offset - 4:crc_offset])[0]
         try:
             res = zlib.decompress(decrypt_data)
