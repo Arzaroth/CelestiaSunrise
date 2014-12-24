@@ -12,10 +12,10 @@ xxtea==0.1.4
 
 Dependancies can be installed with the following command:
 ```
-> pip install -r requirements
+> pip install -r requirements.txt
 ```
 
-usage: ./CelestiaSunrise.py <save_file> <encrypt_key>
+usage: ./CelestiaSunrise.py &lt;save_file&gt; &lt;encrypt_key&gt;
 
 ```
 ponyshell> help
