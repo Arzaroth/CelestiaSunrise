@@ -9,7 +9,7 @@
 from __future__ import print_function
 import xmltodict
 from collections import OrderedDict, defaultdict
-from arza import DefaultOrderedDict
+from src.defaultordereddict import DefaultOrderedDict
 from src.utility import Pony, InventoryPony, Currency, Clearables, Foes, Zone
 
 def remove_parent(xml_data):

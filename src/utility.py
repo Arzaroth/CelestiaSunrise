@@ -6,7 +6,7 @@
 # arzaroth@arzaroth.com
 #
 
-from arza import enum
+from src.enum import enum
 from collections import defaultdict
 
 class InventoryPony(object):
