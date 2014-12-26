@@ -36,49 +36,35 @@ def btea(v, n, k):
 
     MX = lambda: ((z >> 5) ^ (y << 2)) + ((y >> 3) ^ (z << 4)) ^ (sum ^ y) + (k[(p & 3) ^ e] ^ z)
 
-    y = v[0]
+    res = v[:]
+    y = res[0]
     sum = 0
     if n > 1:
-        z = v[n - 1]
+        z = res[n - 1]
         for _ in range(6 + 52 // n, 0, -1):
             sum = uint32(sum + DELTA)
             e = uint32(sum >> 2) & 3
-            p = 0
-            while p < n - 1:
-                y = v[p + 1]
-                z = v[p] = uint32(v[p] + MX())
-                p += 1
-            y = v[0]
-            z = v[n - 1] = uint32(v[n - 1] + MX())
-        return True
+            for p in range(n):
+                y = res[p + 1] if p < n - 1 else res[0]
+                z = res[p] = uint32(res[p] + MX())
     elif n < -1:
         n = -n
         q = 6 + 52 // n
         for sum in range(q * DELTA, 0, -DELTA):
             e = uint32(sum >> 2) & 3
-            p = n - 1
-            while p > 0:
-                z = v[p - 1]
-                y = v[p] = uint32(v[p] - MX())
-                p -= 1
-            z = v[n - 1]
-            y = v[0] = uint32(v[0] - MX())
-        return True
-    return False
+            for p in range(n - 1, -1, -1):
+                z = res[p - 1] if p > 0 else res[n - 1]
+                y = res[p] = uint32(res[p] - MX())
+    return res
 
-def encrypt(str, key):
+def encrypt(data, key):
     key = key.ljust(16, b'\0')
-    v = str2longs(str)
-    k = str2longs(key)
-    n = len(v)
-    btea(v, n, k)
-    result = longs2str(v)
-    return result
+    data = str2longs(data)
+    key = str2longs(key)
+    return longs2str(btea(data, len(data), key))
 
-def decrypt(s, key):
+def decrypt(data, key):
     key = key.ljust(16, b'\0')
-    v = str2longs(s)
-    k = str2longs(key)
-    n = len(v)
-    btea(v, -n, k)
-    return longs2str(v)
+    data = str2longs(data)
+    key = str2longs(key)
+    return longs2str(btea(data, -len(data), key))

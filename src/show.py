@@ -7,15 +7,10 @@
 #
 
 def show_currencies(xml_handle, args):
-    print('Main currencies:')
-    for cur, val in xml_handle.currencies['Main'].items():
-        print('  {}: {}'.format(cur, val))
-    print('\nShards:')
-    for cur, val in xml_handle.currencies['Shards'].items():
-        print('  {} shards: {}'.format(cur, val))
-    print('\nZecora ingredients:')
-    for cur, val in xml_handle.currencies['Ingredients'].items():
-        print('  {}: {}'.format(cur, val))
+    for name, typ in xml_handle.currencies.items():
+        print('{}:'.format(name))
+        for cur, val in typ.items():
+            print('  {}: {}'.format(cur, val))
 
 def show_currency(xml_handle, args):
     for currency_id in args['<currency_id>']:
@@ -23,7 +18,6 @@ def show_currency(xml_handle, args):
             for val in typ.values():
                 if currency_id == val.name:
                     print(val)
-                    return
 
 def show_ponies(xml_handle, args):
     print('Ponies:')

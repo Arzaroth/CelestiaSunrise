@@ -22,7 +22,7 @@ class PonyShell(Cmd):
     prompt = 'ponyshell> '
 
     def __init__(self, savefile, gluid, legacy):
-        Cmd.__init__(self)
+        super(PonyShell, self).__init__()
         self._save_manager = SaveManager(savefile, gluid)
         data, self.save_number = self._save_manager.load(legacy)
         if not legacy:

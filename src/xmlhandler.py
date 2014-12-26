@@ -71,20 +71,22 @@ class XmlHandler(object):
     def _get_currencies(self):
         playerdata = self.xmlobj['MLP_Save']['PlayerData']
         res = DefaultOrderedDict(OrderedDict)
-        res['Main']['Coins'] = Currency('@Coins', playerdata)
-        res['Main']['Gems'] = Currency('@Hearts', playerdata)
-        res['Main']['Hearts'] = Currency('@Social', playerdata)
-        res['Main']['Wheels'] = Currency('@Wheels', playerdata['Minecart'], 5)
+        main = res['Main currencies']
+        main['Coins'] = Currency('@Coins', playerdata)
+        main['Gems'] = Currency('@Hearts', playerdata)
+        main['Hearts'] = Currency('@Social', playerdata)
+        main['Wheels'] = Currency('@Wheels', playerdata['Minecart'], 5)
         shards = playerdata['Shards']
         for i in ('Loyalty', 'Honesty', 'Kindness', 'Generosity', 'Laughter', 'Magic'):
-            res['Shards'][i] = Currency('@' + i, shards)
+            res['Shards'][i + ' shards'] = Currency('@' + i, shards)
         ingredients = playerdata['Ingredients']
-        res['Ingredients']['Black Iris'] = Currency('@BlackIris', ingredients, 5)
-        res['Ingredients']['Garlic'] = Currency('@Garlic', ingredients, 5)
-        res['Ingredients']['Sticky Sap'] = Currency('@GlueTree', ingredients, 5)
-        res['Ingredients']['Joke Plant'] = Currency('@PoisonJokePlant', ingredients, 5)
-        res['Ingredients']['Purple Mushrooms'] = Currency('@PurpleGlowingMushrooms', ingredients, 5)
-        res['Ingredients']['Red Orchid'] = Currency('@RedOrchid', ingredients, 5)
+        zecora = res['Zecora ingredients']
+        zecora['Black Iris'] = Currency('@BlackIris', ingredients, 5)
+        zecora['Garlic'] = Currency('@Garlic', ingredients, 5)
+        zecora['Sticky Sap'] = Currency('@GlueTree', ingredients, 5)
+        zecora['Joke Plant'] = Currency('@PoisonJokePlant', ingredients, 5)
+        zecora['Purple Mushrooms'] = Currency('@PurpleGlowingMushrooms', ingredients, 5)
+        zecora['Red Orchid'] = Currency('@RedOrchid', ingredients, 5)
         return res
 
     def _get_zones(self):

@@ -10,7 +10,7 @@ from src import PonyShell, Gui
 from docopt import docopt
 
 PRGM = os.path.basename(__file__)
-VERSION = "0.5.0a"
+VERSION = "0.5.3b"
 
 __doc__ = """
 {prgm} {ver}
@@ -50,7 +50,7 @@ if __name__ == '__main__':
             if opts['<encrypt_key>'] is not None:
                 gluid = base64.b64decode(opts['<encrypt_key>'])
             else:
-                gluid = ''
+                gluid = b''
             PonyShell(savefile=opts['<save_file>'],
                       gluid=gluid,
                       legacy=opts['--legacy']).cmdloop(intro=__doc__)
@@ -62,6 +62,5 @@ if __name__ == '__main__':
               file=sys.stderr)
         print(str(e),
               file=sys.stderr)
-        raise
     print('Exiting...')
     sys.exit(0)

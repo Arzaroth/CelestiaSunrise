@@ -6,14 +6,16 @@
 # arzaroth@arzaroth.com
 #
 
+import base64
 from tkinter import Label, Button, Entry, Checkbutton, Frame, StringVar, BooleanVar
 from tkinter.filedialog import askopenfilename
 from tkinter.constants import N, S, E, W, NSEW
+from tkinter.messagebox import showerror
 from src.basegui import BaseGui
 
 class Loading(BaseGui):
 
-    def __init__(self, savefile="", gluid="", legacy=False):
+    def __init__(self, savefile="", gluid=b"", legacy=False):
         super(Loading, self).__init__()
         self.go_next = False
 
@@ -22,6 +24,8 @@ class Loading(BaseGui):
         self._create_widgets()
         self._grid_frames()
         self._grid_widgets()
+
+        self._legacy_clicked()
 
     def _create_variables(self, savefile="", gluid="", legacy=False):
         self._filename = StringVar(self, savefile)
@@ -48,7 +52,8 @@ class Loading(BaseGui):
                                    command=lambda: self._filename.set(askopenfilename()))
         self._file_legacy = Checkbutton(self._file_frame,
                                         text="Legacy file",
-                                        variable=self._legacy)
+                                        variable=self._legacy,
+                                        command=self._legacy_clicked)
 
         self._key_label = Label(self._key_frame,
                                 text="Decryption key (GLUID): ")
@@ -82,9 +87,20 @@ class Loading(BaseGui):
 
         self._ok_button.grid(row=3, column=0, **options)
 
+    def _legacy_clicked(self):
+        if self.legacy:
+            self._key_frame.grid_remove()
+        else:
+            self._key_frame.grid()
+
     def _next(self):
-        self.go_next = True
-        self.destroy()
+        try:
+            base64.b64decode(self.gluid)
+        except:
+            showerror("Error", "Bad decryption key")
+        else:
+            self.go_next = True
+            self.destroy()
 
     @property
     def filename(self):
