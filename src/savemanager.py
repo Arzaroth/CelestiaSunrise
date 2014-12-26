@@ -22,10 +22,10 @@ def read_or_raise(file, size):
     return data
 
 class SaveManager(object):
-    def __init__(self, filename, gluid):
+    SECTIONS = 2
+
+    def __init__(self, filename, gluid=b''):
         self.filename = filename
-        self._sections = 0
-        self.results = []
         self.gluid = gluid
 
     def _save_buffer(self, data, file, gluid=None):
@@ -53,42 +53,47 @@ class SaveManager(object):
             res = zlib.decompress(decrypt_data)
         except zlib.error as e:
             raise SaveError("Unable to decompress data, truncated or corrupted file, or bad decryption key")
-        self.results.append(res)
         if len(res) != uncompress_size:
             raise SaveError("Invalid inflated data")
         crc_res = zlib.crc32(res)
         if crc_res != crc_value:
             raise SaveError("crc mismatch")
+        return res
 
-    def load(self):
+    def load(self, legacy=False):
         try:
             with open(self.filename, 'rb') as file:
                 print('Loading save.', end='')
-                file.seek(-4, 2)
-                self._sections = struct.unpack('I', read_or_raise(file, 4))[0]
-                print('.', end='')
-                file.seek(0, 0)
-                self.results = []
-                for i in range(self._sections):
-                    self._load_buffer(file)
+                if legacy:
+                    results = [decompress_data(file.read())]
                     print('.', end='')
-                print('\nDone !')
+                else:
+                    file.seek(-4, 2)
+                    if struct.unpack('I', read_or_raise(file, 4))[0] != SaveManager.SECTIONS:
+                        raise SaveError("Invalid sections number, truncated or corrupted file")
+                    print('.', end='')
+                    file.seek(0, 0)
+                    results = [self._load_buffer(file) for _ in range(SaveManager.SECTIONS)]
+                print('.\nDone !')
         except Exception as e:
             raise SaveError(str(e))
-        return self.results[-1]
+        save_number = struct.unpack('I', results[0])[0] if len(results) > 1 else 10
+        return results[-1], save_number
 
-    def save(self, data, filename, gluid=None):
-        if not self._sections:
-            raise SaveError("Load before save in order to get a correct chunk data")
+    def save(self, data, filename, save_number=10,
+             gluid=None, legacy=False):
         try:
             with open(filename, 'wb') as file:
                 print('Writing save.', end='')
-                for i in range(self._sections - 1):
-                    self._save_buffer(self.results[i], file, gluid)
+                if legacy:
+                    file.write(data)
                     print('.', end='')
-                self._save_buffer(data, file, gluid)
-                print('.', end='')
-                file.write(struct.pack('I', self._sections))
+                else:
+                    self._save_buffer(struct.pack('I', save_number), file, gluid)
+                    print('.', end='')
+                    self._save_buffer(data, file, gluid)
+                    print('.', end='')
+                    file.write(struct.pack('I', SaveManager.SECTIONS))
                 print('.\nDone !')
         except Exception as e:
             raise SaveError(str(e))

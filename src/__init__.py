@@ -10,7 +10,6 @@ from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
 from src.xmlhandler import XmlHandler
 from src.ponyshell import PonyShell
-from src.loading import Loading
 from src.gui import Gui
 
 __all__ = [
@@ -20,6 +19,5 @@ __all__ = [
     'compress_data',
     'XmlHandler',
     'PonyShell',
-    'Loading',
     'Gui',
 ]

@@ -6,15 +6,18 @@
 # arzaroth@arzaroth.com
 #
 
-from src import Loading
+from src.loading import Loading
+from src.ponygui import PonyGui
 
 class Gui(object):
 
-    def __init__(self, savefile="", gluid=""):
-        self.loading = Loading(savefile, gluid)
+    def __init__(self, savefile="", gluid="", legacy=False):
+        self.loading = Loading(savefile, gluid, legacy)
 
     def start(self):
         self.loading.mainloop()
         if self.loading.go_next:
-            print(self.loading.filename)
-            print(self.loading.gluid)
+            self.ponygui = PonyGui(self.loading.filename,
+                                   self.loading.gluid,
+                                   self.loading.legacy)
+            self.ponygui.mainloop()

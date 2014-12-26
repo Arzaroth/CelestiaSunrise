@@ -21,12 +21,15 @@ class PonyShell(Cmd):
 
     prompt = 'ponyshell> '
 
-    def __init__(self, savefile, gluid):
+    def __init__(self, savefile, gluid, legacy):
         Cmd.__init__(self)
         self._save_manager = SaveManager(savefile, gluid)
-        self._xml_handle = XmlHandler(decompress_data(self._save_manager.load())
-                                      .decode('utf-8'))
+        data, self.save_number = self._save_manager.load(legacy)
+        if not legacy:
+            data = decompress_data(data)
+        self._xml_handle = XmlHandler(data.decode('utf-8'))
         self._xml_handle.pre_load()
+        self.legacy = legacy
         self._show_functions = {
             'currencies': show_currencies,
             'currency': show_currency,
@@ -173,15 +176,13 @@ Options:
                 print("Invalid encryption key")
                 return
         try:
-            if args['--legacy']:
-                with open(args['<file>'], 'wb') as f:
-                    f.write(compress_data(repr(self._xml_handle)
-                                          .encode('utf-8')))
-            else:
-                self._save_manager.save(compress_data(repr(self._xml_handle)
-                                                      .encode('utf-8')),
-                                        args['<file>'],
-                                        args['<gluid>'])
+            self._save_manager.save(compress_data(repr(self._xml_handle)
+                                                  .encode('utf-8')),
+                                    args['<file>'],
+                                    self.save_number,
+                                    args['<gluid>'],
+                                    (self.legacy or args['--legacy'])
+                                    and args['<gluid>'] is None)
         except Exception as e:
             print("Was unable to write file, reason: {}".format(str(e)))
 

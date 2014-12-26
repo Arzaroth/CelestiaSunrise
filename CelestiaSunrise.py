@@ -19,13 +19,15 @@ Type help or ? to list commands.
 
 Usage:
   {prgm} <save_file> <encrypt_key>
-  {prgm} -g [<save_file>] [<encrypt_key>]
+  {prgm} -l <save_file>
+  {prgm} [-l] -g [<save_file>] [<encrypt_key>]
 
 Arguments:
   save_file             Path to save file. Must be readable.
   encrypt_key           Key used to decrypt the save file. Must be base64 encoded.
 
 Options:
+  -l --legacy           Read a legacy save file (1.8.x version).
   -g --gui              Enable graphical mode.
   -h --help             Show this help and exit.
 
@@ -41,10 +43,17 @@ if __name__ == '__main__':
     opts = docopt(__doc__, version=VERSION)
     try:
         if opts['--gui']:
-            Gui(opts['<save_file>'], opts['<encrypt_key>']).start()
+            Gui(savefile=opts['<save_file>'],
+                gluid=opts['<encrypt_key>'],
+                legacy=opts['--legacy']).start()
         else:
-            gluid = base64.b64decode(opts['<encrypt_key>'])
-            PonyShell(opts['<save_file>'], gluid).cmdloop(intro=__doc__)
+            if opts['<encrypt_key>'] is not None:
+                gluid = base64.b64decode(opts['<encrypt_key>'])
+            else:
+                gluid = ''
+            PonyShell(savefile=opts['<save_file>'],
+                      gluid=gluid,
+                      legacy=opts['--legacy']).cmdloop(intro=__doc__)
     except binascii.Error:
         print("Invalid decryption key",
               file=sys.stderr)
@@ -53,5 +62,6 @@ if __name__ == '__main__':
               file=sys.stderr)
         print(str(e),
               file=sys.stderr)
+        raise
     print('Exiting...')
     sys.exit(0)

@@ -6,37 +6,27 @@
 # arzaroth@arzaroth.com
 #
 
-from tkinter import Tk, Label, Button, Entry, StringVar, Frame
+from tkinter import Label, Button, Entry, Checkbutton, Frame, StringVar, BooleanVar
 from tkinter.filedialog import askopenfilename
 from tkinter.constants import N, S, E, W, NSEW
+from src.basegui import BaseGui
 
-class Loading(Tk):
+class Loading(BaseGui):
 
-    def __init__(self, savefile="", gluid=""):
+    def __init__(self, savefile="", gluid="", legacy=False):
         super(Loading, self).__init__()
         self.go_next = False
-        self.grid()
-        self.wm_title("Celestia Sunrise")
-        self.resizable(False, False)
-        self.bind('<Escape>', lambda _: self.destroy())
 
-        self._create_variables(savefile, gluid)
+        self._create_variables(savefile, gluid, legacy)
         self._create_frames()
         self._create_widgets()
         self._grid_frames()
         self._grid_widgets()
 
-    def _create_variables(self, savefile="", gluid=""):
+    def _create_variables(self, savefile="", gluid="", legacy=False):
         self._filename = StringVar(self, savefile)
         self._gluid = StringVar(self, gluid)
-
-    @property
-    def filename(self):
-        return self._filename.get()
-
-    @property
-    def gluid(self):
-        return self._gluid.get()
+        self._legacy = BooleanVar(self, legacy)
 
     def _create_frames(self):
         self._disclaimer_frame = Frame(self)
@@ -56,6 +46,9 @@ class Loading(Tk):
         self._file_button = Button(self._file_frame,
                                    text="Browse",
                                    command=lambda: self._filename.set(askopenfilename()))
+        self._file_legacy = Checkbutton(self._file_frame,
+                                        text="Legacy file",
+                                        variable=self._legacy)
 
         self._key_label = Label(self._key_frame,
                                 text="Decryption key (GLUID): ")
@@ -82,6 +75,7 @@ class Loading(Tk):
         self._file_label.grid(row=0, column=0, **options)
         self._file_entry.grid(row=0, column=1, **options)
         self._file_button.grid(row=0, column=2, **options)
+        self._file_legacy.grid(row=1, column=0, **options)
 
         self._key_label.grid(row=0, column=0, **options)
         self._key_entry.grid(row=0, column=1, **options)
@@ -91,3 +85,15 @@ class Loading(Tk):
     def _next(self):
         self.go_next = True
         self.destroy()
+
+    @property
+    def filename(self):
+        return self._filename.get()
+
+    @property
+    def gluid(self):
+        return self._gluid.get()
+
+    @property
+    def legacy(self):
+        return self._legacy.get()
