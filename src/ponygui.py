@@ -53,6 +53,7 @@ class PonyGui(BaseGui):
         loadingbox.destroy()
 
     def _create_frames(self):
+        super(PonyGui, self)._create_frames()
         self._currencies_frame = CurrenciesFrame(self, self._xml_handle)
         self._zones_frame = ZonesFrame(self, self._xml_handle)
         self._notebook.add(self._currencies_frame,
@@ -61,4 +62,5 @@ class PonyGui(BaseGui):
                            text="Zones")
 
     def _grid_frames(self):
+        super(PonyGui, self)._grid_frames()
         self._notebook.grid(row=0, column=0, sticky=NSEW)

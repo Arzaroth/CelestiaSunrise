@@ -28,16 +28,20 @@ class Loading(BaseGui):
         self._legacy_clicked()
 
     def _create_variables(self, savefile="", gluid="", legacy=False):
+        print('ehlo')
+        super(Loading, self)._create_variables()
         self._filename = StringVar(self, savefile)
         self._gluid = StringVar(self, gluid)
         self._legacy = BooleanVar(self, legacy)
 
     def _create_frames(self):
+        super(Loading, self)._create_frames()
         self._disclaimer_frame = Frame(self)
         self._file_frame = Frame(self)
         self._key_frame = Frame(self)
 
     def _create_widgets(self):
+        super(Loading, self)._create_widgets()
         self._disclaimer_label1 = Label(self._disclaimer_frame,
                                         text='Your savegame is most likely called "mlp_save_prime.dat".')
         self._disclaimer_label2 = Label(self._disclaimer_frame,
@@ -65,11 +69,13 @@ class Loading(BaseGui):
                                  command=self._next)
 
     def _grid_frames(self):
+        super(Loading, self)._grid_frames()
         self._disclaimer_frame.grid(row=0, column=0, sticky=NSEW)
         self._file_frame.grid(row=1, column=0, pady=10, sticky=NSEW)
         self._key_frame.grid(row=2, column=0, pady=5, sticky=NSEW)
 
     def _grid_widgets(self):
+        super(Loading, self)._grid_widgets()
         options = dict(sticky=W, padx=0, pady=2)
         self._disclaimer_label1.grid(row=0, column=0,
                                      **options)
