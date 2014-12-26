@@ -9,7 +9,7 @@ docopt==0.6.2
 xmltodict==0.9.0
 ```
 
-Dependancies can be installed with the following command:
+Dependencies can be installed with the following command:
 ```
 > pip install -r requirements.txt
 ```
