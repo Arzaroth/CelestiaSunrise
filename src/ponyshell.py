@@ -8,6 +8,7 @@
 
 import base64
 import sys
+import binascii
 from cmd import Cmd
 from pprint import pprint
 from src import SaveManager, SaveError
@@ -15,116 +16,12 @@ from src import decompress_data, compress_data
 from src import XmlHandler
 from src.docopt_utils import docopt_cmd
 from src.utility import Pony
+from src.show import *
+from src.set import *
 
-def show_currencies(xml_handle, args):
-    print('Main currencies:')
-    for cur, val in xml_handle.currencies['Main'].items():
-        print('  {}: {}'.format(cur, val))
-    print('\nShards:')
-    for cur, val in xml_handle.currencies['Shards'].items():
-        print('  {} shards: {}'.format(cur, val))
-    print('\nZecora ingredients:')
-    for cur, val in xml_handle.currencies['Ingredients'].items():
-        print('  {}: {}'.format(cur, val))
+class PonyError(Exception):
+    pass
 
-def show_currency(xml_handle, args):
-    for currency_id in args['<currency_id>']:
-        for typ in xml_handle.currencies.values():
-            for val in typ.values():
-                if currency_id == val.name:
-                    print(val)
-                    return
-
-def show_ponies(xml_handle, args):
-    print('Ponies:')
-    for pony in xml_handle.ponies.values():
-        print('  {}'.format(pony))
-    if args['-i']:
-        print('\nInventory ponies:')
-        for pony in xml_handle.inventory_ponies.values():
-            print('  {}'.format(pony))
-
-def show_pony(xml_handle, args):
-    for pony_id in args['<pony_id>']:
-        if pony_id in xml_handle.ponies:
-            print(xml_handle.ponies[pony_id])
-        if pony_id in xml_handle.inventory_ponies:
-            print(xml_handle.inventory_ponies[pony_id])
-
-def show_zones(xml_handle, args):
-    print('Zones:')
-    for zone in xml_handle.zones.values():
-        print('  {}'.format(zone))
-
-def show_zone(xml_handle, args):
-    for zone_id in args['<zone_id>']:
-        if zone_id in xml_handle.zones:
-            print(xml_handle.zones[zone_id])
-
-def set_currency(xml_handle, args):
-    for currency_id in args['<currency_id>']:
-        for typ in xml_handle.currencies.values():
-            for val in typ.values():
-                if currency_id == val.name:
-                    try:
-                        val.value = args['<value>']
-                    except ValueError as e:
-                        print(str(e))
-
-def process_set_pony(xml_handle, pony, args):
-    if args['level']:
-        if args['up']:
-            pony.level_up()
-        elif args['down']:
-            pony.level_down()
-        else:
-            pony.level = args['<value>']
-    elif args['shards']:
-        if args['up']:
-            pony.shard_up()
-        elif args['down']:
-            pony.shard_down()
-        else:
-            pony.shards = args['<value>']
-    elif args['next_game']:
-        try:
-            pony.next_game = Pony.GameTypes.map[args['<value>']]
-        except KeyError:
-            raise ValueError("Invalid game type")
-    elif args['reset_game_timer']:
-        pony.reset_game_timer()
-
-def set_ponies(xml_handle, args):
-    try:
-        for pony in xml_handle.ponies.values():
-            process_set_pony(xml_handle, pony, args)
-    except Exception as e:
-        print(str(e))
-
-def set_pony(xml_handle, args):
-    try:
-        for pony_id in args['<pony_id>']:
-            if pony_id in xml_handle.ponies:
-                process_set_pony(xml_handle, xml_handle.ponies[pony_id], args)
-    except Exception as e:
-        print(str(e))
-
-def process_set_zone(xml_handle, zone, args):
-    if args['clearables']:
-        zone.clear_clearable_items()
-    elif args['foes']:
-        zone.clear_foes()
-    else:
-        zone.clear_all()
-
-def set_zones(xml_handle, args):
-    for zone in xml_handle.zones.values():
-        process_set_zone(xml_handle, zone, args)
-
-def set_zone(xml_handle, args):
-    for zone_id in args['<zone_id>']:
-        if zone_id in xml_handle.zones:
-            process_set_zone(xml_handle, xml_handle.zones[zone_id], args)
 
 class PonyShell(Cmd):
 
@@ -132,7 +29,10 @@ class PonyShell(Cmd):
 
     def __init__(self, savefile, gluid):
         Cmd.__init__(self)
-        self._save_manager = SaveManager(savefile, base64.b64decode(gluid))
+        try:
+            self._save_manager = SaveManager(savefile, base64.b64decode(gluid))
+        except binascii.Error:
+            raise PonyError("Invalid decryption key")
         self._xml_handle = XmlHandler(decompress_data(self._save_manager.load())
                                       .decode('utf-8'))
         self._xml_handle.pre_load()
@@ -274,8 +174,11 @@ Arguments:
 Options:
   -h --help     Show this help."""
         if args['<gluid>'] is not None:
-            args['<gluid>'] = base64.b64decode(args['<gluid>'].encode('utf-8'))
-            print(args['<gluid>'])
+            try:
+                args['<gluid>'] = base64.b64decode(args['<gluid>'].encode('utf-8'))
+            except binascii.Error:
+                print("Invalid encryption key")
+                return
         try:
             self._save_manager.save(compress_data(repr(self._xml_handle)
                                                   .encode('utf-8')),
@@ -296,4 +199,4 @@ Options:
         pass
 
     def default(self, line):
-        print("{}: command not found".format(line), file=sys.stderr)
+        print("{}: command not found".format(line))

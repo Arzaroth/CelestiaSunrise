@@ -4,14 +4,13 @@
 from __future__ import print_function, absolute_import
 import os
 import sys
-import traceback
 from src import (SaveManager,
                  decompress_data, compress_data,
                  XmlHandler, PonyShell)
 from docopt import docopt
 
 PRGM = os.path.basename(__file__)
-VERSION = "0.4.1b"
+VERSION = "0.4.2a"
 
 __doc__ = """
 {prgm} {ver}
@@ -41,9 +40,9 @@ if __name__ == '__main__':
     try:
         PonyShell(opts['<save_file>'], opts['<encrypt_key>']).cmdloop(intro=__doc__)
     except Exception as e:
-        print('Something went wrong, traceback:\n',
+        print('Something went wrong, error message:',
               file=sys.stderr)
-        tb = traceback.format_exc()
-        print(tb, file=sys.stderr)
+        print('{}("{}")'.format(e.__class__.__name__, str(e)),
+              file=sys.stderr)
     print('Exiting...')
     sys.exit(0)

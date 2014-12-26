@@ -11,15 +11,15 @@ import zlib
 import struct
 import src.xxtea as xxtea
 
+class SaveError(Exception):
+    pass
+
+
 def read_or_raise(file, size):
     data = file.read(size)
     if len(data) != size:
         raise SaveError("Unable to read, truncated or corrupted file")
     return data
-
-class SaveError(Exception):
-    pass
-
 
 class SaveManager(object):
     def __init__(self, filename, gluid):
@@ -52,9 +52,8 @@ class SaveManager(object):
         try:
             res = zlib.decompress(decrypt_data)
         except zlib.error as e:
-            raise SaveError(str(e))
-        else:
-            self.results.append(res)
+            raise SaveError("Unable to decompress data, truncated or corrupted file, or bad decryption key")
+        self.results.append(res)
         if len(res) != uncompress_size:
             raise SaveError("Invalid inflated data")
         crc_res = zlib.crc32(res)
@@ -96,10 +95,7 @@ class SaveManager(object):
 
 
 def decompress_data(data):
-    try:
-        res = zlib.decompress(data[16:])
-    except zlib.error as e:
-        raise SaveError(str(e))
+    res = zlib.decompress(data[16:])
     uncompress_size, compress_size = struct.unpack('2I', data[:8])
     if len(res) != uncompress_size or len(data[16:]) != compress_size:
         raise SaveError("Invalid inflated data")
