@@ -17,10 +17,6 @@ from src.utility import Pony
 from src.show import *
 from src.set import *
 
-class PonyError(Exception):
-    pass
-
-
 class PonyShell(Cmd):
 
     prompt = 'ponyshell> '
@@ -161,12 +157,14 @@ Options:
 
 Usage:
   write_save <file> [<gluid>]
+  write_save -l <file>
 
 Arguments:
   file          Path to the new save file.
   gluid         GLUID used to encrypt the new save file. Must be base64 encoded.
 
 Options:
+  -l --legacy   Write a legacy save file (1.8.x version).
   -h --help     Show this help."""
         if args['<gluid>'] is not None:
             try:
@@ -175,10 +173,15 @@ Options:
                 print("Invalid encryption key")
                 return
         try:
-            self._save_manager.save(compress_data(repr(self._xml_handle)
-                                                  .encode('utf-8')),
-                                    args['<file>'],
-                                    args['<gluid>'])
+            if args['--legacy']:
+                with open(args['<file>'], 'wb') as f:
+                    f.write(compress_data(repr(self._xml_handle)
+                                          .encode('utf-8')))
+            else:
+                self._save_manager.save(compress_data(repr(self._xml_handle)
+                                                      .encode('utf-8')),
+                                        args['<file>'],
+                                        args['<gluid>'])
         except Exception as e:
             print("Was unable to write file, reason: {}".format(str(e)))
 
