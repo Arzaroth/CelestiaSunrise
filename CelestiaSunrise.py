@@ -4,13 +4,13 @@
 from __future__ import print_function, absolute_import
 import os
 import sys
-from src import (SaveManager,
-                 decompress_data, compress_data,
-                 XmlHandler, PonyShell)
+import base64
+import binascii
+from src import PonyShell, Gui
 from docopt import docopt
 
 PRGM = os.path.basename(__file__)
-VERSION = "0.4.2a"
+VERSION = "0.5.0a"
 
 __doc__ = """
 {prgm} {ver}
@@ -19,12 +19,14 @@ Type help or ? to list commands.
 
 Usage:
   {prgm} <save_file> <encrypt_key>
+  {prgm} -g [<save_file>] [<encrypt_key>]
 
 Arguments:
   save_file             Path to save file. Must be readable.
   encrypt_key           Key used to decrypt the save file. Must be base64 encoded.
 
 Options:
+  -g --gui              Enable graphical mode.
   -h --help             Show this help and exit.
 
 Notes:
@@ -38,11 +40,18 @@ Author:
 if __name__ == '__main__':
     opts = docopt(__doc__, version=VERSION)
     try:
-        PonyShell(opts['<save_file>'], opts['<encrypt_key>']).cmdloop(intro=__doc__)
+        if opts['--gui']:
+            Gui(opts['<save_file>'], opts['<encrypt_key>']).start()
+        else:
+            gluid = base64.b64decode(opts['<encrypt_key>'])
+            PonyShell(opts['<save_file>'], gluid).cmdloop(intro=__doc__)
+    except binascii.Error:
+        print("Invalid decryption key",
+              file=sys.stderr)
     except Exception as e:
         print('Something went wrong, error message:',
               file=sys.stderr)
-        print('{}("{}")'.format(e.__class__.__name__, str(e)),
+        print(str(e),
               file=sys.stderr)
     print('Exiting...')
     sys.exit(0)

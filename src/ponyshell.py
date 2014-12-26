@@ -7,8 +7,6 @@
 #
 
 import base64
-import sys
-import binascii
 from cmd import Cmd
 from pprint import pprint
 from src import SaveManager, SaveError
@@ -29,10 +27,7 @@ class PonyShell(Cmd):
 
     def __init__(self, savefile, gluid):
         Cmd.__init__(self)
-        try:
-            self._save_manager = SaveManager(savefile, base64.b64decode(gluid))
-        except binascii.Error:
-            raise PonyError("Invalid decryption key")
+        self._save_manager = SaveManager(savefile, gluid)
         self._xml_handle = XmlHandler(decompress_data(self._save_manager.load())
                                       .decode('utf-8'))
         self._xml_handle.pre_load()
