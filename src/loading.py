@@ -10,25 +10,33 @@ from tkinter import Tk, Label, Button, Entry, StringVar, Frame
 from tkinter.filedialog import askopenfilename
 from tkinter.constants import N, S, E, W, NSEW
 
-class Window(Tk):
+class Loading(Tk):
 
-    def __init__(self):
-        super(Window, self).__init__()
-        # self.geometry("450x250+300+300")
+    def __init__(self, savefile="", gluid=""):
+        super(Loading, self).__init__()
+        self.go_next = False
         self.grid()
         self.wm_title("Celestia Sunrise")
         self.resizable(False, False)
         self.bind('<Escape>', lambda _: self.destroy())
 
-        self._create_variables()
+        self._create_variables(savefile, gluid)
         self._create_frames()
         self._create_widgets()
         self._grid_frames()
         self._grid_widgets()
 
-    def _create_variables(self):
-        self._filename = StringVar(self, "")
-        self._gluid = StringVar(self, "")
+    def _create_variables(self, savefile="", gluid=""):
+        self._filename = StringVar(self, savefile)
+        self._gluid = StringVar(self, gluid)
+
+    @property
+    def filename(self):
+        return self._filename.get()
+
+    @property
+    def gluid(self):
+        return self._gluid.get()
 
     def _create_frames(self):
         self._disclaimer_frame = Frame(self)
@@ -81,6 +89,5 @@ class Window(Tk):
         self._ok_button.grid(row=3, column=0, **options)
 
     def _next(self):
-        print(self._filename.get())
-        print(self._gluid.get())
+        self.go_next = True
         self.destroy()
