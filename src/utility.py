@@ -186,9 +186,11 @@ class Clearables(object):
     def __init__(self, ID, tag):
         self.ID = ID
         self.name = 'Clearable Objects'
-        self._objects = [] if tag is None else tag['Object']
+        self._tag = tag[ID]
+        self._objects = [] if self._tag is None else self._tag['Object']
         if type(self._objects) != list:
-            self._objects = [self._objects]
+            self._tag['Object'] = [self._tag['Object']]
+            self._objects = self._tag['Object']
 
     def cleared(self):
         return not self._objects

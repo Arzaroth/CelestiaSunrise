@@ -43,6 +43,6 @@ class CurrenciesFrame(Frame):
                 n += 1
 
     def commit(self):
-        for name, typ in xml_handle.currencies.items():
+        for name, typ in self._xml_handle.currencies.items():
             for cur, val in typ.items():
                 val.value = self._currencies[name][cur].value

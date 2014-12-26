@@ -128,7 +128,7 @@ Options:
                 with open(args['<file>'], 'w') as f:
                     f.write(str(self._xml_handle))
             except Exception as e:
-                print("Was unable to write file, reason: {}".format(str(e)))
+                print("Was unable to write to file, reason: {}".format(str(e)))
         else:
             print(self._xml_handle)
 
@@ -184,7 +184,7 @@ Options:
                                     (self.legacy or args['--legacy'])
                                     and args['<gluid>'] is None)
         except Exception as e:
-            print("Was unable to write file, reason: {}".format(str(e)))
+            print("Was unable to write to file, reason: {}".format(str(e)))
 
     def do_bye(self, args):
         """Quit the program"""

@@ -115,10 +115,10 @@ class XmlHandler(object):
             except:
                 continue
             clearables = Clearables('Clearable_Objects',
-                                    gameobjects['Clearable_Objects'])
+                                    gameobjects)
             foes = Foes(zone_spec["foes"]["ID"],
                         zone_spec["foes"]["name"],
-                        gameobjects[zone_spec["foes"]["ID"]])
+                        gameobjects)
             zones[mapzone["@ID"]] = Zone(mapzone["@ID"],
                                          zone_spec["name"],
                                          clearables,
