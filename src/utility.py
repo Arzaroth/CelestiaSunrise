@@ -196,6 +196,9 @@ class Clearables(object):
     def clear(self):
         del self._objects[:]
 
+    def __len__(self):
+        return len(self._objects)
+
     def __repr__(self):
         return ('%s(ID: %s, Name: %s, Cleared: %s)'
                 % (self.__class__.__name__,
@@ -220,14 +223,8 @@ class Zone(object):
     def cleared(self):
         return self.clearable_items.cleared() and self.foes.cleared()
 
-    def clear_all(self):
-        self.clear_clearable_items()
-        self.clear_foes()
-
-    def clear_clearable_items(self):
+    def clear(self):
         self.clearable_items.clear()
-
-    def clear_foes(self):
         self.foes.clear()
 
     def __repr__(self):

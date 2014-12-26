@@ -6,10 +6,9 @@
 # arzaroth@arzaroth.com
 #
 
-from collections import OrderedDict
+from collections import defaultdict
 from tkinter import Label, Entry, Frame, StringVar
 from tkinter.constants import N, S, E, W, NSEW
-from src.defaultordereddict import DefaultOrderedDict
 
 class CurrencyFrame(object):
 
@@ -36,7 +35,7 @@ class CurrenciesFrame(Frame):
         super(CurrenciesFrame, self).__init__(parent)
 
         self._xml_handle = xml_handle
-        self._currencies = DefaultOrderedDict(OrderedDict)
+        self._currencies = defaultdict(dict)
         n = 0
         for name, typ in xml_handle.currencies.items():
             for cur, val in typ.items():

@@ -56,11 +56,11 @@ def set_pony(xml_handle, args):
 
 def _process_set_zone(xml_handle, zone, args):
     if args['clearables']:
-        zone.clear_clearable_items()
+        zone.clearable_items.clear()
     elif args['foes']:
-        zone.clear_foes()
+        zone.foes.clear()
     else:
-        zone.clear_all()
+        zone.clear()
 
 def set_zones(xml_handle, args):
     for zone in xml_handle.zones.values():

@@ -12,6 +12,7 @@ from tkinter.filedialog import askopenfilename
 from tkinter.constants import N, S, E, W, NSEW
 from src.basegui import BaseGui
 from src.currenciesframe import CurrenciesFrame
+from src.zonesframe import ZonesFrame
 from src import SaveManager, SaveError
 from src import decompress_data, compress_data
 from src import XmlHandler
@@ -53,8 +54,11 @@ class PonyGui(BaseGui):
 
     def _create_frames(self):
         self._currencies_frame = CurrenciesFrame(self, self._xml_handle)
+        self._zones_frame = ZonesFrame(self, self._xml_handle)
         self._notebook.add(self._currencies_frame,
                            text="Currencies")
+        self._notebook.add(self._zones_frame,
+                           text="Zones")
 
     def _grid_frames(self):
         self._notebook.grid(row=0, column=0, sticky=NSEW)
