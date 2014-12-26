@@ -14,8 +14,9 @@ Dependancies can be installed with the following command:
 > pip install -r requirements.txt
 ```
 
-usage: ./CelestiaSunrise.py &lt;save_file&gt; &lt;encrypt_key&gt;
+Basic usage: python CelestiaSunrise.py -g
 
+Shell-like usage: python CelestiaSunrise.py &lt;save_file&gt; &lt;encrypt_key&gt;
 ```
 ponyshell> help
 ```
