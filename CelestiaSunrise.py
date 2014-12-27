@@ -10,7 +10,7 @@ from src import PonyShell, Gui
 from docopt import docopt
 
 PRGM = os.path.basename(__file__)
-VERSION = "0.6.0a"
+VERSION = "0.6.1a"
 
 __doc__ = """
 {prgm} {ver}
@@ -18,9 +18,9 @@ Edit your MLP saves with the power of the true goddess.
 Type help or ? to list commands.
 
 Usage:
-  {prgm} <save_file> <encrypt_key>
-  {prgm} -l <save_file>
-  {prgm} [-l] -g [<save_file>] [<encrypt_key>]
+  {prgm} [-d] <save_file> <encrypt_key>
+  {prgm} [-d] -l <save_file>
+  {prgm} [-dl] -g [<save_file>] [<encrypt_key>]
 
 Arguments:
   save_file             Path to save file. Must be readable.
@@ -28,6 +28,7 @@ Arguments:
 
 Options:
   -l --legacy           Read a legacy save file (1.8.x version).
+  -d --debug            Debug mode.
   -g --gui              Enable graphical mode.
   -h --help             Show this help and exit.
 
@@ -62,5 +63,7 @@ if __name__ == '__main__':
               file=sys.stderr)
         print(str(e),
               file=sys.stderr)
+        if opts['--debug']:
+            raise
     print('Exiting...')
     sys.exit(0)
