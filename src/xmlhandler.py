@@ -27,14 +27,20 @@ class XmlHandler(object):
         self._currencies = None
         self._actions = None
         self._zones = None
+        self.__mapzones = None
+
+    def _get_mapzones(self):
+        if type(self.xmlobj['MLP_Save']['MapZone']) != list:
+            self.xmlobj['MLP_Save']['MapZone'] = [self.xmlobj['MLP_Save']['MapZone']]
+        return self.xmlobj['MLP_Save']['MapZone']
 
     def _filtered_actions(self, ID):
         res = defaultdict(dict)
         for typ, actions in self.actions['Ponies'].items():
             for action, tags in actions.items():
+                if type(tags[0]['Item']) != list:
+                    tags[0]['Item'] = [tags[0]['Item']]
                 items = tags[0]['Item']
-                if type(items) != list:
-                    items = [items]
                 tag = [i for i in items if i['@Category'] == ID]
                 if not tag:
                     tag = [OrderedDict([('@Category', ID), ('@Value', "0")])]
@@ -45,12 +51,11 @@ class XmlHandler(object):
 
     def _get_pony_list(self):
         res = OrderedDict()
-        mapzones = self.xmlobj['MLP_Save']['MapZone']
-        if type(mapzones) != list:
-            mapzones = [mapzones]
-        for mapzone in mapzones:
+        for mapzone in self._mapzones:
             ponyobjects = mapzone['GameObjects']['Pony_Objects']
             if ponyobjects:
+                if type(ponyobjects['Object']) != list:
+                    ponyobjects['Object'] = [ponyobjects['Object']]
                 for ponytag in ponyobjects['Object']:
                     res[ponytag["@ID"]] = Pony(ponytag, self._filtered_actions(ponytag["@ID"]))
         return res
@@ -60,9 +65,9 @@ class XmlHandler(object):
         storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
         if not storage:
             return res
+        if type(storage['StoredItem']) != list:
+            storage['StoredItem'] = [storage['StoredItem']]
         items = storage['StoredItem']
-        if type(items) != list:
-            items = [items]
         for item in items:
             if item['@ID'].startswith('Pony_'):
                 res[item['@ID']] = InventoryPony(item)
@@ -105,10 +110,7 @@ class XmlHandler(object):
                             "name": "Plunderseed Vines"}}),
         ))
         zones = OrderedDict()
-        mapzones = self.xmlobj['MLP_Save']['MapZone']
-        if type(mapzones) != list:
-            mapzones = [mapzones]
-        for mapzone in mapzones:
+        for mapzone in self._mapzones:
             gameobjects = mapzone['GameObjects']
             try:
                 zone_spec = mapzones_spec[mapzone["@ID"]]
@@ -149,6 +151,12 @@ class XmlHandler(object):
             for suffix in (' [TOTAL]', ' [TOTAL] Pony'):
                 populate_dict(glob, key='@Category', suffix=suffix)
         return {'Global': glob, 'Ponies': actions}
+
+    @property
+    def _mapzones(self):
+        if self.__mapzones is None:
+            self.__mapzones = self._get_mapzones()
+        return self.__mapzones
 
     @property
     def ponies(self):
