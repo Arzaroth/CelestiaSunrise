@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Celestiasunrise : Savegame editor for the mobile game &quot;My Little Pony&quot;">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Celestiasunrise</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/Arzaroth/CelestiaSunrise">View on GitHub</a>
+
+          <h1 id="project_title">Celestiasunrise</h1>
+          <h2 id="project_tagline">Savegame editor for the mobile game &quot;My Little Pony&quot;</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/Arzaroth/CelestiaSunrise/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/Arzaroth/CelestiaSunrise/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>
+<a id="what-is-it" class="anchor" href="#what-is-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is it?</h3>
+
+<p>Celestia Sunrise is a savegame editor for the quite popular "My little Pony" mobile game.</p>
+
+<p>It provides both a graphical interface (suitable for most users) and a command-line interface (for people like who only use something that works in their shell).</p>
+
+<p>It currently only works for Android devices, but I plan to introduce iOS compatibility.</p>
+
+<h3>
+<a id="instructions" class="anchor" href="#instructions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Instructions</h3>
+
+<p>If you are a Linux user:</p>
+
+<ul>
+<li>&gt; git clone <a href="https://github.com/Arzaroth/CelestiaSunrise.git">https://github.com/Arzaroth/CelestiaSunrise.git</a>
+</li>
+<li>&gt; cd CelestiaSunrise</li>
+<li>&gt; python3.4 -m venv .</li>
+<li>&gt; . bin/activate</li>
+<li>&gt; pip install -r requirements.txt</li>
+<li>&gt; python CelestiaSunrise.py -g</li>
+<li>Profit !</li>
+</ul>
+
+<p>Note that I recommend you to take a look at <a href="https://github.com/berdario/pew">pew</a> for your virtualenvs management.</p>
+
+<p>If you are a Windows user:</p>
+
+<ul>
+<li>Download and unzip latest release. Write down where you put the uncompressed folder (the one containing a requirements.txt file).</li>
+<li>Install python from <a href="http://conda.pydata.org/miniconda.html">here</a>. Be sure to check the "Add anaconda to my PATH environment variable" checkbox.</li>
+<li>Open a console (the "cmd" program).</li>
+<li>Browse to the previously uncompressed folder using the "cd" command. e.g.:</li>
+</ul>
+
+<blockquote>
+<p>cd Downloads\CelestiaSunrise</p>
+</blockquote>
+
+<ul>
+<li>Run the following command:</li>
+</ul>
+
+<blockquote>
+<p>conda create -n celestiasunrise python=3</p>
+</blockquote>
+
+<ul>
+<li>Run the following command:</li>
+</ul>
+
+<blockquote>
+<p>conda install -n celestiasunrise pip</p>
+</blockquote>
+
+<ul>
+<li>Run the following command:</li>
+</ul>
+
+<blockquote>
+<p>activate celestiasunrise</p>
+</blockquote>
+
+<ul>
+<li>Run the following command:</li>
+</ul>
+
+<blockquote>
+<p>pip install -r requirements.txt</p>
+</blockquote>
+
+<ul>
+<li>Run the following command:</li>
+</ul>
+
+<blockquote>
+<p>python CelestiaSunrise.py -g</p>
+</blockquote>
+
+<ul>
+<li>Profit !</li>
+</ul>
+
+<p>Note that you will have to run the "activate" command each time you want to use this tool.
+You find this complicated ? Take a look at <a href="http://www.makeuseof.com/tag/a-beginners-guide-to-the-windows-command-line/">this</a>, or even better, at <a href="http://www.whylinuxisbetter.net/">this</a>.</p>
+
+<p>Basic usage:</p>
+
+<blockquote>
+<p>python CelestiaSunrise.py -g</p>
+</blockquote>
+
+<p>Shell-like usage:</p>
+
+<blockquote>
+<p>python CelestiaSunrise.py &lt;save_file&gt; &lt;encrypt_key&gt;</p>
+</blockquote>
+
+<h3>
+<a id="credits" class="anchor" href="#credits" aria-hidden="true"><span class="octicon octicon-link"></span></a>Credits</h3>
+
+<p>Arzaroth (which is me)</p>
+
+<p>Evenprime (Original creator of <a href="https://github.com/Evenprime/LunasDreamwalk">Luna's Dreamwalk</a>)</p>
+
+<h3>
+<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or contact</h3>
+
+<p>Having trouble with this tool ? Contact me at <a href="mailto:celestiasunrise@barrut.me">celestiasunrise@barrut.me</a> or submit your issue through GitHub.</p>
+
+<h3>
+<a id="legal-informations" class="anchor" href="#legal-informations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Legal informations</h3>
+
+<p>(Copied from Evenprime's Luna's Dreamwalk project)</p>
+
+<p>Please note that this software does NOT contain any copyrighted or trademarked
+content of Gameloft, Hasbro or any other legal entity that may take offense
+in the existence of this program, as far as I am aware of.</p>
+
+<p>Further, it does not enable people to circumvent a <em>copy protection scheme</em>.
+This application does not provide any means of copying or modifying the
+original MLP application. And even if it would, providing software that does
+help modify existing software is in and by itself not automatically a copyright
+violation, and most often covered by the "reverse engineering" exception of the
+DMCA</p>
+
+<p>Therefore, in my humble opinion, the DMCA (and trademark related C&amp;D letters)
+should not be applicable to this software and I will likely take the necessary
+legal steps (e.g. filing a DMCA counter-claim) in case it gets abused for
+taking down this software.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Celestiasunrise maintained by <a href="https://github.com/Arzaroth">Arzaroth</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
