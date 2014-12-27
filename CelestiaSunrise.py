@@ -11,7 +11,7 @@ from src import PonyShell, Gui
 from docopt import docopt
 
 PRGM = os.path.basename(__file__)
-VERSION = "0.6.1b"
+VERSION = "0.6.4a"
 
 __doc__ = """
 {prgm} {ver}

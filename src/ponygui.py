@@ -13,10 +13,11 @@ from tkinter.constants import N, S, E, W, NSEW
 from tkinter.messagebox import showerror
 from src.basegui import BaseGui
 from src.currenciesframe import CurrenciesFrame
+from src.poniesframe import PoniesFrame
 from src.zonesframe import ZonesFrame
-from src import SaveManager, SaveError
-from src import decompress_data, compress_data
-from src import XmlHandler
+from src.savemanager import (SaveManager, SaveError,
+                             decompress_data, compress_data)
+from src.xmlhandler import XmlHandler
 
 class LoadingDialog(Toplevel):
 
@@ -68,8 +69,11 @@ class PonyGui(BaseGui):
         super(PonyGui, self)._create_frames()
         self._currencies_frame = CurrenciesFrame(self, self._xml_handle)
         self._zones_frame = ZonesFrame(self, self._xml_handle)
+        self._ponies_frame = PoniesFrame(self, self._xml_handle)
         self._notebook.add(self._currencies_frame,
                            text="Currencies")
+        self._notebook.add(self._ponies_frame,
+                           text="Ponies")
         self._notebook.add(self._zones_frame,
                            text="Zones")
         self._save_button = Button(self,
@@ -97,6 +101,7 @@ class PonyGui(BaseGui):
         else:
             loadingbox = LoadingDialog(self)
             self._currencies_frame.commit()
+            self._ponies_frame.commit()
             self._zones_frame.commit()
             try:
                 self._save_manager.save(compress_data(repr(self._xml_handle)

@@ -9,13 +9,17 @@
 import base64
 from cmd import Cmd
 from pprint import pprint
-from src import SaveManager, SaveError
-from src import decompress_data, compress_data
-from src import XmlHandler
 from src.docopt_utils import docopt_cmd
+from src.savemanager import (SaveManager, SaveError,
+                             decompress_data, compress_data)
+from src.xmlhandler import XmlHandler
 from src.utility import Pony
-from src.show import *
-from src.set import *
+from src.show import (show_currencies, show_currency,
+                      show_ponies, show_pony,
+                      show_zones, show_zone)
+from src.set import (set_currency,
+                     set_ponies, set_pony,
+                     set_zones, set_zone)
 
 class PonyShell(Cmd):
 
