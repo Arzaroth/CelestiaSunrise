@@ -6,6 +6,7 @@ import os
 import sys
 import base64
 import binascii
+import traceback
 from src import PonyShell, Gui
 from docopt import docopt
 
@@ -64,6 +65,8 @@ if __name__ == '__main__':
         print(str(e),
               file=sys.stderr)
         if opts['--debug']:
-            raise
+            print()
+            tb = traceback.format_exc()
+            print(tb)
     print('Exiting...')
     sys.exit(0)
