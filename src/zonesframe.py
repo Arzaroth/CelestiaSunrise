@@ -6,8 +6,15 @@
 # arzaroth@arzaroth.com
 #
 
-from tkinter import Frame, Checkbutton, BooleanVar, StringVar
-from tkinter.constants import N, S, E, W, NSEW
+from __future__ import print_function, absolute_import, unicode_literals
+try:
+    # py3
+    from tkinter import Frame, Checkbutton, BooleanVar, StringVar
+    from tkinter.constants import N, S, E, W, NSEW
+except ImportError:
+    # py2
+    from Tkinter import Frame, Checkbutton, BooleanVar, StringVar
+    from Tkconstants import N, S, E, W, NSEW
 
 class ZoneFrame(object):
 
@@ -53,7 +60,7 @@ class ZoneFrame(object):
 class ZonesFrame(Frame):
 
     def __init__(self, parent, xml_handle):
-        super(ZonesFrame, self).__init__(parent)
+        Frame.__init__(self, parent)
 
         self._xml_handle = xml_handle
         self._zones = {}

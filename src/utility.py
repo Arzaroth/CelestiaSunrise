@@ -6,10 +6,56 @@
 # arzaroth@arzaroth.com
 #
 
+from __future__ import print_function, absolute_import, unicode_literals
 from src.enum import enum
 from collections import defaultdict
+from src.defaultordereddict import DefaultOrderedDict
 
-class InventoryPony(object):
+class Inventory(object):
+    def __init__(self, tag):
+        self._tag = tag
+        self._ponies = None
+        self._decorations = None
+
+    def _populate(self, prefix):
+        res = DefaultOrderedDict(list)
+        for item in self._tag:
+            if item['@ID'].startswith(prefix):
+                res[item['@ID']].append(StoredItem(item))
+        return res
+
+    @property
+    def ponies(self):
+        if self._ponies is None:
+            self._ponies = self._populate('Pony_')
+        return self._ponies
+
+    @property
+    def decorations(self):
+        if self._decorations is None:
+            self._decorations = self._populate('Decoration_')
+        return self._decorations
+
+    def __iadd__(self, ID):
+        new_item = OrderedDict()
+        new_item['@ID'] = ID
+        new_item['@Cost'] = 0
+        new_item['@CostType'] = 0
+        new_item['@PonyLevel'] = 0
+        new_item['@PonyShards'] = 0
+        new_item['@PonyCurrentEXP'] = 0
+        new_item['@Constructed'] = 0
+        new_item['@PonyArriveBonus'] = 0
+        self._tag.append(new_item)
+        self._ponies = self._populate('Pony_')
+        self._decorations = self._populate('Decoration_')
+        return self
+
+    def append(self, ID):
+        self += ID
+
+
+class StoredItem(object):
     def __init__(self, tag):
         self.name = tag["@ID"][5:].replace('_', ' ')
         self.ID = tag["@ID"]
@@ -54,30 +100,30 @@ class InventoryPony(object):
                    self.next_game))
 
 
-class Pony(InventoryPony):
+class Pony(StoredItem):
 
     GameTypes = enum(Ball=0, Apple=1, Book=2)
 
     def __init__(self, tag, actions):
-        super(Pony, self).__init__(tag)
+        StoredItem.__init__(self, tag)
         self._leveltag = tag["Game"]["Level"]
         self._minigametag = tag["Game"]["MiniGame"]
         self._pony_actions = actions
         self.stored = False
 
-    @InventoryPony._level.getter
+    @StoredItem._level.getter
     def _level(self):
         return min(max(int(self._leveltag["@Level"]), 0), 5)
 
-    @InventoryPony._exp.getter
+    @StoredItem._exp.getter
     def _exp(self):
         return int(self._leveltag["@CurrentEXP"])
 
-    @InventoryPony._shards.getter
+    @StoredItem._shards.getter
     def _shards(self):
         return min(max(int(self._leveltag["@Shards"]), 0), 10)
 
-    @InventoryPony.level.setter
+    @StoredItem.level.setter
     def level(self, new_val):
         new_val = int(new_val)
         if new_val < 0 or new_val > 5:
@@ -113,7 +159,7 @@ class Pony(InventoryPony):
         self.shards = 0
         self._leveltag["@Level"] = str(new_val)
 
-    @InventoryPony.shards.setter
+    @StoredItem.shards.setter
     def shards(self, new_val):
         new_val = int(new_val)
         if new_val < 0 or new_val > 10:
@@ -122,7 +168,7 @@ class Pony(InventoryPony):
             raise ValueError("Can't have shards at maximum level")
         self._leveltag["@Shards"] = str(new_val)
 
-    @InventoryPony.next_game.getter
+    @StoredItem.next_game.getter
     def next_game(self):
         try:
             gametype = int(self._minigametag["@NextPlayAction"])
@@ -211,7 +257,7 @@ class Clearables(object):
 
 class Foes(Clearables):
     def __init__(self, ID, name, tag):
-        super(Foes, self).__init__(ID, tag)
+        Clearables.__init__(self, ID, tag)
         self.name = name
 
 

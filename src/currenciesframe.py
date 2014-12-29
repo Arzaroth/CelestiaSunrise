@@ -6,9 +6,16 @@
 # arzaroth@arzaroth.com
 #
 
+from __future__ import print_function, absolute_import, unicode_literals
 from collections import defaultdict
-from tkinter import Label, Entry, Frame, StringVar
-from tkinter.constants import N, S, E, W, NSEW
+try:
+    # py3
+    from tkinter import Label, Entry, Frame, StringVar
+    from tkinter.constants import N, S, E, W, NSEW
+except ImportError:
+    # py2
+    from Tkinter import Label, Entry, Frame, StringVar
+    from Tkconstants import N, S, E, W, NSEW
 
 class CurrencyFrame(object):
 
@@ -32,7 +39,7 @@ class CurrencyFrame(object):
 class CurrenciesFrame(Frame):
 
     def __init__(self, parent, xml_handle):
-        super(CurrenciesFrame, self).__init__(parent)
+        Frame.__init__(self, parent)
 
         self._xml_handle = xml_handle
         self._currencies = defaultdict(dict)

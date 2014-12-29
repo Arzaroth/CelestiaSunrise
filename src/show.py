@@ -6,6 +6,8 @@
 # arzaroth@arzaroth.com
 #
 
+from __future__ import print_function, absolute_import, unicode_literals
+
 def show_currencies(xml_handle, args):
     for name, typ in xml_handle.currencies.items():
         print('{}:'.format(name))
@@ -25,15 +27,15 @@ def show_ponies(xml_handle, args):
         print('  {}'.format(pony))
     if args['-i']:
         print('\nInventory ponies:')
-        for pony in xml_handle.inventory_ponies.values():
-            print('  {}'.format(pony))
+        for pony in xml_handle.inventory.ponies.values():
+            print('  {}'.format(pony[0]))
 
 def show_pony(xml_handle, args):
     for pony_id in args['<pony_id>']:
         if pony_id in xml_handle.ponies:
             print(xml_handle.ponies[pony_id])
-        if pony_id in xml_handle.inventory_ponies:
-            print(xml_handle.inventory_ponies[pony_id])
+        if pony_id in xml_handle.inventory.ponies:
+            print(xml_handle.inventory.ponies[pony_id][0])
 
 def show_zones(xml_handle, args):
     print('Zones:')

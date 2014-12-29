@@ -6,9 +6,10 @@
 # arzaroth@arzaroth.com
 #
 
+from __future__ import print_function, absolute_import, unicode_literals
 import base64
+import sys
 from cmd import Cmd
-from pprint import pprint
 from src.docopt_utils import docopt_cmd
 from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
@@ -21,12 +22,16 @@ from src.set import (set_currency,
                      set_ponies, set_pony,
                      set_zones, set_zone)
 
+if sys.version_info.major < 3:
+    import codecs
+    open = codecs.open
+
 class PonyShell(Cmd):
 
     prompt = 'ponyshell> '
 
     def __init__(self, savefile, gluid, legacy):
-        super(PonyShell, self).__init__()
+        Cmd.__init__(self)
         self._save_manager = SaveManager(savefile, gluid)
         data, self.save_number = self._save_manager.load(legacy)
         if not legacy:
@@ -129,12 +134,12 @@ Options:
   -h --help     Show this help."""
         if args['<file>']:
             try:
-                with open(args['<file>'], 'w') as f:
-                    f.write(str(self._xml_handle))
+                with open(args['<file>'], 'w', encoding='utf-8') as f:
+                    f.write(self._xml_handle.prettify())
             except Exception as e:
                 print("Was unable to write to file, reason: {}".format(str(e)))
         else:
-            print(self._xml_handle)
+            print(self._xml_handle.prettify())
 
     @docopt_cmd
     def do_import_xml(self, args):
@@ -149,7 +154,7 @@ Arguments:
 Options:
   -h --help     Show this help."""
         try:
-            with open(args['<file>']) as f:
+            with open(args['<file>'], 'r', encoding='utf-8') as f:
                 xml_data = f.read()
             new_xml_handle = XmlHandler(xml_data)
             new_xml_handle.pre_load()
@@ -180,7 +185,8 @@ Options:
                 print("Invalid encryption key")
                 return
         try:
-            self._save_manager.save(compress_data(repr(self._xml_handle)
+            self._save_manager.save(compress_data(self._xml_handle
+                                                  .to_string()
                                                   .encode('utf-8')),
                                     args['<file>'],
                                     self.save_number,

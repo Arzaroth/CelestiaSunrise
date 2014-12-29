@@ -6,11 +6,13 @@
 # arzaroth@arzaroth.com
 #
 
-from __future__ import print_function
-import xmltodict
+from __future__ import print_function, absolute_import, unicode_literals
+import sys
 from collections import OrderedDict, defaultdict
 from src.defaultordereddict import DefaultOrderedDict
-from src.utility import Pony, InventoryPony, Currency, Clearables, Foes, Zone
+from src.utility import (Pony, Inventory,
+                         Currency, Clearables,
+                         Foes, Zone)
 
 def remove_parent(xml_data):
     return xml_data.replace('(', '_x0028_').replace(')', '_x0029_')
@@ -20,10 +22,11 @@ def add_parent(xml_data):
 
 class XmlHandler(object):
     def __init__(self, xml_data):
+        import xmltodict
         print('Parsing XML tree...')
         self.xmlobj = xmltodict.parse(remove_parent(xml_data))
         self._ponies = None
-        self._inventory_ponies = None
+        self._inventory = None
         self._currencies = None
         self._actions = None
         self._zones = None
@@ -60,7 +63,7 @@ class XmlHandler(object):
                     res[ponytag["@ID"]] = Pony(ponytag, self._filtered_actions(ponytag["@ID"]))
         return res
 
-    def _get_inventory_pony_list(self):
+    def _get_inventory(self):
         res = OrderedDict()
         storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
         if not storage:
@@ -68,10 +71,7 @@ class XmlHandler(object):
         if type(storage['StoredItem']) != list:
             storage['StoredItem'] = [storage['StoredItem']]
         items = storage['StoredItem']
-        for item in items:
-            if item['@ID'].startswith('Pony_'):
-                res[item['@ID']] = InventoryPony(item)
-        return res
+        return Inventory(items)
 
     def _get_currencies(self):
         playerdata = self.xmlobj['MLP_Save']['PlayerData']
@@ -165,10 +165,10 @@ class XmlHandler(object):
         return self._ponies
 
     @property
-    def inventory_ponies(self):
-        if self._inventory_ponies is None:
-            self._inventory_ponies = self._get_inventory_pony_list()
-        return self._inventory_ponies
+    def inventory(self):
+        if self._inventory is None:
+            self._inventory = self._get_inventory()
+        return self._inventory
 
     @property
     def currencies(self):
@@ -191,12 +191,18 @@ class XmlHandler(object):
     def pre_load(self):
         self.currencies
         self.ponies
-        self.inventory_ponies
+        self.inventory
         self.zones
         self.actions
 
-    def __repr__(self):
-        return xmltodict.unparse(self.xmlobj, full_document=False)
+    def to_string(self):
+        import xmltodict
+        return add_parent(xmltodict.unparse(self.xmlobj,
+                                            full_document=False))
 
-    def __str__(self):
-        return xmltodict.unparse(self.xmlobj, full_document=False, pretty=True, indent='  ')
+    def prettify(self):
+        import xmltodict
+        return add_parent(xmltodict.unparse(self.xmlobj,
+                                            full_document=False,
+                                            pretty=True,
+                                            indent='  '))

@@ -8,7 +8,7 @@
 # Deeply inspired by Yue Du <ifduyue@gmail.com>
 # https://github.com/ifduyue/xxtea
 
-from __future__ import division
+from __future__ import print_function, absolute_import, unicode_literals, division
 import sys
 from struct import pack, unpack
 

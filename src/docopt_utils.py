@@ -6,13 +6,14 @@
 # arzaroth@arzaroth.com
 #
 
+from __future__ import print_function, absolute_import, unicode_literals
 from functools import wraps
 from collections import defaultdict
-from docopt import docopt, DocoptExit
 
 def docopt_cmd(func):
     @wraps(func)
     def wrapper(self, args):
+        from docopt import docopt, DocoptExit
         try:
             args = docopt(func.__doc__, args)
         except DocoptExit as e:

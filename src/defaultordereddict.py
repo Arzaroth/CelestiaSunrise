@@ -7,6 +7,7 @@
 #
 # Source: http://stackoverflow.com/a/6190500/562769
 
+from __future__ import print_function, absolute_import, unicode_literals
 from collections import OrderedDict, Callable
 
 class DefaultOrderedDict(OrderedDict):

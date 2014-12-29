@@ -6,11 +6,20 @@
 # arzaroth@arzaroth.com
 #
 
+from __future__ import print_function, absolute_import, unicode_literals
 import base64
-from tkinter import Label, Button, Frame, Toplevel
-from tkinter.ttk import Notebook
-from tkinter.constants import N, S, E, W, NSEW
-from tkinter.messagebox import showerror
+try:
+    # py3
+    from tkinter import Label, Button, Frame, Toplevel
+    from tkinter.ttk import Notebook
+    from tkinter.constants import N, S, E, W, NSEW
+    from tkinter.messagebox import showerror
+except ImportError:
+    # py2
+    from Tkinter import Label, Button, Frame, Toplevel
+    from ttk import Notebook
+    from Tkconstants import N, S, E, W, NSEW
+    from tkMessageBox import showerror
 from src.basegui import BaseGui
 from src.currenciesframe import CurrenciesFrame
 from src.poniesframe import PoniesFrame
@@ -22,7 +31,7 @@ from src.xmlhandler import XmlHandler
 class LoadingDialog(Toplevel):
 
     def __init__(self, parent):
-        super(LoadingDialog, self).__init__()
+        Toplevel.__init__(self)
         Label(self, text="Loading...", font=25, height=3, width=25).pack()
         self.update()
 
@@ -30,12 +39,12 @@ class LoadingDialog(Toplevel):
 class PonyGui(BaseGui):
 
     def __init__(self, savefile, gluid, legacy):
-        super(PonyGui, self).__init__(savefile, gluid, legacy)
+        BaseGui.__init__(self, savefile, gluid, legacy)
         self.loaded = False
         self.withdraw()
         self._load_xml()
         if self.loaded:
-            super(PonyGui, self).init()
+            BaseGui.init(self)
             self.deiconify()
             self.update_idletasks()
 
@@ -62,11 +71,11 @@ class PonyGui(BaseGui):
             loadingbox.destroy()
 
     def _create_variables(self):
-        super(PonyGui, self)._create_variables()
+        BaseGui._create_variables(self)
         self._notebook = Notebook(self)
 
     def _create_frames(self):
-        super(PonyGui, self)._create_frames()
+        BaseGui._create_frames(self)
         self._currencies_frame = CurrenciesFrame(self, self._xml_handle)
         self._zones_frame = ZonesFrame(self, self._xml_handle)
         self._ponies_frame = PoniesFrame(self, self._xml_handle)
@@ -81,13 +90,13 @@ class PonyGui(BaseGui):
                                    command=self._save)
 
     def _grid_frames(self):
-        super(PonyGui, self)._grid_frames()
+        BaseGui._grid_frames(self)
         self._file_frame.grid(row=0, column=0, pady=5, sticky=NSEW)
         self._key_frame.grid(row=1, column=0, pady=10, sticky=NSEW)
         self._notebook.grid(row=3, column=0, sticky=NSEW)
 
     def _grid_widgets(self):
-        super(PonyGui, self)._grid_widgets()
+        BaseGui._grid_widgets(self)
         self._save_button.grid(row=2, column=0, sticky=NSEW, padx=3, pady=4)
 
     def _save(self):
@@ -104,7 +113,8 @@ class PonyGui(BaseGui):
             self._ponies_frame.commit()
             self._zones_frame.commit()
             try:
-                self._save_manager.save(compress_data(repr(self._xml_handle)
+                self._save_manager.save(compress_data(self._xml_handle
+                                                      .to_string()
                                                       .encode('utf-8')),
                                         self.savefile,
                                         self.save_number,

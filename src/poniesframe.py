@@ -6,15 +6,29 @@
 # arzaroth@arzaroth.com
 #
 
-from tkinter import (Frame, Canvas,
-                     Label, Scrollbar, Scale, Checkbutton, OptionMenu,
-                     IntVar, BooleanVar, StringVar)
-from tkinter.constants import (N, S, E, W,
-                               NW, NSEW,
-                               VERTICAL, HORIZONTAL,
-                               Y, LEFT, RIGHT,
-                               ALL,
-                               NORMAL, DISABLED)
+from __future__ import print_function, absolute_import, unicode_literals
+try:
+    # py3
+    from tkinter import (Frame, Canvas,
+                         Label, Scrollbar, Scale, Checkbutton, OptionMenu,
+                         IntVar, BooleanVar, StringVar)
+    from tkinter.constants import (N, S, E, W,
+                                   NW, NSEW,
+                                   VERTICAL, HORIZONTAL,
+                                   Y, LEFT, RIGHT,
+                                   ALL,
+                                   NORMAL, DISABLED)
+except ImportError:
+    # py2
+    from Tkinter import (Frame, Canvas,
+                         Label, Scrollbar, Scale, Checkbutton, OptionMenu,
+                         IntVar, BooleanVar, StringVar)
+    from Tkconstants import (N, S, E, W,
+                             NW, NSEW,
+                             VERTICAL, HORIZONTAL,
+                             Y, LEFT, RIGHT,
+                             ALL,
+                             NORMAL, DISABLED)
 from src.utility import Pony
 
 class PonyFrame(object):
@@ -85,14 +99,14 @@ class PonyFrame(object):
 class EveryponyFrame(PonyFrame):
 
     def __init__(self, ponies, *args):
-        super(EveryponyFrame, self).__init__(*args)
+        PonyFrame.__init__(self, *args)
         self._ponies = ponies
         self._level_change_first_call = False
         self._level_up.trace("w", self._shards_change)
         self._next_game.trace("w", self._next_game_change)
 
     def _level_change(self, *args):
-        super(EveryponyFrame, self)._level_change(*args)
+        PonyFrame._level_change(self, *args)
         if self._level_change_first_call:
             for pony in self._ponies.values():
                 pony.level = self.level
@@ -112,7 +126,7 @@ class EveryponyFrame(PonyFrame):
 class PoniesFrame(Frame):
 
     def __init__(self, parent, xml_handle):
-        super(PoniesFrame, self).__init__(parent)
+        Frame.__init__(self, parent)
         self._canvas = Canvas(self)
         self._ponies_frame = Frame(self._canvas)
 

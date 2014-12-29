@@ -6,17 +6,28 @@
 # arzaroth@arzaroth.com
 #
 
-from tkinter import (Tk, Frame,
-                     Label, Entry,
-                     Button, Checkbutton,
-                     StringVar, BooleanVar)
-from tkinter.filedialog import askopenfilename
-from tkinter.constants import N, S, E, W, NSEW
+from __future__ import print_function, absolute_import, unicode_literals
+try:
+    # py3
+    from tkinter import (Tk, Frame,
+                         Label, Entry,
+                         Button, Checkbutton,
+                         StringVar, BooleanVar)
+    from tkinter.filedialog import askopenfilename
+    from tkinter.constants import N, S, E, W, NSEW
+except ImportError:
+    # py2
+    from Tkinter import (Tk, Frame,
+                         Label, Entry,
+                         Button, Checkbutton,
+                         StringVar, BooleanVar)
+    from tkFileDialog import askopenfilename
+    from Tkconstants import N, S, E, W, NSEW
 
 class BaseGui(Tk):
 
     def __init__(self, savefile, gluid, legacy):
-        super(BaseGui, self).__init__()
+        Tk.__init__(self)
         self.__savefile = savefile
         self.__gluid = gluid
         self.__legacy = legacy

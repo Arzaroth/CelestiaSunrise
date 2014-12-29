@@ -6,6 +6,7 @@
 # arzaroth@arzaroth.com
 #
 
+from __future__ import print_function, absolute_import, unicode_literals
 from src.loading import Loading
 from src.ponygui import PonyGui
 

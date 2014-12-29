@@ -1,17 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# File: CelestiaSunrise.py
+# by Arzaroth Lekva
+# arzaroth@arzaroth.com
+#
 
-from __future__ import print_function, absolute_import
+from __future__ import print_function, absolute_import, unicode_literals
 import os
 import sys
 import base64
 import binascii
 import traceback
 from src import PonyShell, Gui
-from docopt import docopt
 
-PRGM = os.path.basename(__file__)
-VERSION = "0.6.4a"
+try:
+    PRGM = os.path.basename(__file__)
+except NameError:
+    PRGM = os.path.basename(sys.argv[0])
+VERSION = "0.7.0a"
 
 __doc__ = """
 {prgm} {ver}
@@ -19,9 +26,9 @@ Edit your MLP saves with the power of the true goddess.
 Type help or ? to list commands.
 
 Usage:
-  {prgm} [-d] <save_file> <encrypt_key>
-  {prgm} [-d] -l <save_file>
-  {prgm} [-dl] -g [<save_file>] [<encrypt_key>]
+  {prgm} [-d]
+  {prgm} [-d] [-g|-s] -l <save_file>
+  {prgm} [-d] [-g|-s] <save_file> <encrypt_key>
 
 Arguments:
   save_file             Path to save file. Must be readable.
@@ -30,7 +37,9 @@ Arguments:
 Options:
   -l --legacy           Read a legacy save file (1.8.x version).
   -d --debug            Debug mode.
-  -g --gui              Enable graphical mode.
+  -g --gui              Enable graphical mode (default).
+  -s --shell            Enable shell-like mode.
+  -v --version          Show version number.
   -h --help             Show this help and exit.
 
 Notes:
@@ -42,13 +51,10 @@ Author:
 """.format(prgm=PRGM, ver=VERSION)
 
 if __name__ == '__main__':
+    from docopt import docopt
     opts = docopt(__doc__, version=VERSION)
     try:
-        if opts['--gui']:
-            Gui(savefile=opts['<save_file>'],
-                gluid=opts['<encrypt_key>'],
-                legacy=opts['--legacy']).start()
-        else:
+        if opts['--shell']:
             if opts['<encrypt_key>'] is not None:
                 gluid = base64.b64decode(opts['<encrypt_key>'])
             else:
@@ -56,6 +62,10 @@ if __name__ == '__main__':
             PonyShell(savefile=opts['<save_file>'],
                       gluid=gluid,
                       legacy=opts['--legacy']).cmdloop(intro=__doc__)
+        else:
+            Gui(savefile=opts['<save_file>'],
+                gluid=opts['<encrypt_key>'],
+                legacy=opts['--legacy']).start()
     except binascii.Error:
         print("Invalid decryption key",
               file=sys.stderr)

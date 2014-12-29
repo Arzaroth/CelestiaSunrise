@@ -6,7 +6,7 @@
 # arzaroth@arzaroth.com
 #
 
-from __future__ import print_function
+from __future__ import print_function, absolute_import, unicode_literals
 import zlib
 import struct
 import src.xxtea as xxtea
@@ -29,7 +29,7 @@ class SaveManager(object):
         self.gluid = gluid
 
     def _save_buffer(self, data, file, gluid=None):
-        crc_res = zlib.crc32(data)
+        crc_res = zlib.crc32(data) & 0xffffffff
         uncompress_size = len(data)
         decrypt_data = zlib.compress(data)
         crc_offset = len(decrypt_data) + 4
@@ -55,7 +55,7 @@ class SaveManager(object):
             raise SaveError("Unable to decompress data, truncated or corrupted file, or bad decryption key")
         if len(res) != uncompress_size:
             raise SaveError("Invalid inflated data")
-        crc_res = zlib.crc32(res)
+        crc_res = zlib.crc32(res) & 0xffffffff
         if crc_res != crc_value:
             raise SaveError("crc mismatch")
         return res

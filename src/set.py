@@ -6,6 +6,8 @@
 # arzaroth@arzaroth.com
 #
 
+from __future__ import print_function, absolute_import, unicode_literals
+
 def set_currency(xml_handle, args):
     for currency_id in args['<currency_id>']:
         for typ in xml_handle.currencies.values():

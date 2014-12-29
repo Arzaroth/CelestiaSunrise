@@ -14,14 +14,34 @@ Dependencies can be installed with the following command:
 > pip install -r requirements.txt
 ```
 
-Basic usage: python CelestiaSunrise.py -g
+Basic usage: python CelestiaSunrise.py
 
-Shell-like usage: python CelestiaSunrise.py &lt;save_file&gt; &lt;encrypt_key&gt;
+Shell-like usage: python CelestiaSunrise.py -s &lt;save_file&gt; &lt;encrypt_key&gt;
 ```
 ponyshell> help
 ```
 
 For the time being, it only works for Android devices.
+
+Automated installation
+==============
+
+Linux
+--------------
+
+Ezpz.
+```
+> python3.4 setup.py install
+```
+Alternatively, you can specify the --user switch to install it locally, which doesn't require sudo privileges.
+
+Windows
+-------------
+
+* Grab the latest release.
+* Unzip it.
+* Run the executable in the "dist" folder.
+* Profit.
 
 Project Current State
 ==============
