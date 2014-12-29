@@ -7,7 +7,7 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
-import base64
+import binascii
 try:
     # py3
     from tkinter import Label, Button, Frame, StringVar, BooleanVar
@@ -59,7 +59,7 @@ class Loading(BaseGui):
     def _next(self):
         try:
             if not self.legacy:
-                base64.b64decode(self.gluid)
+                binascii.a2b_base64(self.gluid)
         except:
             showerror("Error", "Bad decryption key")
         else:

@@ -7,7 +7,7 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
-import base64
+import binascii
 import sys
 from cmd import Cmd
 from src.docopt_utils import docopt_cmd
@@ -180,7 +180,7 @@ Options:
   -h --help     Show this help."""
         if args['<gluid>'] is not None:
             try:
-                args['<gluid>'] = base64.b64decode(args['<gluid>'].encode('utf-8'))
+                args['<gluid>'] = binascii.a2b_base64(args['<gluid>'].encode('utf-8'))
             except binascii.Error:
                 print("Invalid encryption key")
                 return

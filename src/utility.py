@@ -216,9 +216,9 @@ class Currency(object):
     def value(self, new_val):
         new_val = int(new_val)
         if new_val < 0:
-            raise ValueError("Can't set a negative currency value")
+            raise ValueError("Can't set a negative currency value for %s" % self.name)
         if self.limit is not None and new_val > int(self.limit):
-            raise ValueError("Value above the limit")
+            raise ValueError("Value above the limit for %s" % self.name)
         self._tag[self.name] = str(new_val)
 
     def __repr__(self):

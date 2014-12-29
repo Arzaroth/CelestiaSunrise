@@ -7,7 +7,7 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
-import base64
+import binascii
 try:
     # py3
     from tkinter import Label, Button, Frame, Toplevel
@@ -51,7 +51,7 @@ class PonyGui(BaseGui):
     def _load_xml(self):
         loadingbox = LoadingDialog(self)
         if not self.legacy:
-            gluid = base64.b64decode(self.gluid)
+            gluid = binascii.a2b_base64(self.gluid)
         else:
             gluid = b''
         self._save_manager = SaveManager(self.savefile,
@@ -102,17 +102,17 @@ class PonyGui(BaseGui):
     def _save(self):
         try:
             if not self.legacy:
-                gluid = base64.b64decode(self.gluid)
+                gluid = binascii.a2b_base64(self.gluid)
             else:
                 gluid = b''
         except:
             showerror("Error", "Bad encryption key")
         else:
             loadingbox = LoadingDialog(self)
-            self._currencies_frame.commit()
-            self._ponies_frame.commit()
-            self._zones_frame.commit()
             try:
+                self._currencies_frame.commit()
+                self._ponies_frame.commit()
+                self._zones_frame.commit()
                 self._save_manager.save(compress_data(self._xml_handle
                                                       .to_string()
                                                       .encode('utf-8')),
@@ -123,4 +123,5 @@ class PonyGui(BaseGui):
             except Exception as e:
                 showerror("Error",
                           "Was unable to write to file, reason: {}".format(str(e)))
-            loadingbox.destroy()
+            finally:
+                loadingbox.destroy()

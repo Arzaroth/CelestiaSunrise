@@ -9,7 +9,6 @@
 from __future__ import print_function, absolute_import, unicode_literals
 import os
 import sys
-import base64
 import binascii
 import traceback
 from src import PonyShell, Gui
@@ -56,7 +55,7 @@ if __name__ == '__main__':
     try:
         if opts['--shell']:
             if opts['<encrypt_key>'] is not None:
-                gluid = base64.b64decode(opts['<encrypt_key>'])
+                gluid = binascii.a2b_base64(opts['<encrypt_key>'])
             else:
                 gluid = b''
             PonyShell(savefile=opts['<save_file>'],
