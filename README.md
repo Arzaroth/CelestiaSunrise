@@ -38,9 +38,8 @@ Alternatively, you can specify the --user switch to install it locally, which do
 Windows
 -------------
 
-* Grab the latest release.
-* Unzip it.
-* Run the executable in the "dist" folder.
+* Grab the latest release executable.
+* Run it.
 * Profit.
 
 Project Current State
