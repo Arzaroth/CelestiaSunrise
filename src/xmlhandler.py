@@ -83,7 +83,7 @@ class XmlHandler(object):
         main['Wheels'] = Currency('@Wheels', playerdata['Minecart'], 5)
         shards = playerdata['Shards']
         for i in ('Loyalty', 'Honesty', 'Kindness', 'Generosity', 'Laughter', 'Magic'):
-            res['Shards'][i + ' shards'] = Currency('@' + i, shards)
+            res['Shards'][i + ' shards'] = Currency('@' + i, shards, 999)
         ingredients = playerdata['Ingredients']
         zecora = res['Zecora ingredients']
         zecora['Black Iris'] = Currency('@BlackIris', ingredients, 5)

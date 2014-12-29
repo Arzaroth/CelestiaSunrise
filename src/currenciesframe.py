@@ -19,17 +19,19 @@ except ImportError:
 
 class CurrencyFrame(object):
 
-    def __init__(self, parent, text, value, offset):
+    def __init__(self, parent, text, value, limit, offset):
         self.parent = parent
 
         self._value = StringVar(self.parent, value)
 
         self._label = Label(self.parent, text=text)
         self._entry = Entry(self.parent, textvariable=self._value)
+        self._limit = Label(self.parent, text="(Limit: {})".format(limit))
 
         options = dict(padx=10, pady=4)
         self._label.grid(row=offset, column=0, sticky=W, **options)
-        self._entry.grid(row=offset, column=1, sticky=E, **options)
+        self._entry.grid(row=offset, column=1, sticky=NSEW, **options)
+        self._limit.grid(row=offset, column=2, sticky=NSEW, **options)
 
     @property
     def value(self):
@@ -46,7 +48,9 @@ class CurrenciesFrame(Frame):
         n = 0
         for name, typ in xml_handle.currencies.items():
             for cur, val in typ.items():
-                self._currencies[name][cur] = CurrencyFrame(self, cur, val.value, n)
+                self._currencies[name][cur] = CurrencyFrame(self, cur,
+                                                            val.value,
+                                                            val.limit, n)
                 n += 1
 
     def commit(self):
