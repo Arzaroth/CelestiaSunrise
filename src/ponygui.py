@@ -27,6 +27,7 @@ from src.zonesframe import ZonesFrame
 from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
 from src.xmlhandler import XmlHandler
+from src.gluid import retrieve_gluid
 
 class LoadingDialog(Toplevel):
 
@@ -38,8 +39,8 @@ class LoadingDialog(Toplevel):
 
 class PonyGui(BaseGui):
 
-    def __init__(self, savefile, gluid, legacy):
-        BaseGui.__init__(self, savefile, gluid, legacy)
+    def __init__(self, savefile, gluid, dbfile, usedb, legacy):
+        BaseGui.__init__(self, savefile, gluid, dbfile, usedb, legacy)
         self.loaded = False
         self.withdraw()
         self._load_xml()
@@ -51,7 +52,8 @@ class PonyGui(BaseGui):
     def _load_xml(self):
         loadingbox = LoadingDialog(self)
         if not self.legacy:
-            gluid = binascii.a2b_base64(self.gluid)
+            gluid = retrieve_gluid(self.dbfile) if self.usedb else self.gluid
+            gluid = binascii.a2b_base64(gluid)
         else:
             gluid = b''
         self._save_manager = SaveManager(self.savefile,
@@ -102,7 +104,8 @@ class PonyGui(BaseGui):
     def _save(self):
         try:
             if not self.legacy:
-                gluid = binascii.a2b_base64(self.gluid)
+                gluid = retrieve_gluid(self.dbfile) if self.usedb else self.gluid
+                gluid = binascii.a2b_base64(gluid)
             else:
                 gluid = b''
         except:

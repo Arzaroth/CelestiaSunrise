@@ -17,7 +17,7 @@ try:
     PRGM = os.path.basename(__file__)
 except NameError:
     PRGM = os.path.basename(sys.argv[0])
-VERSION = "0.7.1b"
+VERSION = "0.8.0a"
 
 __doc__ = """
 {prgm} {ver}
@@ -27,17 +27,21 @@ Type help or ? to list commands.
 Usage:
   {prgm} [-d]
   {prgm} [-d] [-g|-s] -l <save_file>
-  {prgm} [-d] [-g|-s] <save_file> <encrypt_key>
+  {prgm} [-d] [-g|-s] <save_file> (<encrypt_key> | -f <gameloft_sharing>)
+  {prgm} (-h | --help)
+  {prgm} --version
 
 Arguments:
   save_file             Path to save file. Must be readable.
   encrypt_key           Key used to decrypt the save file. Must be base64 encoded.
+  gameloft_sharing      Path to the gameloft_sharing database file. Must be readable.
 
 Options:
   -l --legacy           Read a legacy save file (1.8.x version).
   -d --debug            Debug mode.
   -g --gui              Enable graphical mode (default).
   -s --shell            Enable shell-like mode.
+  -f --dbfile           Retrieves the GLUID from the  gameloft_sharing file.
   -v --version          Show version number.
   -h --help             Show this help and exit.
 
@@ -54,16 +58,14 @@ if __name__ == '__main__':
     opts = docopt(__doc__, version=VERSION)
     try:
         if opts['--shell']:
-            if opts['<encrypt_key>'] is not None:
-                gluid = binascii.a2b_base64(opts['<encrypt_key>'])
-            else:
-                gluid = b''
             PonyShell(savefile=opts['<save_file>'],
-                      gluid=gluid,
+                      gluid=opts['<encrypt_key>'],
+                      dbfile=opts['<gameloft_sharing>'],
                       legacy=opts['--legacy']).cmdloop(intro=__doc__)
         else:
             Gui(savefile=opts['<save_file>'],
                 gluid=opts['<encrypt_key>'],
+                dbfile=opts['<gameloft_sharing>'],
                 legacy=opts['--legacy']).start()
     except binascii.Error:
         print("Invalid decryption key",

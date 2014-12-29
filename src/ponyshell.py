@@ -15,6 +15,7 @@ from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
 from src.xmlhandler import XmlHandler
 from src.utility import Pony
+from src.gluid import retrieve_gluid
 from src.show import (show_currencies, show_currency,
                       show_ponies, show_pony,
                       show_zones, show_zone)
@@ -30,8 +31,10 @@ class PonyShell(Cmd):
 
     prompt = 'ponyshell> '
 
-    def __init__(self, savefile, gluid, legacy):
+    def __init__(self, savefile, gluid, dbfile, legacy):
         Cmd.__init__(self)
+        gluid = retrieve_gluid(dbfile) if dbfile is not None else gluid
+        gluid = binascii.a2b_base64(gluid) if gluid is not None else b''
         self._save_manager = SaveManager(savefile, gluid)
         data, self.save_number = self._save_manager.load(legacy)
         if not legacy:

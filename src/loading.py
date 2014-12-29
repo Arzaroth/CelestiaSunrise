@@ -19,11 +19,12 @@ except ImportError:
     from Tkconstants import N, S, E, W, NSEW
     from tkMessageBox import showerror
 from src.basegui import BaseGui
+from src.gluid import retrieve_gluid
 
 class Loading(BaseGui):
 
-    def __init__(self, savefile="", gluid="", legacy=False):
-        BaseGui.__init__(self, savefile, gluid, legacy)
+    def __init__(self, savefile, gluid, dbfile, usedb, legacy):
+        BaseGui.__init__(self, savefile, gluid, dbfile, usedb, legacy)
         self.go_next = False
         BaseGui.init(self)
 
@@ -59,7 +60,8 @@ class Loading(BaseGui):
     def _next(self):
         try:
             if not self.legacy:
-                binascii.a2b_base64(self.gluid)
+                gluid = retrieve_gluid(self.dbfile) if self.usedb else self.gluid
+                binascii.a2b_base64(gluid)
         except:
             showerror("Error", "Bad decryption key")
         else:

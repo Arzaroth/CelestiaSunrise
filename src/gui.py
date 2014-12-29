@@ -12,9 +12,10 @@ from src.ponygui import PonyGui
 
 class Gui(object):
 
-    def __init__(self, savefile="", gluid="", legacy=False):
+    def __init__(self, savefile, gluid, dbfile, legacy):
         self.savefile = savefile
         self.gluid = gluid
+        self.dbfile = dbfile
         self.legacy = legacy
 
     def start(self):
@@ -22,12 +23,16 @@ class Gui(object):
         while not ok:
             loading = Loading(self.savefile,
                               self.gluid,
+                              self.dbfile,
+                              self.dbfile is not None,
                               self.legacy)
             loading.mainloop()
             ok = not loading.go_next
             if loading.go_next:
                 ponygui = PonyGui(loading.savefile,
                                   loading.gluid,
+                                  loading.dbfile,
+                                  loading.usedb,
                                   loading.legacy)
                 ponygui.mainloop()
                 ok = ponygui.loaded
