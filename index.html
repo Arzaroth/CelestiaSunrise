@@ -24,6 +24,7 @@
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/Arzaroth/CelestiaSunrise/zipball/master">Download this project as a .zip file</a>
               <a class="tar_download_link" href="https://github.com/Arzaroth/CelestiaSunrise/tarball/master">Download this project as a tar.gz file</a>
+              <a class="exe_download_link exe_link">Download the latest .exe file</a>
             </section>
         </header>
     </div>
@@ -46,7 +47,7 @@
 <p>If you are a Windows user:</p>
 
 <ul>
-  <li>Download the <a href="https://github.com/Arzaroth/CelestiaSunrise/releases">latest release</a> executable.</li>
+  <li>Download the <a class="exe_link">latest release executable</a>.</li>
   <li>Run it.</li>
   <li>Profit !</li>
 </ul>
@@ -83,6 +84,11 @@
 <p>Having trouble with this tool ? Contact me at <a href="mailto:celestiasunrise@barrut.me">celestiasunrise@barrut.me</a> or submit your issue through GitHub.</p>
 
 <h3>
+<a id="support-or-contact" class="anchor" href="#version-informations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Version informations</h3>
+
+<p class="release_info">Gathering informations...</p>
+
+<h3>
 <a id="legal-informations" class="anchor" href="#legal-informations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Legal informations</h3>
 
 <p>(Copied from Evenprime's Luna's Dreamwalk project)</p>
@@ -113,7 +119,31 @@ taking down this software.</p>
       </footer>
     </div>
 
-    
-
   </body>
+
+  <script type="text/javascript" src="javascripts/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/jquery.timeago.js"></script>
+
+  <script type="text/javascript">
+   function GetLatestReleaseExe() {
+     $.getJSON("https://api.github.com/repos/Arzaroth/CelestiaSunrise/releases").done(function (json) {
+       var release = json[0];
+       var asset = release.assets[0];
+       var downloadURL = asset.browser_download_url;
+       var downloadCount = 0;
+       for (var i = 0; i < release.assets.length; i++) {
+         downloadCount += release.assets[i].download_count;
+       }
+       var releaseInfo = release.name + " was updated " + $.timeago(asset.updated_at) + " and downloaded " + downloadCount + " times.";
+       $(".exe_link").attr("href", downloadURL);
+       $(".release_info").text(releaseInfo);
+       $(".release_info").fadeIn("slow");
+     });
+   }
+
+   $(document).ready(function () {
+     GetLatestReleaseExe();
+   });
+  </script>
+
 </html>
