@@ -11,6 +11,8 @@ from src.enum import enum
 from collections import defaultdict
 from src.defaultordereddict import DefaultOrderedDict
 
+ZERO = "0.000000"
+
 class Inventory(object):
     def __init__(self, tag):
         self._tag = tag
@@ -199,7 +201,7 @@ class Pony(StoredItem):
             self.shards = 0
 
     def reset_game_timer(self):
-        self._minigametag["@NextPlayTime"] = "0.000000"
+        self._minigametag["@NextPlayTime"] = ZERO
 
 
 class Currency(object):
@@ -262,12 +264,30 @@ class Foes(Clearables):
         self.name = name
 
 
+class Shops(object):
+    def __init__(self, tag):
+        shops = [] if tag is None else tag['Object']
+        if type(shops) != list:
+            tag['Objects'] = [tag['Object']]
+            shops = tag['Objects']
+        self._shops = [shop for shop in shops if 'ShopProduction' in shop]
+
+    def reset_shops_timer(self):
+        for shop in self._shops:
+            shop['ShopProduction']['@TimeA'] = ZERO
+            shop['ShopProduction']['@TimeB'] = ZERO
+
+    def __len__(self):
+        return len(self._shops)
+
+
 class Zone(object):
-    def __init__(self, ID, name, clearables, foes):
+    def __init__(self, ID, name, clearables, foes, shops):
         self.ID = ID
         self.name = name
         self.clearable_items = clearables
         self.foes = foes
+        self.shops = shops
 
     def cleared(self):
         return self.clearable_items.cleared() and self.foes.cleared()

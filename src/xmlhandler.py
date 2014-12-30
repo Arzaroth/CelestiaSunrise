@@ -12,7 +12,7 @@ from collections import OrderedDict, defaultdict
 from src.defaultordereddict import DefaultOrderedDict
 from src.utility import (Pony, Inventory,
                          Currency, Clearables,
-                         Foes, Zone)
+                         Foes, Zone, Shops)
 
 def remove_parent(xml_data):
     return xml_data.replace('(', '_x0028_').replace(')', '_x0029_')
@@ -121,10 +121,11 @@ class XmlHandler(object):
             foes = Foes(zone_spec["foes"]["ID"],
                         zone_spec["foes"]["name"],
                         gameobjects)
+            shops = Shops(gameobjects['Pony_House_Objects'])
             zones[mapzone["@ID"]] = Zone(mapzone["@ID"],
                                          zone_spec["name"],
                                          clearables,
-                                         foes)
+                                         foes, shops)
         return zones
 
     def _get_actions(self):
