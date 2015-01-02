@@ -106,8 +106,10 @@ class Pony(StoredItem):
 
     GameTypes = enum(Ball=0, Apple=1, Book=2)
 
-    def __init__(self, tag, actions):
+    def __init__(self, tag, actions, name=None):
         StoredItem.__init__(self, tag)
+        if name is not None:
+            self.name = name
         self._leveltag = tag["Game"]["Level"]
         self._minigametag = tag["Game"]["MiniGame"]
         self._pony_actions = actions
