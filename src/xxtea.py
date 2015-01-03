@@ -23,7 +23,7 @@ def str2longs(s):
     return [unpack('<I', s[i:i + 4])[0] for i in xrange(0, length, 4)]
 
 def longs2str(s):
-    return b''.join(pack('<I', c) for c in s).rstrip(b'\0')
+    return b''.join(pack('<I', c) for c in s)
 
 DELTA = 0x9e3779b9
 uint32 = lambda x: x & 0xffffffff
@@ -41,18 +41,18 @@ def btea(v, n, k):
     sum = 0
     if n > 1:
         z = res[n - 1]
-        for _ in range(6 + 52 // n, 0, -1):
+        for _ in xrange(6 + 52 // n, 0, -1):
             sum = uint32(sum + DELTA)
             e = uint32(sum >> 2) & 3
-            for p in range(n):
+            for p in xrange(n):
                 y = res[p + 1] if p < n - 1 else res[0]
                 z = res[p] = uint32(res[p] + MX())
     elif n < -1:
         n = -n
         q = 6 + 52 // n
-        for sum in range(q * DELTA, 0, -DELTA):
+        for sum in xrange(q * DELTA, 0, -DELTA):
             e = uint32(sum >> 2) & 3
-            for p in range(n - 1, -1, -1):
+            for p in xrange(n - 1, -1, -1):
                 z = res[p - 1] if p > 0 else res[n - 1]
                 y = res[p] = uint32(res[p] - MX())
     return res
