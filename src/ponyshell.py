@@ -21,7 +21,8 @@ from src.show import (show_currencies, show_currency,
                       show_zones, show_zone)
 from src.set import (set_currency,
                      set_ponies, set_pony,
-                     set_zones, set_zone)
+                     set_zones, set_zone,
+                     set_inventory)
 
 if sys.version_info.major < 3:
     import codecs
@@ -56,6 +57,7 @@ class PonyShell(Cmd):
             'pony': set_pony,
             'zones': set_zones,
             'zone': set_zone,
+            'inventory': set_inventory,
         }
 
     def cmdloop(self, intro=None):
@@ -75,7 +77,7 @@ class PonyShell(Cmd):
 Usage:
   show currencies
   show currency <currency_id>...
-  show ponies [-i]
+  show ponies [-i|-o]
   show pony <pony_id>...
   show zones
   show zone <zone_id>...
@@ -87,6 +89,7 @@ Arguments:
 
 Options:
   -i            Displays ponies in inventory.
+  -o            Displays not owned ponies.
   -h --help     Show this help."""
         for i in self._show_functions:
             if args[i]:
@@ -109,11 +112,13 @@ Usage:
   set zones reset_shops_timer
   set zone clear [clearables|foes] <zone_id>...
   set zone reset_shops_timer <zone_id>...
+  set inventory add <not_owned_pony_id>...
 
 Arguments:
   currency_id           Id of a currency. Can be retrieved with "show currencies".
   pony_id               Id of a pony. Can be retrieved with "show ponies".
   zone_id               Id of a zone. Can be retrieved with "show zones".
+  not_owned_pony_id     Id of a not owned pony. Can be retrieved with "show ponies -o".
   level value           An integer between 0 and 5.
   shards value          An integer between 0 and 10.
   next_game             One of Ball, Apple or Book.

@@ -22,13 +22,18 @@ def show_currency(xml_handle, args):
                     print(val)
 
 def show_ponies(xml_handle, args):
-    print('Ponies:')
-    for pony in xml_handle.ponies.values():
-        print('  {}'.format(pony))
-    if args['-i']:
-        print('\nInventory ponies:')
-        for pony in xml_handle.inventory.ponies.values():
-            print('  {}'.format(pony[0]))
+    if args['-o']:
+        print('Not owned ponies:')
+        for ID, name in xml_handle.missing_ponies.items():
+            print('Pony(ID: {}, Name: {})'.format(ID, name))
+    else:
+        print('Ponies:')
+        for pony in xml_handle.ponies.values():
+            print('  {}'.format(pony))
+        if args['-i']:
+            print('\nInventory ponies:')
+            for pony in xml_handle.inventory.ponies.values():
+                print('  {}'.format(pony[0]))
 
 def show_pony(xml_handle, args):
     for pony_id in args['<pony_id>']:

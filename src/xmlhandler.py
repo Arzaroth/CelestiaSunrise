@@ -10,7 +10,7 @@ from __future__ import print_function, absolute_import, unicode_literals
 import sys
 from collections import OrderedDict, defaultdict
 from src.defaultordereddict import DefaultOrderedDict
-from src.utility import (Pony, Inventory,
+from src.utility import (Pony, Inventory, MissingPonies,
                          Currency, Clearables,
                          Foes, Zone, Shops)
 
@@ -228,13 +228,8 @@ class XmlHandler(object):
         return Inventory(items)
 
     def _get_missing_ponies(self):
-        owned_ponies_id = set(self.ponies.keys())
-        all_ponies_id = set(XmlHandler.PONY_LIST.keys())
-        not_owned = all_ponies_id - owned_ponies_id
-        res = OrderedDict([(ID, name)
-                           for ID, name in XmlHandler.PONY_LIST.items()
-                           if ID in not_owned])
-        return res
+        return MissingPonies(self.ponies, self.inventory.ponies,
+                             XmlHandler.PONY_LIST)
 
     def _get_currencies(self):
         playerdata = self.xmlobj['MLP_Save']['PlayerData']

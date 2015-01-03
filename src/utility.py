@@ -7,11 +7,40 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+from collections import defaultdict, OrderedDict
 from src.enum import enum
-from collections import defaultdict
 from src.defaultordereddict import DefaultOrderedDict
 
 ZERO = "0.000000"
+
+class MissingPonies(object):
+    def __init__(self, owned_ponies, inventory_ponies, all_ponies):
+        owned_ponies_id = set(owned_ponies.keys()) | set(inventory_ponies.keys())
+        all_ponies_id = set(all_ponies.keys())
+        not_owned = all_ponies_id - owned_ponies_id
+        self._ponies = OrderedDict([(ID, name)
+                                    for ID, name in all_ponies.items()
+                                    if ID in not_owned])
+
+    def items(self):
+        return self._ponies.items()
+
+    def values(self):
+        return self._ponies.values()
+
+    def keys(self):
+        return self._ponies.keys()
+
+    def __contains__(self, item):
+        return item in self._ponies
+
+    def __isub__(self, pony_id):
+        self._ponies.pop(pony_id, None)
+        return self
+
+    def remove(self, pony_id):
+        self -= pony_id
+
 
 class Inventory(object):
     def __init__(self, tag):
@@ -39,15 +68,14 @@ class Inventory(object):
         return self._decorations
 
     def __iadd__(self, ID):
-        new_item = OrderedDict()
-        new_item['@ID'] = ID
-        new_item['@Cost'] = 0
-        new_item['@CostType'] = 0
-        new_item['@PonyLevel'] = 0
-        new_item['@PonyShards'] = 0
-        new_item['@PonyCurrentEXP'] = 0
-        new_item['@Constructed'] = 0
-        new_item['@PonyArriveBonus'] = 0
+        new_item = OrderedDict([('@ID', ID),
+                                ('@Cost', '0'),
+                                ('@CostType', '0'),
+                                ('@PonyLevel', '0'),
+                                ('@PonyShards', '0'),
+                                ('@PonyCurrentEXP', '0'),
+                                ('@Constructed', '0'),
+                                ('@PonyArriveBonus', '0')])
         self._tag.append(new_item)
         self._ponies = self._populate('Pony_')
         self._decorations = self._populate('Decoration_')

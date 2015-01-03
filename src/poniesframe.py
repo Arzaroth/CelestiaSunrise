@@ -9,27 +9,22 @@
 from __future__ import print_function, absolute_import, unicode_literals
 try:
     # py3
-    from tkinter import (Frame, Canvas,
-                         Label, Scrollbar, Scale, Checkbutton, OptionMenu,
+    from tkinter import (Label, Scale, Checkbutton, OptionMenu,
                          IntVar, BooleanVar, StringVar)
     from tkinter.constants import (N, S, E, W,
-                                   NW, NSEW,
-                                   VERTICAL, HORIZONTAL,
-                                   Y, LEFT, RIGHT,
-                                   ALL,
+                                   NSEW,
+                                   HORIZONTAL,
                                    NORMAL, DISABLED)
 except ImportError:
     # py2
-    from Tkinter import (Frame, Canvas,
-                         Label, Scrollbar, Scale, Checkbutton, OptionMenu,
+    from Tkinter import (Label, Scale, Checkbutton, OptionMenu,
                          IntVar, BooleanVar, StringVar)
     from Tkconstants import (N, S, E, W,
-                             NW, NSEW,
-                             VERTICAL, HORIZONTAL,
-                             Y, LEFT, RIGHT,
-                             ALL,
+                             NSEW,
+                             HORIZONTAL,
                              NORMAL, DISABLED)
 from src.utility import Pony
+from src.scrollframe import ScrollFrame
 
 class PonyFrame(object):
 
@@ -141,45 +136,27 @@ class EveryponyFrame(PonyFrame):
             pony.reset_next_game = self.reset_next_game
 
 
-class PoniesFrame(Frame):
+class PoniesFrame(ScrollFrame):
 
     def __init__(self, parent, xml_handle):
-        Frame.__init__(self, parent)
-        self._canvas = Canvas(self)
-        self._ponies_frame = Frame(self._canvas)
-
-        self._scrollb = Scrollbar(self, orient=VERTICAL, command=self._canvas.yview)
-        self._scrollb.pack(side=RIGHT, fill=Y)
-
-        self._canvas.configure(yscrollcommand=self._scrollb.set)
-        self._canvas.pack(side=LEFT)
-        self._canvas.create_window((0, 0), window=self._ponies_frame,
-                                   anchor=NW, tags="self._ponies_frame")
-
-        self._ponies_frame.bind('<Configure>', self._scroll_func)
-
+        ScrollFrame.__init__(self, parent)
         self._xml_handle = xml_handle
 
         options = dict(sticky=NSEW, padx=16, pady=2)
-        Label(self._ponies_frame, text="Level").grid(row=0, column=1, **options)
-        Label(self._ponies_frame, text="Trigger next level").grid(row=0, column=2, **options)
-        Label(self._ponies_frame, text="Next minigame").grid(row=0, column=3, **options)
-        Label(self._ponies_frame, text="Reset game timer").grid(row=0, column=4, **options)
+        Label(self._data_frame, text="Level").grid(row=0, column=1, **options)
+        Label(self._data_frame, text="Trigger next level").grid(row=0, column=2, **options)
+        Label(self._data_frame, text="Next minigame").grid(row=0, column=3, **options)
+        Label(self._data_frame, text="Reset game timer").grid(row=0, column=4, **options)
         self._ponies = {}
         for n, pony in enumerate(self._xml_handle.ponies.values()):
-            self._ponies[pony.ID] = PonyFrame(self._ponies_frame,
+            self._ponies[pony.ID] = PonyFrame(self._data_frame,
                                               pony.name, pony.level,
                                               pony.shards, pony.next_game,
                                               n + 2)
-        self._everypony = EveryponyFrame(self._ponies, self._ponies_frame,
+        self._everypony = EveryponyFrame(self._ponies, self._data_frame,
                                          "Everypony", 0,
                                          0, Pony.GameTypes.rmap[Pony.GameTypes.Ball],
                                          1)
-
-    def _scroll_func(self, event):
-        self._canvas.configure(scrollregion=self._canvas.bbox(ALL),
-                               height=500,
-                               width=700)
 
     def commit(self):
         for pony in self._xml_handle.ponies.values():

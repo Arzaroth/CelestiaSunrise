@@ -75,3 +75,9 @@ def set_zone(xml_handle, args):
     for zone_id in args['<zone_id>']:
         if zone_id in xml_handle.zones:
             _process_set_zone(xml_handle, xml_handle.zones[zone_id], args)
+
+def set_inventory(xml_handle, args):
+    for pony_id in args['<not_owned_pony_id>']:
+        if pony_id in xml_handle.missing_ponies:
+            xml_handle.inventory.append(pony_id)
+            xml_handle.missing_ponies.remove(pony_id)

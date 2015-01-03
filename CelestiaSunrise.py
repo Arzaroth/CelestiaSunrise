@@ -17,7 +17,7 @@ try:
     PRGM = os.path.basename(__file__)
 except NameError:
     PRGM = os.path.basename(sys.argv[0])
-VERSION = "0.8.1a"
+VERSION = "1.0.0-rc1"
 
 __doc__ = """
 {prgm} {ver}
@@ -28,7 +28,7 @@ Usage:
   {prgm} [-d]
   {prgm} [-d] [-g|-s] -l <save_file>
   {prgm} [-d] [-g|-s] <save_file> (<encrypt_key> | -f <gameloft_sharing>)
-  {prgm} (-h | --help)
+  {prgm} -h
   {prgm} --version
 
 Arguments:

@@ -21,6 +21,7 @@ except ImportError:
     from Tkconstants import N, S, E, W, NSEW
     from tkMessageBox import showerror
 from src.basegui import BaseGui
+from src.missingponiesframe import MissingPoniesFrame
 from src.currenciesframe import CurrenciesFrame
 from src.poniesframe import PoniesFrame
 from src.zonesframe import ZonesFrame
@@ -81,12 +82,15 @@ class PonyGui(BaseGui):
         self._currencies_frame = CurrenciesFrame(self, self._xml_handle)
         self._zones_frame = ZonesFrame(self, self._xml_handle)
         self._ponies_frame = PoniesFrame(self, self._xml_handle)
+        self._missing_ponies_frame = MissingPoniesFrame(self, self._xml_handle)
         self._notebook.add(self._currencies_frame,
                            text="Currencies")
         self._notebook.add(self._ponies_frame,
                            text="Ponies")
         self._notebook.add(self._zones_frame,
                            text="Zones")
+        self._notebook.add(self._missing_ponies_frame,
+                           text="Missing ponies")
         self._save_button = Button(self,
                                    text="Save to file",
                                    command=self._save)
@@ -116,6 +120,7 @@ class PonyGui(BaseGui):
                 self._currencies_frame.commit()
                 self._ponies_frame.commit()
                 self._zones_frame.commit()
+                self._missing_ponies_frame.commit()
                 self._save_manager.save(compress_data(self._xml_handle
                                                       .to_string()
                                                       .encode('utf-8')),
