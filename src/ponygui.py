@@ -69,7 +69,7 @@ class PonyGui(BaseGui):
             self.destroy()
         else:
             self.loaded = True
-            self._xml_handle = XmlHandler(data.decode('utf-8'))
+            self._xml_handle = XmlHandler(data.decode('utf-8', 'ignore'))
             self._xml_handle.pre_load()
             loadingbox.destroy()
 

@@ -8,17 +8,33 @@
 
 from __future__ import print_function, absolute_import, unicode_literals
 import sys
+import re
 from collections import OrderedDict, defaultdict
 from src.defaultordereddict import DefaultOrderedDict
 from src.utility import (Pony, Inventory, MissingPonies,
                          Currency, Clearables,
                          Foes, Zone, Shops)
 
+try:
+    unichr
+except NameError:
+    unichr = chr
+
+RE_XML_ILLEGAL = re.compile(('([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' +
+                             '|' +
+                             '([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])') %
+                            (unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),
+                             unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),
+                             unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff)))
+
 def remove_parent(xml_data):
     return xml_data.replace('(', '_x0028_').replace(')', '_x0029_')
 
 def add_parent(xml_data):
     return xml_data.replace('_x0028_', '(').replace('_x0029_', ')')
+
+def clean_string(xml_data):
+    return RE_XML_ILLEGAL.sub('?', xml_data)
 
 class XmlHandler(object):
 
@@ -175,7 +191,7 @@ class XmlHandler(object):
     def __init__(self, xml_data):
         import xmltodict
         print('Parsing XML tree...')
-        self.xmlobj = xmltodict.parse(remove_parent(xml_data))
+        self.xmlobj = xmltodict.parse(clean_string(remove_parent(xml_data)))
         self._ponies = None
         self._inventory = None
         self._missing_ponies = None
@@ -222,6 +238,7 @@ class XmlHandler(object):
         storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
         if not storage:
             self.xmlobj['MLP_Save']['PlayerData']['Storage'] = OrderedDict([('StoredItem', [])])
+            storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
         if type(storage['StoredItem']) != list:
             storage['StoredItem'] = [storage['StoredItem']]
         items = storage['StoredItem']

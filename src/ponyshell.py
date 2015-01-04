@@ -40,7 +40,7 @@ class PonyShell(Cmd):
         data, self.save_number = self._save_manager.load(legacy)
         if not legacy:
             data = decompress_data(data)
-        self._xml_handle = XmlHandler(data.decode('utf-8'))
+        self._xml_handle = XmlHandler(data.decode('utf-8', 'ignore'))
         self._xml_handle.pre_load()
         self.legacy = legacy
         self._show_functions = {
