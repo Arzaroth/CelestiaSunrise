@@ -10,12 +10,14 @@
 
 from __future__ import print_function, absolute_import, unicode_literals, division
 import sys
+from itertools import islice, count
 from struct import pack, unpack
 
-try:
-    xrange
-except NameError:
-    xrange = range
+def xrange(start, stop=None, step=1):
+    if stop is None:
+        stop = start
+        start = 0
+    return islice(count(start, step), (stop - start + step - 1 + 2 * (step < 0)) // step)
 
 def str2longs(s):
     length = ((len(s) + 3) // 4) * 4
