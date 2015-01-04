@@ -81,7 +81,6 @@ def docopt_cmd_completion(docstring, **kwargs):
                 target = ''
             state = get_state(iter(argv), pattern.noflat())
             res = []
-            print(state)
             for x in state:
                 if type(x[0]) == list:
                     res.extend(flatten(x[0]))
