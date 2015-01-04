@@ -179,6 +179,7 @@ class XmlHandler(object):
         ("Pony_Twilights_Dad", "Night Light (Twilight's Dad)"),
         ("Pony_Twinkleshine", "Twinkleshine"),
         ("Pony_Twist", "Twist"),
+        ("Pony_Shadow_Surprise", "The Shadowbolts"),
         ("Pony_Uncle_Orange", "Uncle Orange"),
         ("Pony_Unicorn_Guard", "Unicorn Guard"),
         ("Pony_Uppercrust", "Upper Crust"),
