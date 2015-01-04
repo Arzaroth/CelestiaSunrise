@@ -10,7 +10,7 @@ from __future__ import print_function, absolute_import, unicode_literals
 import binascii
 import sys
 from cmd import Cmd
-from src.docopt_utils import docopt_cmd
+from src.docopt_utils import docopt_cmd, docopt_cmd_completion
 from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
 from src.xmlhandler import XmlHandler
@@ -23,6 +23,7 @@ from src.set import (set_currency,
                      set_ponies, set_pony,
                      set_zones, set_zone,
                      set_inventory)
+import src.docstrings as docstrings
 
 if sys.version_info.major < 3:
     import codecs
@@ -70,78 +71,30 @@ class PonyShell(Cmd):
             print("^C")
             self.cmdloop(intro)
 
-    @docopt_cmd
+    @docopt_cmd(docstrings.SHOW)
     def do_show(self, args):
-        """Show what you requested.
-
-Usage:
-  show currencies
-  show currency <currency_id>...
-  show ponies [-i|-o]
-  show pony <pony_id>...
-  show zones
-  show zone <zone_id>...
-
-Arguments:
-  currency_id   Id of a currency. Can be retrieved with "show currencies".
-  pony_id       Id of a pony. Can be retrieved with "show ponies".
-  zone_id       Id of a zone. Can be retrieved with "show zones".
-
-Options:
-  -i            Displays ponies in inventory.
-  -o            Displays not owned ponies.
-  -h --help     Show this help."""
         for i in self._show_functions:
             if args[i]:
                 self._show_functions[i](self._xml_handle, args)
                 break
 
-    @docopt_cmd
+    @docopt_cmd_completion(docstrings.SHOW)
+    def complete_show(self):
+        pass
+
+    @docopt_cmd(docstrings.SET)
     def do_set(self, args):
-        """Set what you requested.
-
-Usage:
-  set currency <value> <currency_id>...
-  set ponies (level|shards) (up|down)
-  set ponies (level|shards) <value>
-  set ponies reset_game_timer
-  set pony (level|shards) (up|down) <pony_id>...
-  set pony (level|shards|next_game) <value> <pony_id>...
-  set pony reset_game_timer <pony_id>...
-  set zones clear [clearables|foes]
-  set zones reset_shops_timer
-  set zone clear [clearables|foes] <zone_id>...
-  set zone reset_shops_timer <zone_id>...
-  set inventory add <not_owned_pony_id>...
-
-Arguments:
-  currency_id           Id of a currency. Can be retrieved with "show currencies".
-  pony_id               Id of a pony. Can be retrieved with "show ponies".
-  zone_id               Id of a zone. Can be retrieved with "show zones".
-  not_owned_pony_id     Id of a not owned pony. Can be retrieved with "show ponies -o".
-  level value           An integer between 0 and 5.
-  shards value          An integer between 0 and 10.
-  next_game             One of Ball, Apple or Book.
-
-Options:
-  -h --help             Show this help."""
         for i in self._set_functions:
             if args[i]:
                 self._set_functions[i](self._xml_handle, args)
                 break
 
-    @docopt_cmd
+    @docopt_cmd_completion(docstrings.SET)
+    def complete_set(self):
+        pass
+
+    @docopt_cmd(docstrings.DUMP_XML)
     def do_dump_xml(self, args):
-        """Dump the actual XML tree.
-
-Usage:
-  dump_xml [<file>]
-
-Arguments:
-  file          If present, write to file instead of standard output.
-
-Options:
-  -h --help     Show this help."""
         if args['<file>']:
             try:
                 with open(args['<file>'], 'w', encoding='utf-8') as f:
@@ -151,18 +104,12 @@ Options:
         else:
             print(self._xml_handle.prettify())
 
-    @docopt_cmd
+    @docopt_cmd_completion(docstrings.DUMP_XML)
+    def complete_dump_xml(self):
+        pass
+
+    @docopt_cmd(docstrings.IMPORT_XML)
     def do_import_xml(self, args):
-        """Import an XML tree. Use with caution.
-
-Usage:
-  import_xml <file>
-
-Arguments:
-  file          Path to a file containing an XML tree.
-
-Options:
-  -h --help     Show this help."""
         try:
             with open(args['<file>'], 'r', encoding='utf-8') as f:
                 xml_data = f.read()
@@ -173,21 +120,12 @@ Options:
         else:
             self._xml_handle = new_xml_handle
 
-    @docopt_cmd
+    @docopt_cmd_completion(docstrings.IMPORT_XML)
+    def complete_import_xml(self):
+        pass
+
+    @docopt_cmd(docstrings.WRITE_SAVE)
     def do_write_save(self, args):
-        """Write the current state of the save into a file
-
-Usage:
-  write_save <file> [<gluid>]
-  write_save -l <file>
-
-Arguments:
-  file          Path to the new save file.
-  gluid         GLUID used to encrypt the new save file. Must be base64 encoded.
-
-Options:
-  -l --legacy   Write a legacy save file (1.8.x version).
-  -h --help     Show this help."""
         if args['<gluid>'] is not None:
             try:
                 args['<gluid>'] = binascii.a2b_base64(args['<gluid>'].encode('utf-8'))
@@ -205,6 +143,10 @@ Options:
                                     and args['<gluid>'] is None)
         except Exception as e:
             print("Was unable to write to file, reason: {}".format(str(e)))
+
+    @docopt_cmd_completion(docstrings.WRITE_SAVE)
+    def complete_write_save(self):
+        pass
 
     def do_bye(self, args):
         """Quit the program"""

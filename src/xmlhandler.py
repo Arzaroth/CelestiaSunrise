@@ -158,6 +158,7 @@ class XmlHandler(object):
         ("Pony_Sapphire_Shores", "Sapphire Shores"),
         ("Pony_Savoir_Fare", "Savoir Fare"),
         ("Pony_Scootaloo", "Scootaloo"),
+        ("Pony_Shadow_Surprise", "The Shadowbolts"),
         ("Pony_Shining_Armour", "Shining Armour"),
         ("Pony_Silver_Shill", "Silver Shill"),
         ("Pony_Silver_Spoon", "Silver Spoon"),
@@ -179,7 +180,6 @@ class XmlHandler(object):
         ("Pony_Twilights_Dad", "Night Light (Twilight's Dad)"),
         ("Pony_Twinkleshine", "Twinkleshine"),
         ("Pony_Twist", "Twist"),
-        ("Pony_Shadow_Surprise", "The Shadowbolts"),
         ("Pony_Uncle_Orange", "Uncle Orange"),
         ("Pony_Unicorn_Guard", "Unicorn Guard"),
         ("Pony_Uppercrust", "Upper Crust"),
@@ -236,10 +236,9 @@ class XmlHandler(object):
         return res
 
     def _get_inventory(self):
-        storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
-        if not storage:
+        if not self.xmlobj['MLP_Save']['PlayerData']['Storage']:
             self.xmlobj['MLP_Save']['PlayerData']['Storage'] = OrderedDict([('StoredItem', [])])
-            storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
+        storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
         if type(storage['StoredItem']) != list:
             storage['StoredItem'] = [storage['StoredItem']]
         items = storage['StoredItem']
