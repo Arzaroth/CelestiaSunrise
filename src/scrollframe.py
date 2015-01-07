@@ -17,7 +17,6 @@ except ImportError:
     from Tkconstants import NW, VERTICAL, Y, LEFT, RIGHT, ALL
 
 class ScrollFrame(Frame):
-
     def __init__(self, parent):
         Frame.__init__(self, parent)
         self._canvas = Canvas(self)

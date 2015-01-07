@@ -9,44 +9,40 @@
 from __future__ import print_function, absolute_import, unicode_literals
 try:
     # py3
-    from tkinter import Label, Checkbutton, BooleanVar
+    from tkinter import Frame, Label, Checkbutton, BooleanVar
     from tkinter.constants import N, S, E, W, NSEW
 except ImportError:
     # py2
-    from Tkinter import Label, Checkbutton, BooleanVar
+    from Tkinter import Frame, Label, Checkbutton, BooleanVar
     from Tkconstants import N, S, E, W, NSEW
 from src.scrollframe import ScrollFrame
+from src.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
+import six
 
-class MissingPony(object):
+@six.add_metaclass(TkVarDescriptorOwner)
+class MissingPony(Frame, object):
+    checked = TkVarDescriptor(BooleanVar)
 
     def __init__(self, parent, name, offset):
+        Frame.__init__(self, parent)
         self.parent = parent
 
-        self._checked = BooleanVar(self.parent, False)
+        self.checked = False
         self._chkbox = Checkbutton(self.parent,
                                    text="Add {} to inventory".format(name),
-                                   variable=self._checked)
+                                   variable=MissingPony.checked.raw_klass(self))
 
         self._chkbox.grid(row=offset, column=0, sticky=W, padx=3, pady=2)
 
     def grid_remove(self):
         self._chkbox.grid_remove()
 
-    @property
-    def checked(self):
-        return self._checked.get()
-
-    @checked.setter
-    def checked(self, new_val):
-        self._checked.set(new_val)
-
 
 class MissingEverypony(MissingPony):
-
     def __init__(self, missing_ponies, *args):
         MissingPony.__init__(self, *args)
         self._missing_ponies = missing_ponies
-        self._checked.trace("w", self._checked_change)
+        MissingPony.checked.raw_klass(self).trace("w", self._checked_change)
 
     def _checked_change(self, *args):
         for pony in self._missing_ponies.values():
@@ -54,7 +50,6 @@ class MissingEverypony(MissingPony):
 
 
 class MissingPoniesFrame(ScrollFrame):
-
     def __init__(self, parent, xml_handle):
         ScrollFrame.__init__(self, parent)
         self._xml_handle = xml_handle

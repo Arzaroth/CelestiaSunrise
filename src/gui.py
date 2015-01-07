@@ -11,7 +11,6 @@ from src.loading import Loading
 from src.ponygui import PonyGui
 
 class Gui(object):
-
     def __init__(self, savefile, gluid, dbfile, legacy):
         self.savefile = savefile
         self.gluid = gluid

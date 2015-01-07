@@ -10,7 +10,7 @@ from __future__ import print_function, absolute_import, unicode_literals
 try:
     # py3
     from tkinter import (Label, Scale, Checkbutton, OptionMenu,
-                         IntVar, BooleanVar, StringVar)
+                         Frame, IntVar, BooleanVar, StringVar)
     from tkinter.constants import (N, S, E, W,
                                    NSEW,
                                    HORIZONTAL,
@@ -18,114 +18,81 @@ try:
 except ImportError:
     # py2
     from Tkinter import (Label, Scale, Checkbutton, OptionMenu,
-                         IntVar, BooleanVar, StringVar)
+                         Frame, IntVar, BooleanVar, StringVar)
     from Tkconstants import (N, S, E, W,
                              NSEW,
                              HORIZONTAL,
                              NORMAL, DISABLED)
 from src.utility import Pony
 from src.scrollframe import ScrollFrame
+from src.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
+import six
 
-class PonyFrame(object):
+@six.add_metaclass(TkVarDescriptorOwner)
+class PonyFrame(Frame, object):
+    level = TkVarDescriptor(IntVar)
+    level_up = TkVarDescriptor(BooleanVar)
+    next_game = TkVarDescriptor(StringVar)
+    reset = TkVarDescriptor(BooleanVar)
 
     def __init__(self, parent,
                  name, level,
                  shards, next_game,
                  offset):
+        Frame.__init__(self, parent)
         self.parent = parent
 
         self._pony_label = Label(self.parent,
                                  text=name)
-        self._level = Scale(self.parent,
-                            from_=0, to=5,
-                            orient=HORIZONTAL,
-                            command=self._level_change)
-        self._level.set(level)
-        self._level_up = BooleanVar(self.parent,
-                                    shards == 10)
+        self.level = level
+        self._level_scale = Scale(self.parent,
+                                  from_=0, to=5,
+                                  orient=HORIZONTAL,
+                                  variable=PonyFrame.level.raw_klass(self))
+        PonyFrame.level.raw_klass(self).trace("w", self._level_change)
+        self.level_up = shards == 10 and self.level != 5
         self._shards = Checkbutton(self.parent,
-                                   variable=self._level_up)
-        self._next_game = StringVar(self.parent,
-                                    next_game)
+                                   state=(DISABLED if self.level == 5 else NORMAL),
+                                   variable=PonyFrame.level_up.raw_klass(self))
+        self.next_game = next_game
         self._option_next = OptionMenu(self.parent,
-                                       self._next_game,
+                                       PonyFrame.next_game.raw_klass(self),
                                        Pony.GameTypes.rmap[Pony.GameTypes.Ball],
                                        Pony.GameTypes.rmap[Pony.GameTypes.Apple],
                                        Pony.GameTypes.rmap[Pony.GameTypes.Book])
-        self._reset = BooleanVar(self.parent,
-                                 False)
+        self.reset = False
         self._reset_checkbox = Checkbutton(self.parent,
-                                           variable=self._reset)
+                                           variable=PonyFrame.reset.raw_klass(self))
 
         options = dict(padx=16, pady=2)
         self._pony_label.grid(row=offset, column=0, sticky=W, **options)
-        self._level.grid(row=offset, column=1, sticky=NSEW, **options)
+        self._level_scale.grid(row=offset, column=1, sticky=NSEW, **options)
         self._shards.grid(row=offset, column=2, sticky=NSEW, **options)
         self._option_next.grid(row=offset, column=3, sticky=NSEW, **options)
         self._reset_checkbox.grid(row=offset, column=4, sticky=NSEW, **options)
 
     def _level_change(self, *args):
-        if self.level == 5:
-            self._shards.configure(state=DISABLED)
-            self.level_up = False
-        else:
-            self._shards.configure(state=NORMAL)
-
-    @property
-    def level(self):
-        return int(self._level.get())
-
-    @level.setter
-    def level(self, new_val):
-        self._level.set(new_val)
-
-    @property
-    def level_up(self):
-        return self._level_up.get()
-
-    @level_up.setter
-    def level_up(self, new_val):
-        self._level_up.set(new_val and self.level != 5)
-
-    @property
-    def next_game(self):
-        return self._next_game.get()
-
-    @next_game.setter
-    def next_game(self, new_val):
-        self._next_game.set(new_val)
-
-    @property
-    def reset_next_game(self):
-        return self._reset.get()
-
-    @reset_next_game.setter
-    def reset_next_game(self, new_val):
-        self._reset.set(new_val)
+        self._shards.configure(state=(DISABLED if self.level == 5 else NORMAL))
+        self.level_up = self.level_up and self.level != 5
 
 
 class EveryponyFrame(PonyFrame):
-
     def __init__(self, ponies, *args):
         PonyFrame.__init__(self, *args)
         self._ponies = ponies
-        self._level_change_first_call = False
-        self._level_up.trace("w", self._shards_change)
-        self._next_game.trace("w", self._next_game_change)
-        self._reset.trace("w", self._reset_change)
+        EveryponyFrame.level_up.raw_klass(self).trace("w", self._shards_change)
+        EveryponyFrame.next_game.raw_klass(self).trace("w", self._next_game_change)
+        EveryponyFrame.reset.raw_klass(self).trace("w", self._reset_change)
 
     def _level_change(self, *args):
         PonyFrame._level_change(self, *args)
-        if self._level_change_first_call:
-            for pony in self._ponies.values():
-                pony.level = self.level
-            self._shards_change(self)
-        else:
-            self._level_change_first_call = True
+        for pony in self._ponies.values():
+            pony.level = self.level
+        self._shards_change(self)
 
     def _shards_change(self, *args):
         for pony in self._ponies.values():
-            pony.level_up = self.level_up
+            pony.level_up = self.level_up and pony.level != 5
 
     def _next_game_change(self, *args):
         for pony in self._ponies.values():
@@ -137,7 +104,6 @@ class EveryponyFrame(PonyFrame):
 
 
 class PoniesFrame(ScrollFrame):
-
     def __init__(self, parent, xml_handle):
         ScrollFrame.__init__(self, parent)
         self._xml_handle = xml_handle

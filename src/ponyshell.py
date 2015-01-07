@@ -24,13 +24,19 @@ from src.set import (set_currency,
                      set_zones, set_zone,
                      set_inventory)
 import src.docstrings as docstrings
+import six
 
 if sys.version_info.major < 3:
     import codecs
     open = codecs.open
 
-class PonyShell(Cmd):
+class PonyMeta(type):
+    def __new__(cls, name, bases, attrs):
+        type.__new__(cls, name, bases, attrs)
 
+
+@six.add_metaclass(PonyMeta)
+class PonyShell(Cmd, object):
     prompt = 'ponyshell> '
 
     def __init__(self, savefile, gluid, dbfile, legacy):

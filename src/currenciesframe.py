@@ -10,22 +10,27 @@ from __future__ import print_function, absolute_import, unicode_literals
 from collections import defaultdict
 try:
     # py3
-    from tkinter import Label, Entry, Frame, StringVar
+    from tkinter import Frame, Label, Entry, Frame, StringVar
     from tkinter.constants import N, S, E, W, NSEW
 except ImportError:
     # py2
-    from Tkinter import Label, Entry, Frame, StringVar
+    from Tkinter import Frame, Label, Entry, Frame, StringVar
     from Tkconstants import N, S, E, W, NSEW
+from src.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
+import six
 
-class CurrencyFrame(object):
+@six.add_metaclass(TkVarDescriptorOwner)
+class CurrencyFrame(Frame, object):
+    value = TkVarDescriptor(StringVar)
 
     def __init__(self, parent, text, value, limit, offset):
+        Frame.__init__(self, parent)
         self.parent = parent
 
-        self._value = StringVar(self.parent, value)
+        self.value = value
 
         self._label = Label(self.parent, text=text)
-        self._entry = Entry(self.parent, textvariable=self._value)
+        self._entry = Entry(self.parent, textvariable=CurrencyFrame.value.raw_klass(self))
         self._limit = Label(self.parent, text="(Limit: {})".format(limit))
 
         options = dict(padx=10, pady=4)
@@ -33,13 +38,8 @@ class CurrencyFrame(object):
         self._entry.grid(row=offset, column=1, sticky=NSEW, **options)
         self._limit.grid(row=offset, column=2, sticky=NSEW, **options)
 
-    @property
-    def value(self):
-        return self._value.get()
-
 
 class CurrenciesFrame(Frame):
-
     def __init__(self, parent, xml_handle):
         Frame.__init__(self, parent)
 

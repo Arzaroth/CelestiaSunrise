@@ -10,19 +10,18 @@ from __future__ import print_function, absolute_import, unicode_literals
 import binascii
 try:
     # py3
-    from tkinter import Label, Button, Frame, StringVar, BooleanVar
+    from tkinter import Label, Button, Frame
     from tkinter.constants import N, S, E, W, NSEW
     from tkinter.messagebox import showerror
 except ImportError:
     # py2
-    from Tkinter import Label, Button, Frame, StringVar, BooleanVar
+    from Tkinter import Label, Button, Frame
     from Tkconstants import N, S, E, W, NSEW
     from tkMessageBox import showerror
 from src.basegui import BaseGui
 from src.gluid import retrieve_gluid
 
 class Loading(BaseGui):
-
     def __init__(self, savefile, gluid, dbfile, usedb, legacy):
         BaseGui.__init__(self, savefile, gluid, dbfile, usedb, legacy)
         self.go_next = False

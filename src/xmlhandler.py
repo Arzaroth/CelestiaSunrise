@@ -14,11 +14,7 @@ from src.defaultordereddict import DefaultOrderedDict
 from src.utility import (Pony, Inventory, MissingPonies,
                          Currency, Clearables,
                          Foes, Zone, Shops)
-
-try:
-    unichr
-except NameError:
-    unichr = chr
+from six import unichr, add_metaclass
 
 RE_XML_ILLEGAL = re.compile(('([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' +
                              '|' +
@@ -36,8 +32,26 @@ def add_parent(xml_data):
 def clean_string(xml_data):
     return RE_XML_ILLEGAL.sub('?', xml_data)
 
-class XmlHandler(object):
+class XmlDescriptor(object):
+    def __init__(self):
+        self.name = None
 
+    def __get__(self, instance, objtyp=None):
+        if not instance.__dict__.get('_' + self.name, None):
+            instance.__dict__['_' + self.name] = getattr(instance, '_get_' + self.name)()
+        return instance.__dict__['_' + self.name]
+
+
+class XmlMeta(type):
+    def __new__(cls, name, bases, attrs):
+        for key, value in attrs.items():
+            if isinstance(value, XmlDescriptor):
+                value.name = key
+        return type.__new__(cls, name, bases, attrs)
+
+
+@add_metaclass(XmlMeta)
+class XmlHandler(object):
     PONY_LIST = OrderedDict([
         ("Pony_AKYearling", "AKYearling"),
         ("Pony_Aloe", "Aloe"),
@@ -189,19 +203,20 @@ class XmlHandler(object):
         ("Pony_Zipporwhill", "Zipporwhill"),
     ])
 
+    ponies = XmlDescriptor()
+    inventory = XmlDescriptor()
+    missing_ponies = XmlDescriptor()
+    currencies = XmlDescriptor()
+    actions = XmlDescriptor()
+    zones = XmlDescriptor()
+    _mapzones = XmlDescriptor()
+
     def __init__(self, xml_data):
         import xmltodict
         print('Parsing XML tree...')
         self.xmlobj = xmltodict.parse(clean_string(remove_parent(xml_data)))
-        self._ponies = None
-        self._inventory = None
-        self._missing_ponies = None
-        self._currencies = None
-        self._actions = None
-        self._zones = None
-        self.__mapzones = None
 
-    def _get_mapzones(self):
+    def _get__mapzones(self):
         if type(self.xmlobj['MLP_Save']['MapZone']) != list:
             self.xmlobj['MLP_Save']['MapZone'] = [self.xmlobj['MLP_Save']['MapZone']]
         return self.xmlobj['MLP_Save']['MapZone']
@@ -221,7 +236,7 @@ class XmlHandler(object):
                 res[typ][action] = tag
         return {'Pony': res, 'Global': self.actions['Global']}
 
-    def _get_pony_list(self):
+    def _get_ponies(self):
         res = OrderedDict()
         for mapzone in self._mapzones:
             ponyobjects = mapzone['GameObjects']['Pony_Objects']
@@ -328,47 +343,47 @@ class XmlHandler(object):
                 populate_dict(glob, key='@Category', suffix=suffix)
         return {'Global': glob, 'Ponies': actions}
 
-    @property
-    def _mapzones(self):
-        if self.__mapzones is None:
-            self.__mapzones = self._get_mapzones()
-        return self.__mapzones
+    # @property
+    # def _mapzones(self):
+    #     if self.__mapzones is None:
+    #         self.__mapzones = self._get__mapzones()
+    #     return self.__mapzones
 
-    @property
-    def ponies(self):
-        if self._ponies is None:
-            self._ponies = self._get_pony_list()
-        return self._ponies
+    # @property
+    # def ponies(self):
+    #     if self._ponies is None:
+    #         self._ponies = self._get_ponies()
+    #     return self._ponies
 
-    @property
-    def inventory(self):
-        if self._inventory is None:
-            self._inventory = self._get_inventory()
-        return self._inventory
+    # @property
+    # def inventory(self):
+    #     if self._inventory is None:
+    #         self._inventory = self._get_inventory()
+    #     return self._inventory
 
-    @property
-    def missing_ponies(self):
-        if self._missing_ponies is None:
-            self._missing_ponies = self._get_missing_ponies()
-        return self._missing_ponies
+    # @property
+    # def missing_ponies(self):
+    #     if self._missing_ponies is None:
+    #         self._missing_ponies = self._get_missing_ponies()
+    #     return self._missing_ponies
 
-    @property
-    def currencies(self):
-        if self._currencies is None:
-            self._currencies = self._get_currencies()
-        return self._currencies
+    # @property
+    # def currencies(self):
+    #     if self._currencies is None:
+    #         self._currencies = self._get_currencies()
+    #     return self._currencies
 
-    @property
-    def zones(self):
-        if self._zones is None:
-            self._zones = self._get_zones()
-        return self._zones
+    # @property
+    # def zones(self):
+    #     if self._zones is None:
+    #         self._zones = self._get_zones()
+    #     return self._zones
 
-    @property
-    def actions(self):
-        if self._actions is None:
-            self._actions = self._get_actions()
-        return self._actions
+    # @property
+    # def actions(self):
+    #     if self._actions is None:
+    #         self._actions = self._get_actions()
+    #     return self._actions
 
     def pre_load(self):
         self.currencies

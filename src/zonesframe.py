@@ -15,29 +15,36 @@ except ImportError:
     # py2
     from Tkinter import Frame, Checkbutton, Label, BooleanVar, StringVar
     from Tkconstants import N, S, E, W, NSEW
+from src.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
+import six
 
-class ZoneFrame(object):
+@six.add_metaclass(TkVarDescriptorOwner)
+class ZoneFrame(Frame, object):
+    clearables_checked = TkVarDescriptor(BooleanVar)
+    foes_checked = TkVarDescriptor(BooleanVar)
+    reset_checked = TkVarDescriptor(BooleanVar)
+    clearables_text = TkVarDescriptor(StringVar)
+    foes_text = TkVarDescriptor(StringVar)
+    reset_text = TkVarDescriptor(StringVar)
 
     def __init__(self, parent, zone, offset, reset_offset):
+        Frame.__init__(self, parent)
         self.parent = parent
         self.zone = zone
 
-        self._clearables_checked = BooleanVar(self.parent, False)
-        self._foes_checked = BooleanVar(self.parent, False)
-        self._reset_checked = BooleanVar(self.parent, False)
-        self._clearables_text = StringVar(self.parent)
-        self._foes_text = StringVar(self.parent)
-        self._reset_text = StringVar(self.parent)
+        self.clearables_checked = False
+        self.foes_checked = False
+        self.reset_checked = False
         self.update()
         self._clearables_box = Checkbutton(self.parent,
-                                           textvariable=self._clearables_text,
-                                           variable=self._clearables_checked)
+                                           textvariable=ZoneFrame.clearables_text.raw_klass(self),
+                                           variable=ZoneFrame.clearables_checked.raw_klass(self))
         self._foes_box = Checkbutton(self.parent,
-                                     textvariable=self._foes_text,
-                                     variable=self._foes_checked)
+                                     textvariable=ZoneFrame.foes_text.raw_klass(self),
+                                     variable=ZoneFrame.foes_checked.raw_klass(self))
         self._reset_box = Checkbutton(self.parent,
-                                      textvariable=self._reset_text,
-                                      variable=self._reset_checked)
+                                      textvariable=ZoneFrame.reset_text.raw_klass(self),
+                                      variable=ZoneFrame.reset_checked.raw_klass(self))
 
         options = dict(sticky=W, padx=3, pady=2)
         self._clearables_box.grid(row=(offset * 2), column=0, **options)
@@ -45,33 +52,20 @@ class ZoneFrame(object):
         self._reset_box.grid(row=reset_offset + offset, column=0, **options)
 
     def update(self):
-        self._clearables_text.set("Remove Clearables Objects from {} ({} remaining)"
-                                  .format(self.zone.name,
-                                          len(self.zone.clearable_items)))
-        self._foes_text.set("Remove {} from {} ({} remaining)"
-                            .format(self.zone.foes.name,
-                                    self.zone.name,
-                                    len(self.zone.foes)))
-        self._reset_text.set("Reset shops timer for {} ({} shop{})"
-                             .format(self.zone.name,
-                                     len(self.zone.shops),
-                                     "s" if len(self.zone.shops) > 1 else ""))
-
-    @property
-    def clearables_checked(self):
-        return self._clearables_checked.get()
-
-    @property
-    def foes_checked(self):
-        return self._foes_checked.get()
-
-    @property
-    def reset_checked(self):
-        return self._reset_checked.get()
+        self.clearables_text = ("Remove Clearables Objects from {} ({} remaining)"
+                                .format(self.zone.name,
+                                        len(self.zone.clearable_items)))
+        self.foes_text = ("Remove {} from {} ({} remaining)"
+                          .format(self.zone.foes.name,
+                                  self.zone.name,
+                                  len(self.zone.foes)))
+        self.reset_text = ("Reset shops timer for {} ({} shop{})"
+                           .format(self.zone.name,
+                                   len(self.zone.shops),
+                                   "s" if len(self.zone.shops) > 1 else ""))
 
 
 class ZonesFrame(Frame):
-
     def __init__(self, parent, xml_handle):
         Frame.__init__(self, parent)
 

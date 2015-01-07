@@ -131,7 +131,6 @@ class StoredItem(object):
 
 
 class Pony(StoredItem):
-
     GameTypes = enum(Ball=0, Apple=1, Book=2)
 
     def __init__(self, tag, actions, name=None):

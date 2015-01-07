@@ -31,7 +31,6 @@ from src.xmlhandler import XmlHandler
 from src.gluid import retrieve_gluid
 
 class LoadingDialog(Toplevel):
-
     def __init__(self, parent):
         Toplevel.__init__(self)
         Label(self, text="Loading...", font=25, height=3, width=25).pack()
@@ -39,7 +38,6 @@ class LoadingDialog(Toplevel):
 
 
 class PonyGui(BaseGui):
-
     def __init__(self, savefile, gluid, dbfile, usedb, legacy):
         BaseGui.__init__(self, savefile, gluid, dbfile, usedb, legacy)
         self.loaded = False
