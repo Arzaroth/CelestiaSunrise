@@ -31,29 +31,25 @@ ParentPattern.noflat = noflat_parent
 ChildPattern.noflat = noflat_children
 Option.noflat = noflat_option
 
-def docopt_cmd(docstring):
-    def dekorator(func):
-        func.__doc__ = docstring
-        @wraps(func)
-        def wrapper(self, args):
-            from docopt import docopt, DocoptExit
-            try:
-                args = docopt(func.__doc__, args)
-            except DocoptExit as e:
-                print(e)
-                return
-            except SystemExit:
-                return
-            return func(self, args)
-        return wrapper
-    return dekorator
+def docopt_cmd(func):
+    @wraps(func)
+    def wrapper(self, args):
+        from docopt import docopt, DocoptExit
+        try:
+            args = docopt(func.__doc__, args)
+        except DocoptExit as e:
+            print(e)
+            return
+        except SystemExit:
+            return
+        return func(self, args)
+    return wrapper
 
-def docopt_cmd_completion(docstring, **kwargs):
-
+def docopt_cmd_completion(func, **kwargs):
     from docopt import (parse_defaults, parse_pattern,
                         formal_usage, printable_usage)
-    options = parse_defaults(docstring)
-    pattern = parse_pattern(formal_usage(printable_usage(docstring)),
+    options = parse_defaults(func.__doc__)
+    pattern = parse_pattern(formal_usage(printable_usage(func.__doc__)),
                             options).children[0]
 
     def get_state(it, pattern):
@@ -70,22 +66,22 @@ def docopt_cmd_completion(docstring, **kwargs):
             return get_state(it, res)
         return []
 
-    def dekorator(dekorated):
-        @wraps(dekorated)
-        def wrapper(self, text, line, begidx, endidx):
-            argv = shlex.split(line[:endidx])[1:]
-            if not line[endidx - 1].isspace():
-                target = argv[-1]
-                argv = argv[:-1]
+    def wrapper(self, text, line, begidx, endidx):
+        argv = shlex.split(line[:endidx])[1:]
+        if not line[endidx - 1].isspace():
+            target = argv[-1]
+            argv = argv[:-1]
+        else:
+            target = ''
+        state = get_state(iter(argv), pattern.noflat())
+        res = []
+        for x in state:
+            if type(x[0]) == list:
+                res.extend(flatten(x[0]))
             else:
-                target = ''
-            state = get_state(iter(argv), pattern.noflat())
-            res = []
-            for x in state:
-                if type(x[0]) == list:
-                    res.extend(flatten(x[0]))
-                else:
-                    res.append(x[0])
-            return list(set(x for x in res if x.startswith(target)))
-        return wrapper
-    return dekorator
+                res.append(x[0])
+        return list(set(x for x in res if x.startswith(target)))
+    wrapper.__name__ = str('complete_' + func.__name__[3:])
+    wrapper.__module__ = func.__module__
+    wrapper.__doc__ = func.__doc__
+    return wrapper

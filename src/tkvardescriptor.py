@@ -30,4 +30,4 @@ class TkVarDescriptorOwner(type):
         for key, value in attrs.items():
             if isinstance(value, TkVarDescriptor):
                 value.label = key
-        return type.__new__(cls, name, bases, attrs)
+        return super(TkVarDescriptorOwner, cls).__new__(cls, name, bases, attrs)

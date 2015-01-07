@@ -47,7 +47,7 @@ class XmlMeta(type):
         for key, value in attrs.items():
             if isinstance(value, XmlDescriptor):
                 value.name = key
-        return type.__new__(cls, name, bases, attrs)
+        return super(XmlMeta, cls).__new__(cls, name, bases, attrs)
 
 
 @add_metaclass(XmlMeta)
