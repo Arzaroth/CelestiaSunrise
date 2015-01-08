@@ -20,15 +20,15 @@ except ImportError:
     from ttk import Notebook
     from Tkconstants import N, S, E, W, NSEW
     from tkMessageBox import showerror
-from src.basegui import BaseGui
-from src.missingponiesframe import MissingPoniesFrame
-from src.currenciesframe import CurrenciesFrame
-from src.poniesframe import PoniesFrame
-from src.zonesframe import ZonesFrame
+from .basegui import BaseGui
+from .missingponiesframe import MissingPoniesFrame
+from .currenciesframe import CurrenciesFrame
+from .poniesframe import PoniesFrame
+from .zonesframe import ZonesFrame
 from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
 from src.xmlhandler import XmlHandler
-from src.gluid import retrieve_gluid
+from src.utility.gluid import retrieve_gluid
 
 class LoadingDialog(Toplevel):
     def __init__(self, parent):

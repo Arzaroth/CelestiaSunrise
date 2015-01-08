@@ -8,8 +8,8 @@
 
 from __future__ import print_function, absolute_import, unicode_literals
 from collections import defaultdict, OrderedDict
-from src.enum import enum
-from src.defaultordereddict import DefaultOrderedDict
+from .enum import enum
+from .defaultordereddict import DefaultOrderedDict
 
 ZERO = "0.000000"
 

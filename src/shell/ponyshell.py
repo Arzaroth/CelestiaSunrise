@@ -10,20 +10,19 @@ from __future__ import print_function, absolute_import, unicode_literals
 import binascii
 import sys
 from cmd import Cmd
-from src.docopt_utils import docopt_cmd, docopt_cmd_completion
 from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
 from src.xmlhandler import XmlHandler
-from src.utility import Pony
-from src.gluid import retrieve_gluid
-from src.show import (show_currencies, show_currency,
-                      show_ponies, show_pony,
-                      show_zones, show_zone)
-from src.set import (set_currency,
-                     set_ponies, set_pony,
-                     set_zones, set_zone,
-                     set_inventory)
-import src.docstrings as docstrings
+from src.utility.utility import Pony
+from src.utility.gluid import retrieve_gluid
+from .docopt_utils import docopt_cmd, docopt_cmd_completion
+from .show import (show_currencies, show_currency,
+                   show_ponies, show_pony,
+                   show_zones, show_zone)
+from .set import (set_currency,
+                  set_ponies, set_pony,
+                  set_zones, set_zone,
+                  set_inventory)
 import six
 
 if sys.version_info.major < 3:

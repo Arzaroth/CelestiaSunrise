@@ -9,7 +9,7 @@
 from __future__ import print_function, absolute_import, unicode_literals
 import zlib
 import struct
-import src.xxtea as xxtea
+import src.utility.xxtea as xxtea
 
 class SaveError(Exception):
     pass

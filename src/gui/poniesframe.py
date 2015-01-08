@@ -23,9 +23,9 @@ except ImportError:
                              NSEW,
                              HORIZONTAL,
                              NORMAL, DISABLED)
-from src.utility import Pony
-from src.scrollframe import ScrollFrame
-from src.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
+from src.utility.utility import Pony
+from .scrollframe import ScrollFrame
+from src.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 import six
 
 @six.add_metaclass(TkVarDescriptorOwner)
@@ -33,7 +33,7 @@ class PonyFrame(Frame, object):
     level = TkVarDescriptor(IntVar)
     level_up = TkVarDescriptor(BooleanVar)
     next_game = TkVarDescriptor(StringVar)
-    reset = TkVarDescriptor(BooleanVar)
+    reset_next_game = TkVarDescriptor(BooleanVar)
 
     def __init__(self, parent,
                  name, level,
@@ -60,9 +60,9 @@ class PonyFrame(Frame, object):
                                        Pony.GameTypes.rmap[Pony.GameTypes.Ball],
                                        Pony.GameTypes.rmap[Pony.GameTypes.Apple],
                                        Pony.GameTypes.rmap[Pony.GameTypes.Book])
-        self.reset = False
+        self.reset_next_game = False
         self._reset_checkbox = Checkbutton(self.parent,
-                                           variable=PonyFrame.reset.raw_klass(self))
+                                           variable=PonyFrame.reset_next_game.raw_klass(self))
 
         options = dict(padx=16, pady=2)
         self._pony_label.grid(row=offset, column=0, sticky=W, **options)
@@ -82,7 +82,7 @@ class EveryponyFrame(PonyFrame):
         self._ponies = ponies
         EveryponyFrame.level_up.raw_klass(self).trace("w", self._shards_change)
         EveryponyFrame.next_game.raw_klass(self).trace("w", self._next_game_change)
-        EveryponyFrame.reset.raw_klass(self).trace("w", self._reset_change)
+        EveryponyFrame.reset_next_game.raw_klass(self).trace("w", self._reset_change)
 
     def _level_change(self, *args):
         PonyFrame._level_change(self, *args)

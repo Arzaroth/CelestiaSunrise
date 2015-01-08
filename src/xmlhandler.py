@@ -10,10 +10,10 @@ from __future__ import print_function, absolute_import, unicode_literals
 import sys
 import re
 from collections import OrderedDict, defaultdict
-from src.defaultordereddict import DefaultOrderedDict
-from src.utility import (Pony, Inventory, MissingPonies,
-                         Currency, Clearables,
-                         Foes, Zone, Shops)
+from src.utility.defaultordereddict import DefaultOrderedDict
+from src.utility.utility import (Pony, Inventory, MissingPonies,
+                                 Currency, Clearables,
+                                 Foes, Zone, Shops)
 from six import unichr, add_metaclass
 
 RE_XML_ILLEGAL = re.compile(('([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' +

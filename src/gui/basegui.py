@@ -23,7 +23,7 @@ except ImportError:
                          StringVar, BooleanVar)
     from tkFileDialog import askopenfilename
     from Tkconstants import N, S, E, W, NSEW
-from src.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
+from src.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 import six
 
 @six.add_metaclass(TkVarDescriptorOwner)
@@ -36,9 +36,9 @@ class BaseGui(Tk, object):
 
     def __init__(self, savefile, gluid, dbfile, usedb, legacy):
         Tk.__init__(self)
-        self.savefile = savefile
-        self.gluid = gluid
-        self.dbfile = dbfile
+        self.savefile = savefile or ""
+        self.gluid = gluid or ""
+        self.dbfile = dbfile or ""
         self.usedb = usedb
         self.legacy = legacy
         self.grid()

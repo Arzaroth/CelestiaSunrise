@@ -18,8 +18,8 @@ except ImportError:
     from Tkinter import Label, Button, Frame
     from Tkconstants import N, S, E, W, NSEW
     from tkMessageBox import showerror
-from src.basegui import BaseGui
-from src.gluid import retrieve_gluid
+from .basegui import BaseGui
+from src.utility.gluid import retrieve_gluid
 
 class Loading(BaseGui):
     def __init__(self, savefile, gluid, dbfile, usedb, legacy):

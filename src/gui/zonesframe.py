@@ -15,7 +15,7 @@ except ImportError:
     # py2
     from Tkinter import Frame, Checkbutton, Label, BooleanVar, StringVar
     from Tkconstants import N, S, E, W, NSEW
-from src.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
+from src.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 import six
 
 @six.add_metaclass(TkVarDescriptorOwner)

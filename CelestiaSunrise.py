@@ -11,7 +11,6 @@ import os
 import sys
 import binascii
 import traceback
-from src import PonyShell, Gui
 
 try:
     PRGM = os.path.basename(__file__)
@@ -54,6 +53,7 @@ Author:
 """.format(prgm=PRGM, ver=VERSION)
 
 if __name__ == '__main__':
+    from src import PonyShell, Gui
     from docopt import docopt
     opts = docopt(__doc__, version=VERSION)
     try:
