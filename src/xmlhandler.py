@@ -343,48 +343,6 @@ class XmlHandler(object):
                 populate_dict(glob, key='@Category', suffix=suffix)
         return {'Global': glob, 'Ponies': actions}
 
-    # @property
-    # def _mapzones(self):
-    #     if self.__mapzones is None:
-    #         self.__mapzones = self._get__mapzones()
-    #     return self.__mapzones
-
-    # @property
-    # def ponies(self):
-    #     if self._ponies is None:
-    #         self._ponies = self._get_ponies()
-    #     return self._ponies
-
-    # @property
-    # def inventory(self):
-    #     if self._inventory is None:
-    #         self._inventory = self._get_inventory()
-    #     return self._inventory
-
-    # @property
-    # def missing_ponies(self):
-    #     if self._missing_ponies is None:
-    #         self._missing_ponies = self._get_missing_ponies()
-    #     return self._missing_ponies
-
-    # @property
-    # def currencies(self):
-    #     if self._currencies is None:
-    #         self._currencies = self._get_currencies()
-    #     return self._currencies
-
-    # @property
-    # def zones(self):
-    #     if self._zones is None:
-    #         self._zones = self._get_zones()
-    #     return self._zones
-
-    # @property
-    # def actions(self):
-    #     if self._actions is None:
-    #         self._actions = self._get_actions()
-    #     return self._actions
-
     def pre_load(self):
         self.currencies
         self.ponies
