@@ -87,6 +87,7 @@
 <a id="support-or-contact" class="anchor" href="#version-informations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Version informations</h3>
 
 <p class="release_info">Gathering informations...</p>
+<p class="total_info">Gathering informations...</p>
 
 <h3>
 <a id="legal-informations" class="anchor" href="#legal-informations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Legal informations</h3>
@@ -126,23 +127,29 @@ taking down this software.</p>
 
   <script type="text/javascript">
    function GetLatestReleaseExe() {
-     $.getJSON("https://api.github.com/repos/Arzaroth/CelestiaSunrise/releases").done(function (json) {
-       var release = json[0];
-       var asset = release.assets[0];
-       var downloadURL = asset.browser_download_url;
-       var downloadCount = 0;
-       for (var i = 0; i < release.assets.length; i++) {
-         downloadCount += release.assets[i].download_count;
-       }
-       var releaseInfo = release.name + " was updated " + $.timeago(asset.updated_at) + " and downloaded " + downloadCount + " times.";
-       $(".exe_link").attr("href", downloadURL);
-       $(".release_info").text(releaseInfo);
-       $(".release_info").fadeIn("slow");
-     });
+       $.getJSON("https://api.github.com/repos/Arzaroth/CelestiaSunrise/releases").done(function (json) {
+           var release = json[0];
+           var asset = release.assets[0];
+           var downloadURL = asset.browser_download_url;
+           var downloadCount = asset.download_count;
+           var downloadTotal = downloadCount;
+           for (var i = 1; i < json.length; ++i) {
+               if (json[i].assets.length > 0) {
+                   downloadTotal += json[i].assets[0].download_count;
+               }
+           }
+           var releaseInfo = release.name + " was updated " + $.timeago(asset.updated_at) + " and downloaded " + downloadCount + " times.";
+           var totalInfo = "There is " + json.length + " releases of Celestia Sunrise, and all of them were downloaded " + downloadTotal + " times.";
+           $(".exe_link").attr("href", downloadURL);
+           $(".release_info").text(releaseInfo);
+           $(".release_info").fadeIn("slow");
+           $(".total_info").text(totalInfo);
+           $(".total_info").fadeIn("slow");
+       });
    }
 
    $(document).ready(function () {
-     GetLatestReleaseExe();
+       GetLatestReleaseExe();
    });
   </script>
 
