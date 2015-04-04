@@ -265,7 +265,7 @@ class Clearables(object):
         self.ID = ID
         self.name = 'Clearable Objects'
         self._tag = tag[ID]
-        self._objects = [] if self._tag is None else self._tag['Object']
+        self._objects = [] if not self._tag else self._tag['Object']
         if type(self._objects) != list:
             self._tag['Object'] = [self._tag['Object']]
             self._objects = self._tag['Object']
@@ -295,7 +295,7 @@ class Foes(Clearables):
 
 class Shops(object):
     def __init__(self, tag):
-        shops = [] if tag is None else tag['Object']
+        shops = [] if not tag else tag['Object']
         if type(shops) != list:
             tag['Objects'] = [tag['Object']]
             shops = tag['Objects']

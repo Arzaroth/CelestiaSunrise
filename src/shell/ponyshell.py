@@ -12,7 +12,7 @@ import sys
 from cmd import Cmd
 from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
-from src.xmlhandler import XmlHandler
+from src.xml.xmlhandler import XmlHandler
 from src.utility.utility import Pony
 from src.utility.gluid import retrieve_gluid
 from .docopt_utils import docopt_cmd, docopt_cmd_completion

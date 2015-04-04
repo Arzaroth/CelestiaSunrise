@@ -14,6 +14,7 @@ from src.utility.defaultordereddict import DefaultOrderedDict
 from src.utility.utility import (Pony, Inventory, MissingPonies,
                                  Currency, Clearables,
                                  Foes, Zone, Shops)
+from src.xml.xmlparser import XmlParser
 from six import unichr, add_metaclass
 
 RE_XML_ILLEGAL = re.compile(('([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' +
@@ -218,9 +219,9 @@ class XmlHandler(object):
     _mapzones = XmlDescriptor()
 
     def __init__(self, xml_data):
-        import xmltodict
         print('Parsing XML tree...')
-        self.xmlobj = xmltodict.parse(clean_string(remove_parent(xml_data)))
+        xml = XmlParser()
+        self.xmlobj = xml.parse(clean_string(remove_parent(xml_data))).node
 
     def _get__mapzones(self):
         if type(self.xmlobj['MLP_Save']['MapZone']) != list:
@@ -348,48 +349,6 @@ class XmlHandler(object):
             for suffix in (' [TOTAL]', ' [TOTAL] Pony'):
                 populate_dict(glob, key='@Category', suffix=suffix)
         return {'Global': glob, 'Ponies': actions}
-
-    # @property
-    # def _mapzones(self):
-    #     if self.__mapzones is None:
-    #         self.__mapzones = self._get__mapzones()
-    #     return self.__mapzones
-
-    # @property
-    # def ponies(self):
-    #     if self._ponies is None:
-    #         self._ponies = self._get_ponies()
-    #     return self._ponies
-
-    # @property
-    # def inventory(self):
-    #     if self._inventory is None:
-    #         self._inventory = self._get_inventory()
-    #     return self._inventory
-
-    # @property
-    # def missing_ponies(self):
-    #     if self._missing_ponies is None:
-    #         self._missing_ponies = self._get_missing_ponies()
-    #     return self._missing_ponies
-
-    # @property
-    # def currencies(self):
-    #     if self._currencies is None:
-    #         self._currencies = self._get_currencies()
-    #     return self._currencies
-
-    # @property
-    # def zones(self):
-    #     if self._zones is None:
-    #         self._zones = self._get_zones()
-    #     return self._zones
-
-    # @property
-    # def actions(self):
-    #     if self._actions is None:
-    #         self._actions = self._get_actions()
-    #     return self._actions
 
     def pre_load(self):
         self.currencies

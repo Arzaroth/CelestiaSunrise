@@ -10,7 +10,7 @@ from pyrser import grammar, meta
 from pyrser.directives import ignore
 from collections import OrderedDict
 
-class XMLParser(grammar.Grammar):
+class XmlParser(grammar.Grammar):
     """Naive XML parser using pyrser"""
     entry = "xml"
     grammar = """
@@ -57,7 +57,7 @@ def append(dikt, key, value):
     else:
         dikt[key] = value
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def c_text(self, ast):
     self._stream.save_context()
     idx = self._stream.index
@@ -69,7 +69,7 @@ def c_text(self, ast):
         return self._stream.validate_context()
     return self._stream.restore_context()
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def c_text(self, ast):
     self._stream.save_context()
     idx = self._stream.index
@@ -81,48 +81,48 @@ def c_text(self, ast):
         return self._stream.validate_context()
     return self._stream.restore_context()
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def is_num(self, ast, n):
     ast.node = float(self.value(n))
     return True
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def is_str(self, ast, s):
     ast.node = self.value(s).strip('"')
     return True
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def init_tag(self, ast):
     ast.node = OrderedDict()
     return True
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def add_tag(self, ast, tag):
     append(ast.node[ast.tagname], tag.tagname, tag.node[tag.tagname])
     return True
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def add_text(self, ast, text):
     append(ast.node[ast.tagname], "#text", self.value(text).strip())
     return True
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def name_tag(self, ast, tagname):
     ast.tagname = self.value(tagname)
     ast.node[ast.tagname] = OrderedDict()
     return True
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def name_attribute(self, ast, name, value):
     ast.node = (self.value(name), value.node)
     return True
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def add_attribute(self, ast, attribute):
     attr_name = '@' + attribute.node[0]
     append(ast.node[ast.tagname], attr_name, attribute.node[1])
     return True
 
-@meta.hook(XMLParser)
+@meta.hook(XmlParser)
 def tag_matches(self, ast, closing_tag):
     return ast.tagname == closing_tag.tagname
