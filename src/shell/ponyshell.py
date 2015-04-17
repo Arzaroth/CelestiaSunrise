@@ -12,7 +12,7 @@ import sys
 from cmd import Cmd
 from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
-from src.xmlhandler import XmlHandler
+from src.xml.xmlhandler import XmlHandler
 from src.utility.utility import Pony
 from src.utility.gluid import retrieve_gluid
 from .docopt_utils import docopt_cmd, docopt_cmd_completion
@@ -51,7 +51,7 @@ class PonyShell(Cmd, object):
         data, self.save_number = self._save_manager.load(legacy)
         if not legacy:
             data = decompress_data(data)
-        self._xml_handle = XmlHandler(data.decode('utf-8', 'ignore'))
+        self._xml_handle = XmlHandler(data)
         self._xml_handle.pre_load()
         self.legacy = legacy
         self._show_functions = {

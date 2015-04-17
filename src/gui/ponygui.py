@@ -27,7 +27,7 @@ from .poniesframe import PoniesFrame
 from .zonesframe import ZonesFrame
 from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
-from src.xmlhandler import XmlHandler
+from src.xml.xmlhandler import XmlHandler
 from src.utility.gluid import retrieve_gluid
 
 class LoadingDialog(Toplevel):
@@ -67,7 +67,7 @@ class PonyGui(BaseGui):
             self.destroy()
         else:
             self.loaded = True
-            self._xml_handle = XmlHandler(data.decode('utf-8', 'ignore'))
+            self._xml_handle = XmlHandler(data)
             self._xml_handle.pre_load()
             loadingbox.destroy()
 
