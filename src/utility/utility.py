@@ -43,16 +43,23 @@ class MissingPonies(object):
 
 
 class Inventory(object):
-    def __init__(self, tag):
+    def __init__(self, tag, xmlobj):
         self._tag = tag
+        self._xmlobj = xmlobj
         self._ponies = None
         self._decorations = None
 
     def _populate(self, prefix):
         res = DefaultOrderedDict(list)
-        for item in self._tag:
-            if item['@ID'].startswith(prefix):
-                res[item['@ID']].append(StoredItem(item))
+        try:
+            items = self._tag['StoredItem']
+        except KeyError:
+            items = []
+        if type(items) != list:
+            items = [items]
+        for item in items:
+            if item['@ID'].value.startswith(prefix):
+                res[item['@ID'].value].append(StoredItem(item))
         return res
 
     @property
@@ -68,15 +75,16 @@ class Inventory(object):
         return self._decorations
 
     def __iadd__(self, ID):
-        new_item = OrderedDict([('@ID', ID),
-                                ('@Cost', '0'),
-                                ('@CostType', '0'),
-                                ('@PonyLevel', '0'),
-                                ('@PonyShards', '0'),
-                                ('@PonyCurrentEXP', '0'),
-                                ('@Constructed', '0'),
-                                ('@PonyArriveBonus', '0')])
-        self._tag.append(new_item)
+        new_item = self._xmlobj.allocate_node('StoredItem')
+        new_item.append_attribute(self._xmlobj.allocate_attribute('ID', ID))
+        new_item.append_attribute(self._xmlobj.allocate_attribute('Cost', '0'))
+        new_item.append_attribute(self._xmlobj.allocate_attribute('CostType', '0'))
+        new_item.append_attribute(self._xmlobj.allocate_attribute('PonyLevel', '0'))
+        new_item.append_attribute(self._xmlobj.allocate_attribute('PonyShards', '0'))
+        new_item.append_attribute(self._xmlobj.allocate_attribute('PonyCurrentEXP', '0'))
+        new_item.append_attribute(self._xmlobj.allocate_attribute('Constructed', '0'))
+        new_item.append_attribute(self._xmlobj.allocate_attribute('PonyArriveBonus', '0'))
+        self._tag.append_node(new_item)
         self._ponies = self._populate('Pony_')
         self._decorations = self._populate('Decoration_')
         return self
@@ -87,22 +95,22 @@ class Inventory(object):
 
 class StoredItem(object):
     def __init__(self, tag):
-        self.name = tag["@ID"][5:].replace('_', ' ')
-        self.ID = tag["@ID"]
+        self.name = tag["@ID"].value[5:].replace('_', ' ')
+        self.ID = tag["@ID"].value
         self._tag = tag
         self.stored = True
 
     @property
     def _level(self):
-        return min(max(int(self._tag["@PonyLevel"]), 0), 5)
+        return min(max(int(self._tag["@PonyLevel"].value), 0), 5)
 
     @property
     def _exp(self):
-        return int(self._tag["@PonyCurrentEXP"])
+        return int(self._tag["@PonyCurrentEXP"].value)
 
     @property
     def _shards(self):
-        return min(max(int(self._tag["@PonyShards"]), 0), 10)
+        return min(max(int(self._tag["@PonyShards"].value), 0), 10)
 
     @property
     def level(self):
@@ -144,15 +152,15 @@ class Pony(StoredItem):
 
     @StoredItem._level.getter
     def _level(self):
-        return min(max(int(self._leveltag["@Level"]), 0), 5)
+        return min(max(int(self._leveltag["@Level"].value), 0), 5)
 
     @StoredItem._exp.getter
     def _exp(self):
-        return int(self._leveltag["@CurrentEXP"])
+        return int(self._leveltag["@CurrentEXP"].value)
 
     @StoredItem._shards.getter
     def _shards(self):
-        return min(max(int(self._leveltag["@Shards"]), 0), 10)
+        return min(max(int(self._leveltag["@Shards"].value), 0), 10)
 
     @StoredItem.level.setter
     def level(self, new_val):
@@ -166,29 +174,31 @@ class Pony(StoredItem):
                 old_vals = defaultdict(dict)
             for k, v in actions['ClearSkies'].items():
                 if not diff:
-                    old_vals['ClearSkies'][k] = int(v[0]['@Value'])
+                    old_vals['ClearSkies'][k] = int(v[0]['@Value'].value)
                 mod = new_val - old_vals['ClearSkies'][k]
                 for i in v:
-                    i['@Value'] = str((int(i['@Value']) + mod) if diff else new_val)
+                    i['@Value'].value = str((int(i['@Value'].value) + mod) if diff else new_val)
             for action in ('Complete', 'ItemSelected', 'Started'):
                 for k, v in actions[action].items():
                     if not diff:
-                        old_vals[action][k] = int(v[0]['@Value'])
+                        old_vals[action][k] = int(v[0]['@Value'].value)
                     mod = (new_val * 2) - old_vals[action][k]
                     for i in v:
-                        i['@Value'] = str((int(i['@Value']) + mod) if diff else (new_val * 2))
+                        i['@Value'].value = str((int(i['@Value'].value) + mod)
+                                                if diff else (new_val * 2))
             if not diff:
-                old_vals['Complete']['All'] = int(actions['Complete']['All'][0]['@Value'])
+                old_vals['Complete']['All'] = int(actions['Complete']['All'][0]['@Value'].value)
             mod = (new_val * 2 * (len(Pony.GameTypes.map) + 1)) - old_vals['Complete']['All']
             for i in actions['Complete']['All']:
-                i['@Value'] = str((int(i['@Value']) + mod) if diff else (new_val * 2 *
-                                                                         (len(Pony.GameTypes.map) + 1)))
+                i['@Value'].value = str((int(i['@Value'].value) + mod)
+                                        if diff else (new_val * 2 *
+                                                      (len(Pony.GameTypes.map) + 1)))
             return old_vals
 
         old_vals = update_action_values(self._pony_actions['Pony'], new_val)
         update_action_values(self._pony_actions['Global'], new_val, old_vals)
         self.shards = 0
-        self._leveltag["@Level"] = str(new_val)
+        self._leveltag["@Level"].value = str(new_val)
 
     @StoredItem.shards.setter
     def shards(self, new_val):
@@ -197,12 +207,12 @@ class Pony(StoredItem):
             raise ValueError("Shards must be beetween 0 and 10")
         if self.level == 5 and new_val > 0:
             raise ValueError("Can't have shards at maximum level")
-        self._leveltag["@Shards"] = str(new_val)
+        self._leveltag["@Shards"].value = str(new_val)
 
     @StoredItem.next_game.getter
     def next_game(self):
         try:
-            gametype = int(self._minigametag["@NextPlayAction"])
+            gametype = int(self._minigametag["@NextPlayAction"].value)
             name = Pony.GameTypes.rmap[gametype]
         except:
             name = 'Unknown'
@@ -212,7 +222,7 @@ class Pony(StoredItem):
     def next_game(self, gametype):
         if gametype not in Pony.GameTypes.rmap:
             raise ValueError("Invalid game type")
-        self._minigametag["@NextPlayAction"] = str(gametype)
+        self._minigametag["@NextPlayAction"].value = str(gametype)
 
     def level_up(self, nb=1):
         self.level = min(max(self.level + nb, 0), 5)
@@ -230,18 +240,18 @@ class Pony(StoredItem):
             self.shards = 0
 
     def reset_game_timer(self):
-        self._minigametag["@NextPlayTime"] = ZERO
+        self._minigametag["@NextPlayTime"].value = ZERO
 
 
 class Currency(object):
     def __init__(self, name, tag, limit=None):
         self.name = name
         self.limit = limit
-        self._tag = tag
+        self._tag = tag[name]
 
     @property
     def value(self):
-        return int(self._tag[self.name])
+        return int(self._tag.value)
 
     @value.setter
     def value(self, new_val):
@@ -250,7 +260,7 @@ class Currency(object):
             raise ValueError("Can't set a negative currency value for %s" % self.name)
         if self.limit is not None and new_val > int(self.limit):
             raise ValueError("Value above the limit for %s" % self.name)
-        self._tag[self.name] = str(new_val)
+        self._tag.value = str(new_val)
 
     def __repr__(self):
         return ('%s(ID: %s, Value: %s, Limit: %s)'
@@ -265,19 +275,15 @@ class Clearables(object):
         self.ID = ID
         self.name = 'Clearable Objects'
         self._tag = tag[ID]
-        self._objects = [] if self._tag is None else self._tag['Object']
-        if type(self._objects) != list:
-            self._tag['Object'] = [self._tag['Object']]
-            self._objects = self._tag['Object']
 
     def cleared(self):
-        return not self._objects
+        return not self._tag.first_node()
 
     def clear(self):
-        del self._objects[:]
+        self._tag.remove_all_nodes()
 
     def __len__(self):
-        return len(self._objects)
+        return len(list(self._tag.children))
 
     def __repr__(self):
         return ('%s(ID: %s, Name: %s, Cleared: %s)'
@@ -295,16 +301,12 @@ class Foes(Clearables):
 
 class Shops(object):
     def __init__(self, tag):
-        shops = [] if tag is None else tag['Object']
-        if type(shops) != list:
-            tag['Objects'] = [tag['Object']]
-            shops = tag['Objects']
-        self._shops = [shop for shop in shops if 'ShopProduction' in shop]
+        self._shops = [shop for shop in tag if 'ShopProduction' in shop]
 
     def reset_shops_timer(self):
         for shop in self._shops:
-            shop['ShopProduction']['@TimeA'] = ZERO
-            shop['ShopProduction']['@TimeB'] = ZERO
+            shop['ShopProduction']['@TimeA'].value = ZERO
+            shop['ShopProduction']['@TimeB'].value = ZERO
 
     def __len__(self):
         return len(self._shops)

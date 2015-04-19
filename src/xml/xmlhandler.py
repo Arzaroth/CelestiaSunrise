@@ -8,29 +8,12 @@
 
 from __future__ import print_function, absolute_import, unicode_literals
 import sys
-import re
 from collections import OrderedDict, defaultdict
 from src.utility.defaultordereddict import DefaultOrderedDict
 from src.utility.utility import (Pony, Inventory, MissingPonies,
                                  Currency, Clearables,
                                  Foes, Zone, Shops)
 from six import unichr, add_metaclass
-
-RE_XML_ILLEGAL = re.compile(('([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' +
-                             '|' +
-                             '([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])') %
-                            (unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),
-                             unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff),
-                             unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff)))
-
-def remove_parent(xml_data):
-    return xml_data.replace('(', '_x0028_').replace(')', '_x0029_')
-
-def add_parent(xml_data):
-    return xml_data.replace('_x0028_', '(').replace('_x0029_', ')')
-
-def clean_string(xml_data):
-    return RE_XML_ILLEGAL.sub('?', xml_data)
 
 class XmlDescriptor(object):
     def __init__(self):
@@ -48,7 +31,6 @@ class XmlMeta(type):
             if isinstance(value, XmlDescriptor):
                 value.name = key
         return super(XmlMeta, cls).__new__(cls, name, bases, attrs)
-
 
 @add_metaclass(XmlMeta)
 class XmlHandler(object):
@@ -81,6 +63,7 @@ class XmlHandler(object):
         ("Pony_Braeburn", "Braeburn"),
         ("Pony_Candy_Apples", "Candy Apples"),
         ("Pony_Caramel", "Caramel"),
+        ("Pony_Caramel_Apple", "Caramel Apple"),
         ("Pony_Cheerilee", "Cheerilee"),
         ("Pony_Cheese_Sandwich", "Cheese Sandwich"),
         ("Pony_Cherry_Fizzy", "Cherry Fizzy"),
@@ -120,12 +103,14 @@ class XmlHandler(object):
         ("Pony_Goldie_Delicious", "Goldie Delicious"),
         ("Pony_Granny_Smith", "Granny Smith"),
         ("Pony_Half_Baked_Apple", "Half Baked Apple"),
+        ("Pony_Hayseed_Turnip_Truck", "Hayseed Turnip Truck"),
         ("Pony_Hoity_Toity", "Hoity Toity"),
         ("Pony_Jeff_Letrotski", "Jeff Letrotski"),
         ("Pony_Jesus_Pezuna", "Jesus Pezuna"),
         ("Pony_Jet_Set", "Jet Set"),
         ("Pony_Joe", "Joe"),
         ("Pony_King_Sombra", "King Sombra"),
+        ("Pony_Lemony_Gem", "Lemony Gem"),
         ("Pony_Lightning_Dust", "Lightning Dust"),
         ("Pony_Limestone_Pie", "Limestone Pie"),
         ("Pony_Lotus_Blossom", "Lotus Blossom"),
@@ -169,6 +154,8 @@ class XmlHandler(object):
         ("Pony_Red_Gala", "Red Gala"),
         ("Pony_Renfairpony", "Richard (the) Hoovenheart"),
         ("Pony_Royal_Guard", "Royal Guard"),
+        ("Pony_Royal_Ribbon", "Royal Ribbon"),
+        ("Pony_Rumble", "Rumble"),
         ("Pony_Sapphire_Shores", "Sapphire Shores"),
         ("Pony_Savoir_Fare", "Savoir Fare"),
         ("Pony_Scootaloo", "Scootaloo"),
@@ -184,6 +171,7 @@ class XmlHandler(object):
         ("Pony_Suri_Polomare", "Suri Polomare"),
         ("Pony_Swan_Song", "Swan Song"),
         ("Pony_Sweetiebelle", "Sweetie Belle"),
+        ("Pony_Thunderlane", "Thunderlane"),
         ("Pony_Toe_Tapper", "Toe Tapper"),
         ("Pony_Torch_Song", "Torch Song"),
         ("Pony_Trenderhoof", "Trenderhoof"),
@@ -212,52 +200,54 @@ class XmlHandler(object):
     _mapzones = XmlDescriptor()
 
     def __init__(self, xml_data):
-        import xmltodict
         print('Parsing XML tree...')
-        self.xmlobj = xmltodict.parse(clean_string(remove_parent(xml_data)))
+        import rapidxml
+        self.xmlobj = rapidxml.RapidXml(bytearray(xml_data))
 
     def _get__mapzones(self):
         if type(self.xmlobj['MLP_Save']['MapZone']) != list:
-            self.xmlobj['MLP_Save']['MapZone'] = [self.xmlobj['MLP_Save']['MapZone']]
+            return [self.xmlobj['MLP_Save']['MapZone']]
         return self.xmlobj['MLP_Save']['MapZone']
 
     def _filtered_actions(self, ID):
         res = defaultdict(dict)
         for typ, actions in self.actions['Ponies'].items():
             for action, tags in actions.items():
-                if type(tags[0]['Item']) != list:
-                    tags[0]['Item'] = [tags[0]['Item']]
                 items = tags[0]['Item']
-                tag = [i for i in items if i['@Category'] == ID]
+                if type(items) != list:
+                    items = [items]
+                tag = [i for i in items if i['@Category'].value == ID]
                 if not tag:
-                    tag = [OrderedDict([('@Category', ID), ('@Value', "0")])]
-                    items.append(tag[0])
-                    tags[0]['Item'] = items
+                    tag = self.xmlobj.allocate_node('Item')
+                    tag.append_attribute(self.xmlobj.allocate_attribute('Category', ID))
+                    tag.append_attribute(self.xmlobj.allocate_attribute('Value', '0'))
+                    tags[0].append_node(tag)
+                    tag = [tag]
                 res[typ][action] = tag
         return {'Pony': res, 'Global': self.actions['Global']}
 
     def _get_ponies(self):
         res = OrderedDict()
         for mapzone in self._mapzones:
-            ponyobjects = mapzone['GameObjects']['Pony_Objects']
-            if ponyobjects:
-                if type(ponyobjects['Object']) != list:
-                    ponyobjects['Object'] = [ponyobjects['Object']]
-                for ponytag in ponyobjects['Object']:
-                    ID = ponytag["@ID"]
+            try:
+                ponyobjects = mapzone['GameObjects']['Pony_Objects']
+            except KeyError:
+                pass
+            else:
+                for ponytag in ponyobjects:
+                    ID = ponytag["@ID"].value
                     res[ID] = Pony(ponytag, self._filtered_actions(ID),
                                    None if ID not in XmlHandler.PONY_LIST else
                                    XmlHandler.PONY_LIST[ID])
         return res
 
     def _get_inventory(self):
-        if not self.xmlobj['MLP_Save']['PlayerData']['Storage']:
-            self.xmlobj['MLP_Save']['PlayerData']['Storage'] = OrderedDict([('StoredItem', [])])
-        storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
-        if type(storage['StoredItem']) != list:
-            storage['StoredItem'] = [storage['StoredItem']]
-        items = storage['StoredItem']
-        return Inventory(items)
+        try:
+            storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
+        except KeyError:
+            storage = self.xmlobj.allocate_node('Storage')
+            self.xmlobj['MLP_Save']['PlayerData'].append_node(storage)
+        return Inventory(storage, self.xmlobj)
 
     def _get_missing_ponies(self):
         return MissingPonies(self.ponies, self.inventory.ponies,
@@ -303,8 +293,8 @@ class XmlHandler(object):
         for mapzone in self._mapzones:
             gameobjects = mapzone['GameObjects']
             try:
-                zone_spec = mapzones_spec[mapzone["@ID"]]
-            except:
+                zone_spec = mapzones_spec[mapzone["@ID"].value]
+            except KeyError:
                 continue
             clearables = Clearables('Clearable_Objects',
                                     gameobjects)
@@ -312,10 +302,10 @@ class XmlHandler(object):
                         zone_spec["foes"]["name"],
                         gameobjects)
             shops = Shops(gameobjects['Pony_House_Objects'])
-            zones[mapzone["@ID"]] = Zone(mapzone["@ID"],
-                                         zone_spec["name"],
-                                         clearables,
-                                         foes, shops)
+            zones[mapzone["@ID"].value] = Zone(mapzone["@ID"].value,
+                                               zone_spec["name"],
+                                               clearables,
+                                               foes, shops)
         return zones
 
     def _get_actions(self):
@@ -327,13 +317,13 @@ class XmlHandler(object):
         def populate_dict(dikt, key='@ID', suffix='', inner=None):
             for typ in ('Complete', 'Started', 'ItemSelected'):
                 for action in Pony.GameTypes.map:
-                    if (tag[key] == ('PlayAction%s_%s%s' % (typ, action, suffix))
+                    if (tag[key].value == ('PlayAction%s_%s%s' % (typ, action, suffix))
                         and (not inner or inner in tag)):
                         dikt[typ][action].append(tag)
             for typ in ('Complete', 'Started'):
-                if tag[key] == ('ClearSkies_%s%s' % (typ, suffix)):
+                if tag[key].value == ('ClearSkies_%s%s' % (typ, suffix)):
                     dikt['ClearSkies'][typ].append(tag)
-            if tag[key] == ('PlayActionComplete%s' % suffix):
+            if tag[key].value == ('PlayActionComplete%s' % suffix):
                 dikt['Complete']['All'].append(tag)
 
         for tag in objectcategories:
@@ -352,13 +342,7 @@ class XmlHandler(object):
         self.actions
 
     def to_string(self):
-        import xmltodict
-        return add_parent(xmltodict.unparse(self.xmlobj,
-                                            full_document=False))
+        return self.xmlobj.unparse()
 
     def prettify(self):
-        import xmltodict
-        return add_parent(xmltodict.unparse(self.xmlobj,
-                                            full_document=False,
-                                            pretty=True,
-                                            indent='  '))
+        return self.xmlobj.unparse(pretty=True)
