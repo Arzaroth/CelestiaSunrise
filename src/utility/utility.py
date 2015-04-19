@@ -177,7 +177,7 @@ class Pony(StoredItem):
                     old_vals['ClearSkies'][k] = int(v[0]['@Value'].value)
                 mod = new_val - old_vals['ClearSkies'][k]
                 for i in v:
-                    i['@Value'].value = str((int(i['@Value']) + mod) if diff else new_val)
+                    i['@Value'].value = str((int(i['@Value'].value) + mod) if diff else new_val)
             for action in ('Complete', 'ItemSelected', 'Started'):
                 for k, v in actions[action].items():
                     if not diff:

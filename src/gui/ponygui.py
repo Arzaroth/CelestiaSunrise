@@ -119,9 +119,11 @@ class PonyGui(BaseGui):
                 self._ponies_frame.commit()
                 self._zones_frame.commit()
                 self._missing_ponies_frame.commit()
-                self._save_manager.save(compress_data(self._xml_handle
-                                                      .to_string()
-                                                      .encode('utf-8')),
+                try:
+                    data = self._xml_handle.to_string().encode('utf-8')
+                except UnicodeDecodeError:
+                    data = self._xml_handle.to_string()
+                self._save_manager.save(compress_data(data),
                                         self.savefile,
                                         self.save_number,
                                         gluid,

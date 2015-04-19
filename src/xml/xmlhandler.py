@@ -222,6 +222,7 @@ class XmlHandler(object):
                     tag.append_attribute(self.xmlobj.allocate_attribute('Category', ID))
                     tag.append_attribute(self.xmlobj.allocate_attribute('Value', '0'))
                     tags[0].append_node(tag)
+                    tag = [tag]
                 res[typ][action] = tag
         return {'Pony': res, 'Global': self.actions['Global']}
 

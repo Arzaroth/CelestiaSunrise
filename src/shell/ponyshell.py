@@ -206,9 +206,11 @@ Options:
                 print("Invalid encryption key")
                 return
         try:
-            self._save_manager.save(compress_data(self._xml_handle
-                                                  .to_string()
-                                                  .encode('utf-8')),
+            try:
+                data = self._xml_handle.to_string().encode('utf-8')
+            except UnicodeDecodeError:
+                data = self._xml_handle.to_string()
+            self._save_manager.save(compress_data(data),
                                     args['<file>'],
                                     self.save_number,
                                     args['<gluid>'],
