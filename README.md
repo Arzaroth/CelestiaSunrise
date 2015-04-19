@@ -6,8 +6,8 @@ A savegame editor for the mobile game "My Little Pony"
 ```
 Required:
 docopt==0.6.2
+RapidXml==1.0.5
 six==1.9.0
-xmltodict==0.9.0
 ```
 
 Dependencies can be installed with the following command:
