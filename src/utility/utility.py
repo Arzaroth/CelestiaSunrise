@@ -237,11 +237,11 @@ class Currency(object):
     def __init__(self, name, tag, limit=None):
         self.name = name
         self.limit = limit
-        self._tag = tag
+        self._tag = tag[name]
 
     @property
     def value(self):
-        return int(self._tag[self.name])
+        return int(self._tag.value)
 
     @value.setter
     def value(self, new_val):
@@ -250,7 +250,7 @@ class Currency(object):
             raise ValueError("Can't set a negative currency value for %s" % self.name)
         if self.limit is not None and new_val > int(self.limit):
             raise ValueError("Value above the limit for %s" % self.name)
-        self._tag[self.name] = str(new_val)
+        self._tag.value = str(new_val)
 
     def __repr__(self):
         return ('%s(ID: %s, Value: %s, Limit: %s)'
@@ -265,19 +265,15 @@ class Clearables(object):
         self.ID = ID
         self.name = 'Clearable Objects'
         self._tag = tag[ID]
-        self._objects = [] if not self._tag else self._tag['Object']
-        if type(self._objects) != list:
-            self._tag['Object'] = [self._tag['Object']]
-            self._objects = self._tag['Object']
 
     def cleared(self):
-        return not self._objects
+        return not self._tag.first_node()
 
     def clear(self):
-        del self._objects[:]
+        self._tag.remove_all_nodes()
 
     def __len__(self):
-        return len(self._objects)
+        return len(list(self._tag.children))
 
     def __repr__(self):
         return ('%s(ID: %s, Name: %s, Cleared: %s)'
@@ -295,16 +291,12 @@ class Foes(Clearables):
 
 class Shops(object):
     def __init__(self, tag):
-        shops = [] if not tag else tag['Object']
-        if type(shops) != list:
-            tag['Objects'] = [tag['Object']]
-            shops = tag['Objects']
-        self._shops = [shop for shop in shops if 'ShopProduction' in shop]
+        self._shops = [shop for shop in tag if 'ShopProduction' in shop]
 
     def reset_shops_timer(self):
         for shop in self._shops:
-            shop['ShopProduction']['@TimeA'] = ZERO
-            shop['ShopProduction']['@TimeB'] = ZERO
+            shop['ShopProduction']['@TimeA'].value = ZERO
+            shop['ShopProduction']['@TimeB'].value = ZERO
 
     def __len__(self):
         return len(self._shops)

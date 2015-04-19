@@ -7,9 +7,7 @@
 #
 
 from .xmlhandler import XmlHandler
-from .xmlparser import XmlParser
 
 __all__ = [
     'XmlHandler',
-    'XmlParser',
 ]

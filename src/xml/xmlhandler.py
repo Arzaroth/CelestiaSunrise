@@ -32,7 +32,6 @@ class XmlMeta(type):
                 value.name = key
         return super(XmlMeta, cls).__new__(cls, name, bases, attrs)
 
-
 @add_metaclass(XmlMeta)
 class XmlHandler(object):
     PONY_LIST = OrderedDict([
@@ -203,11 +202,11 @@ class XmlHandler(object):
     def __init__(self, xml_data):
         print('Parsing XML tree...')
         import rapidxml
-        self.xmlobj = rapidxml.RapidXml(xml_data)
+        self.xmlobj = rapidxml.RapidXml(bytearray(xml_data))
 
     def _get__mapzones(self):
         if type(self.xmlobj['MLP_Save']['MapZone']) != list:
-            self.xmlobj['MLP_Save']['MapZone'] = [self.xmlobj['MLP_Save']['MapZone']]
+            return [self.xmlobj['MLP_Save']['MapZone']]
         return self.xmlobj['MLP_Save']['MapZone']
 
     def _filtered_actions(self, ID):
@@ -292,7 +291,7 @@ class XmlHandler(object):
         for mapzone in self._mapzones:
             gameobjects = mapzone['GameObjects']
             try:
-                zone_spec = mapzones_spec[mapzone["@ID"]]
+                zone_spec = mapzones_spec[mapzone["@ID"].value]
             except:
                 continue
             clearables = Clearables('Clearable_Objects',
@@ -301,10 +300,10 @@ class XmlHandler(object):
                         zone_spec["foes"]["name"],
                         gameobjects)
             shops = Shops(gameobjects['Pony_House_Objects'])
-            zones[mapzone["@ID"]] = Zone(mapzone["@ID"],
-                                         zone_spec["name"],
-                                         clearables,
-                                         foes, shops)
+            zones[mapzone["@ID"].value] = Zone(mapzone["@ID"].value,
+                                               zone_spec["name"],
+                                               clearables,
+                                               foes, shops)
         return zones
 
     def _get_actions(self):
@@ -341,13 +340,7 @@ class XmlHandler(object):
         self.actions
 
     def to_string(self):
-        import xmltodict
-        return add_parent(xmltodict.unparse(self.xmlobj,
-                                            full_document=False))
+        return self.xmlobj.unparse()
 
     def prettify(self):
-        import xmltodict
-        return add_parent(xmltodict.unparse(self.xmlobj,
-                                            full_document=False,
-                                            pretty=True,
-                                            indent='  '))
+        return self.xmlobj.unparse(pretty=True)
