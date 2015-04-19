@@ -213,39 +213,40 @@ class XmlHandler(object):
         res = defaultdict(dict)
         for typ, actions in self.actions['Ponies'].items():
             for action, tags in actions.items():
-                if type(tags[0]['Item']) != list:
-                    tags[0]['Item'] = [tags[0]['Item']]
                 items = tags[0]['Item']
-                tag = [i for i in items if i['@Category'] == ID]
+                if type(items) != list:
+                    items = [items]
+                tag = [i for i in items if i['@Category'].value == ID]
                 if not tag:
-                    tag = [OrderedDict([('@Category', ID), ('@Value', "0")])]
-                    items.append(tag[0])
-                    tags[0]['Item'] = items
+                    tag = self.xmlobj.allocate_node('Item')
+                    tag.append_attribute(self.xmlobj.allocate_attribute('Category', ID))
+                    tag.append_attribute(self.xmlobj.allocate_attribute('Value', '0'))
+                    tags[0].append_node(tag)
                 res[typ][action] = tag
         return {'Pony': res, 'Global': self.actions['Global']}
 
     def _get_ponies(self):
         res = OrderedDict()
         for mapzone in self._mapzones:
-            ponyobjects = mapzone['GameObjects']['Pony_Objects']
-            if ponyobjects:
-                if type(ponyobjects['Object']) != list:
-                    ponyobjects['Object'] = [ponyobjects['Object']]
-                for ponytag in ponyobjects['Object']:
-                    ID = ponytag["@ID"]
+            try:
+                ponyobjects = mapzone['GameObjects']['Pony_Objects']
+            except KeyError:
+                pass
+            else:
+                for ponytag in ponyobjects:
+                    ID = ponytag["@ID"].value
                     res[ID] = Pony(ponytag, self._filtered_actions(ID),
                                    None if ID not in XmlHandler.PONY_LIST else
                                    XmlHandler.PONY_LIST[ID])
         return res
 
     def _get_inventory(self):
-        if not self.xmlobj['MLP_Save']['PlayerData']['Storage']:
-            self.xmlobj['MLP_Save']['PlayerData']['Storage'] = OrderedDict([('StoredItem', [])])
-        storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
-        if type(storage['StoredItem']) != list:
-            storage['StoredItem'] = [storage['StoredItem']]
-        items = storage['StoredItem']
-        return Inventory(items)
+        try:
+            storage = self.xmlobj['MLP_Save']['PlayerData']['Storage']
+        except KeyError:
+            storage = self.xmlobj.allocate_node('Storage')
+            self.xmlobj['MLP_Save']['PlayerData'].append_node(storage)
+        return Inventory(storage, self.xmlobj)
 
     def _get_missing_ponies(self):
         return MissingPonies(self.ponies, self.inventory.ponies,
@@ -292,7 +293,7 @@ class XmlHandler(object):
             gameobjects = mapzone['GameObjects']
             try:
                 zone_spec = mapzones_spec[mapzone["@ID"].value]
-            except:
+            except KeyError:
                 continue
             clearables = Clearables('Clearable_Objects',
                                     gameobjects)
@@ -315,13 +316,13 @@ class XmlHandler(object):
         def populate_dict(dikt, key='@ID', suffix='', inner=None):
             for typ in ('Complete', 'Started', 'ItemSelected'):
                 for action in Pony.GameTypes.map:
-                    if (tag[key] == ('PlayAction%s_%s%s' % (typ, action, suffix))
+                    if (tag[key].value == ('PlayAction%s_%s%s' % (typ, action, suffix))
                         and (not inner or inner in tag)):
                         dikt[typ][action].append(tag)
             for typ in ('Complete', 'Started'):
-                if tag[key] == ('ClearSkies_%s%s' % (typ, suffix)):
+                if tag[key].value == ('ClearSkies_%s%s' % (typ, suffix)):
                     dikt['ClearSkies'][typ].append(tag)
-            if tag[key] == ('PlayActionComplete%s' % suffix):
+            if tag[key].value == ('PlayActionComplete%s' % suffix):
                 dikt['Complete']['All'].append(tag)
 
         for tag in objectcategories:
