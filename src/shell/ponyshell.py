@@ -175,7 +175,7 @@ Arguments:
 Options:
   -h --help     Show this help."""
         try:
-            with open(args['<file>'], 'r', encoding='utf-8') as f:
+            with open(args['<file>'], 'rb') as f:
                 xml_data = f.read()
             new_xml_handle = XmlHandler(xml_data)
             new_xml_handle.pre_load()
