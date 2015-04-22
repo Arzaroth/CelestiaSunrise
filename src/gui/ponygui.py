@@ -33,10 +33,6 @@ from src.savemanager import (SaveManager, SaveError,
 from src.xml.xmlhandler import XmlHandler
 from src.utility.gluid import retrieve_gluid
 
-if sys.version_info.major < 3:
-    import codecs
-    open = codecs.open
-
 class LoadingDialog(Toplevel):
     def __init__(self, parent):
         Toplevel.__init__(self)
@@ -86,7 +82,7 @@ class PonyGui(BaseGui):
         filename = asksaveasfilename()
         if filename:
             try:
-                with open(filename, 'w', encoding='utf-8') as f:
+                with open(filename, 'w') as f:
                     f.write(self._xml_handle.prettify())
             except Exception as e:
                 showerror("Error",

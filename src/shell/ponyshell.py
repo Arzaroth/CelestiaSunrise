@@ -25,10 +25,6 @@ from .set import (set_currency,
                   set_inventory)
 import six
 
-if sys.version_info.major < 3:
-    import codecs
-    open = codecs.open
-
 class PonyMeta(type):
     def __new__(cls, name, bases, attrs):
         new_attrs = {}
@@ -155,7 +151,7 @@ Options:
   -h --help     Show this help."""
         if args['<file>']:
             try:
-                with open(args['<file>'], 'w', encoding='utf-8') as f:
+                with open(args['<file>'], 'w') as f:
                     f.write(self._xml_handle.prettify())
             except Exception as e:
                 print("Was unable to write to file, reason: {}".format(str(e)))
