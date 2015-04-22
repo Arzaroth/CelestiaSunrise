@@ -1,3 +1,4 @@
+-e git+git@github.com:Arzaroth/CelestiaSunrise.git@68faba4deac978e934d394cf0dd87a0ac7004c10#egg=CelestiaSunrise-dev
 docopt==0.6.2
-RapidXml==1.0.5
+RapidXml==1.0.6
 six==1.9.0

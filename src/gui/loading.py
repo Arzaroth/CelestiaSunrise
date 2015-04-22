@@ -27,6 +27,16 @@ class Loading(BaseGui):
         self.go_next = False
         BaseGui.init(self)
 
+    def _remove_frames(self):
+        BaseGui._remove_frames(self)
+        self._disclaimer_frame.grid_forget()
+
+    def _remove_widgets(self):
+        BaseGui._remove_widgets(self)
+        self._disclaimer_label1.grid_forget()
+        self._disclaimer_label2.grid_forget()
+        self._ok_button.grid_forget()
+
     def _create_frames(self):
         BaseGui._create_frames(self)
         self._disclaimer_frame = Frame(self)

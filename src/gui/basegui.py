@@ -55,6 +55,27 @@ class BaseGui(Tk, object):
         self._legacy_clicked()
         self._usedb_clicked()
 
+    def reinit(self):
+        self._remove_widgets()
+        self._remove_frames()
+        self.init()
+
+    def _remove_frames(self):
+        self._file_frame.grid_forget()
+        self._key_frame.grid_forget()
+        self._key_entry_frame.grid_forget()
+        self._key_checkbox_frame.grid_forget()
+
+    def _remove_widgets(self):
+        self._file_label.grid_forget()
+        self._file_entry.grid_forget()
+        self._file_button.grid_forget()
+        self._file_legacy.grid_forget()
+        self._key_label.grid_forget()
+        self._key_entry.grid_forget()
+        self._key_button.grid_forget()
+        self._key_dbfile.grid_forget()
+
     def _create_variables(self):
         pass
 

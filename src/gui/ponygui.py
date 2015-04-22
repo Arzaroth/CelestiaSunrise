@@ -8,17 +8,20 @@
 
 from __future__ import print_function, absolute_import, unicode_literals
 import binascii
+import sys
 try:
     # py3
-    from tkinter import Label, Button, Frame, Toplevel
+    from tkinter import Label, Button, Frame, Toplevel, Menu
     from tkinter.ttk import Notebook
     from tkinter.constants import N, S, E, W, NSEW
+    from tkinter.filedialog import askopenfilename, asksaveasfilename
     from tkinter.messagebox import showerror
 except ImportError:
     # py2
-    from Tkinter import Label, Button, Frame, Toplevel
+    from Tkinter import Label, Button, Frame, Toplevel, Menu
     from ttk import Notebook
     from Tkconstants import N, S, E, W, NSEW
+    from tkFileDialog import askopenfilename, asksaveasfilename
     from tkMessageBox import showerror
 from .basegui import BaseGui
 from .missingponiesframe import MissingPoniesFrame
@@ -29,6 +32,10 @@ from src.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
 from src.xml.xmlhandler import XmlHandler
 from src.utility.gluid import retrieve_gluid
+
+if sys.version_info.major < 3:
+    import codecs
+    open = codecs.open
 
 class LoadingDialog(Toplevel):
     def __init__(self, parent):
@@ -71,12 +78,70 @@ class PonyGui(BaseGui):
             self._xml_handle.pre_load()
             loadingbox.destroy()
 
-    def _create_variables(self):
-        BaseGui._create_variables(self)
-        self._notebook = Notebook(self)
+    def _unload(self):
+        self.loaded = False
+        self.destroy()
+
+    def _export_xml(self):
+        filename = asksaveasfilename()
+        if filename:
+            try:
+                with open(filename, 'w', encoding='utf-8') as f:
+                    f.write(self._xml_handle.prettify())
+            except Exception as e:
+                showerror("Error",
+                          "Was unable to write to file, reason: {}".format(str(e)))
+
+    def _import_xml(self):
+        filename = askopenfilename()
+        if filename:
+            try:
+                loadingbox = LoadingDialog(self)
+                with open(filename, 'rb') as f:
+                    xml_data = f.read()
+                new_xml_handle = XmlHandler(xml_data)
+                new_xml_handle.pre_load()
+            except Exception as e:
+                showerror("Error",
+                          "Was unable to load from file, reason: {}".format(str(e)))
+            else:
+                self._xml_handle = new_xml_handle
+                self.withdraw()
+                BaseGui.reinit(self)
+                self.deiconify()
+                self.update_idletasks()
+            finally:
+                loadingbox.destroy()
+
+    def _remove_frames(self):
+        BaseGui._remove_frames(self)
+        self._file_frame.grid_forget()
+        self._key_frame.grid_forget()
+        self._notebook.grid_forget()
+
+    def _remove_widgets(self):
+        BaseGui._remove_widgets(self)
+        self._save_button.grid_forget()
+
+    def _create_widgets(self):
+        BaseGui._create_widgets(self)
+        self._menu = Menu(self)
+        self._filemenu = Menu(self)
+        self._filemenu.add_command(label="Open another file", command=self._unload)
+        self._filemenu.add_separator()
+        self._filemenu.add_command(label="Export XML...", command=self._export_xml)
+        self._filemenu.add_command(label="Import XML...", command=self._import_xml)
+        self._menu.add_cascade(label="File", menu=self._filemenu)
+        # self._aboutmenu = Menu(self)
+        # self._aboutmenu.add_command(label="Check for update", command=None)
+        # self._aboutmenu.add_separator()
+        # self._aboutmenu.add_command(label="About", command=None)
+        # self._menu.add_cascade(label="About", menu=self._aboutmenu)
+        self.config(menu=self._menu)
 
     def _create_frames(self):
         BaseGui._create_frames(self)
+        self._notebook = Notebook(self)
         self._currencies_frame = CurrenciesFrame(self, self._xml_handle)
         self._zones_frame = ZonesFrame(self, self._xml_handle)
         self._ponies_frame = PoniesFrame(self, self._xml_handle)
