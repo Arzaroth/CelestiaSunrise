@@ -1,1 +1,1 @@
-pyinstaller --clean -Fw --noupx -p %USERPROFILE%\Miniconda\Lib\site-packages CelestiaSunrise.spec
+pyinstaller --clean -Fw --noupx CelestiaSunrise.spec
