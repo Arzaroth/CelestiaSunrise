@@ -7,6 +7,8 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
+import six
 try:
     # py3
     from tkinter import Frame, Label, Checkbutton, BooleanVar
@@ -16,8 +18,7 @@ except ImportError:
     from Tkinter import Frame, Label, Checkbutton, BooleanVar
     from Tkconstants import N, S, E, W, NSEW
 from .scrollframe import ScrollFrame
-from src.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
-import six
+from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
 class MissingPony(Frame, object):

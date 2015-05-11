@@ -7,6 +7,8 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
+import six
 try:
     # py3
     from tkinter import (Tk, Frame,
@@ -23,8 +25,7 @@ except ImportError:
                          StringVar, BooleanVar)
     from tkFileDialog import askopenfilename
     from Tkconstants import N, S, E, W, NSEW
-from src.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
-import six
+from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
 class BaseGui(Tk, object):

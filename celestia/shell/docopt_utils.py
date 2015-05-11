@@ -7,10 +7,14 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
+import shlex
+
 from functools import wraps
 from collections import defaultdict
-from docopt import ParentPattern, ChildPattern, Option
-import shlex
+from docopt import (ParentPattern, ChildPattern, Option,
+                    parse_defaults, parse_pattern,
+                    formal_usage, printable_usage)
 
 def flatten(l, init=[]):
     res = init[:]
@@ -46,8 +50,6 @@ def docopt_cmd(func):
     return wrapper
 
 def docopt_cmd_completion(func, **kwargs):
-    from docopt import (parse_defaults, parse_pattern,
-                        formal_usage, printable_usage)
     options = parse_defaults(func.__doc__)
     pattern = parse_pattern(formal_usage(printable_usage(func.__doc__)),
                             options).children[0]
@@ -81,6 +83,7 @@ def docopt_cmd_completion(func, **kwargs):
             else:
                 res.append(x[0])
         return list(set(x for x in res if x.startswith(target)))
+
     wrapper.__name__ = str('complete_' + func.__name__[3:])
     wrapper.__module__ = func.__module__
     wrapper.__doc__ = func.__doc__

@@ -7,6 +7,8 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
+import six
 from collections import defaultdict
 try:
     # py3
@@ -16,8 +18,7 @@ except ImportError:
     # py2
     from Tkinter import Frame, Label, Entry, Frame, StringVar
     from Tkconstants import N, S, E, W, NSEW
-from src.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
-import six
+from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
 class CurrencyFrame(Frame, object):

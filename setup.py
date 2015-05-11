@@ -7,27 +7,30 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
 import os
 from setuptools import setup, find_packages
-from CelestiaSunrise import VERSION
 
-setup(
-    name='CelestiaSunrise',
-    version=VERSION,
-    license='BSD',
+VERSION = ("v1", "2", "0")
 
-    url='https://arzaroth.github.io/CelestiaSunrise',
-    download_url='https://github.com/Arzaroth/CelestiaSunrise/archive/%s.zip' % VERSION,
+if __name__ == '__main__':
+    setup(
+        name='CelestiaSunrise',
+        version='.'.join(VERSION),
+        license='BSD',
 
-    author='Marc-Etienne Barrut',
-    author_email='lekva@arzaroth.com',
+        url='https://arzaroth.github.io/CelestiaSunrise',
+        download_url='https://github.com/Arzaroth/CelestiaSunrise/archive/%s.zip' % ('.'.join(VERSION)),
 
-    description='A savegame editor for the mobile game "My Little Pony"',
-    long_description=open(os.path.join(os.path.dirname(__file__), 'README.md')).read(),
-    keywords='pony cheat hack save editor',
+        author='Marc-Etienne Barrut',
+        author_email='lekva@arzaroth.com',
 
-    packages=find_packages(),
-    scripts=['CelestiaSunrise.py'],
+        description='A savegame editor for the mobile game "My Little Pony"',
+        long_description=open(os.path.join(os.path.dirname(__file__), 'README.md')).read(),
+        keywords='pony cheat hack save editor',
 
-    install_requires=open('requirements.txt').read().split('\n'),
-)
+        packages=find_packages('.'),
+        scripts=['CelestiaSunrise.py'],
+
+        install_requires=open('requirements.txt').read().split('\n'),
+    )

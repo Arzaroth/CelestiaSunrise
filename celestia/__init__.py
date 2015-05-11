@@ -6,8 +6,8 @@
 # arzaroth@arzaroth.com
 #
 
-from src.shell import PonyShell
-from src.gui import Gui
+from celestia.shell import PonyShell
+from celestia.gui import Gui
 
 __all__ = [
     'PonyShell',

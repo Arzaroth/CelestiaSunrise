@@ -7,13 +7,16 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
 import sys
+import rapidxml
+
 from collections import OrderedDict, defaultdict
-from src.utility.defaultordereddict import DefaultOrderedDict
-from src.utility.utility import (Pony, Inventory, MissingPonies,
-                                 Currency, Clearables,
-                                 Foes, Zone, Shops)
 from six import unichr, add_metaclass
+from celestia.utility.defaultordereddict import DefaultOrderedDict
+from celestia.utility.utility import (Pony, Inventory, MissingPonies,
+                                      Currency, Clearables,
+                                      Foes, Zone, Shops)
 
 class XmlDescriptor(object):
     def __init__(self):
@@ -31,6 +34,7 @@ class XmlMeta(type):
             if isinstance(value, XmlDescriptor):
                 value.name = key
         return super(XmlMeta, cls).__new__(cls, name, bases, attrs)
+
 
 @add_metaclass(XmlMeta)
 class XmlHandler(object):
@@ -216,7 +220,6 @@ class XmlHandler(object):
 
     def __init__(self, xml_data):
         print('Parsing XML tree...')
-        import rapidxml
         self.xmlobj = rapidxml.RapidXml(bytearray(xml_data))
 
     def _get__mapzones(self):
@@ -272,22 +275,28 @@ class XmlHandler(object):
         playerdata = self.xmlobj['MLP_Save']['PlayerData']
         res = DefaultOrderedDict(OrderedDict)
         main = res['Main currencies']
-        main['Coins'] = Currency('@Coins', playerdata)
+        main['Bits'] = Currency('@Coins', playerdata)
         main['Gems'] = Currency('@Hearts', playerdata)
         main['Hearts'] = Currency('@Social', playerdata)
+        try:
+            main['Sapphires'] = Currency('@BossEventCurrency', playerdata)
+        except:
+            pass
         main['Wheels'] = Currency('@Wheels', playerdata['Minecart'], 5)
-        main['Dragon Shards'] = Currency('@BossEventCurrency', playerdata)
         shards = playerdata['Shards']
         for i in ('Loyalty', 'Honesty', 'Kindness', 'Generosity', 'Laughter', 'Magic'):
             res['Shards'][i + ' shards'] = Currency('@' + i, shards, 999)
-        ingredients = playerdata['Ingredients']
-        zecora = res['Zecora ingredients']
-        zecora['Black Iris'] = Currency('@BlackIris', ingredients, 5)
-        zecora['Garlic'] = Currency('@Garlic', ingredients, 5)
-        zecora['Sticky Sap'] = Currency('@GlueTree', ingredients, 5)
-        zecora['Joke Plant'] = Currency('@PoisonJokePlant', ingredients, 5)
-        zecora['Purple Mushrooms'] = Currency('@PurpleGlowingMushrooms', ingredients, 5)
-        zecora['Red Orchid'] = Currency('@RedOrchid', ingredients, 5)
+        try:
+            ingredients = playerdata['Ingredients']
+            zecora = res['Zecora ingredients']
+            zecora['Black Iris'] = Currency('@BlackIris', ingredients, 5)
+            zecora['Garlic'] = Currency('@Garlic', ingredients, 5)
+            zecora['Sticky Sap'] = Currency('@GlueTree', ingredients, 5)
+            zecora['Joke Plant'] = Currency('@PoisonJokePlant', ingredients, 5)
+            zecora['Purple Mushrooms'] = Currency('@PurpleGlowingMushrooms', ingredients, 5)
+            zecora['Red Orchid'] = Currency('@RedOrchid', ingredients, 5)
+        except:
+            pass
         return res
 
     def _get_zones(self):

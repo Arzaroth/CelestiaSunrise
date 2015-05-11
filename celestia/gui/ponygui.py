@@ -7,6 +7,7 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
 import binascii
 import sys
 try:
@@ -28,10 +29,10 @@ from .missingponiesframe import MissingPoniesFrame
 from .currenciesframe import CurrenciesFrame
 from .poniesframe import PoniesFrame
 from .zonesframe import ZonesFrame
-from src.savemanager import (SaveManager, SaveError,
+from celestia.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
-from src.xml.xmlhandler import XmlHandler
-from src.utility.gluid import retrieve_gluid
+from celestia.xml.xmlhandler import XmlHandler
+from celestia.utility.gluid import retrieve_gluid
 
 class LoadingDialog(Toplevel):
     def __init__(self, parent):

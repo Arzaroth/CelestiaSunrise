@@ -7,6 +7,7 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
 import binascii
 try:
     # py3
@@ -19,7 +20,7 @@ except ImportError:
     from Tkconstants import N, S, E, W, NSEW
     from tkMessageBox import showerror
 from .basegui import BaseGui
-from src.utility.gluid import retrieve_gluid
+from celestia.utility.gluid import retrieve_gluid
 
 class Loading(BaseGui):
     def __init__(self, savefile, gluid, dbfile, usedb, legacy):

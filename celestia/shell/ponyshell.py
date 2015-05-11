@@ -7,14 +7,17 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
 import binascii
 import sys
+import six
+
 from cmd import Cmd
-from src.savemanager import (SaveManager, SaveError,
+from celestia.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
-from src.xml.xmlhandler import XmlHandler
-from src.utility.utility import Pony
-from src.utility.gluid import retrieve_gluid
+from celestia.xml.xmlhandler import XmlHandler
+from celestia.utility.utility import Pony
+from celestia.utility.gluid import retrieve_gluid
 from .docopt_utils import docopt_cmd, docopt_cmd_completion
 from .show import (show_currencies, show_currency,
                    show_ponies, show_pony,
@@ -23,7 +26,6 @@ from .set import (set_currency,
                   set_ponies, set_pony,
                   set_zones, set_zone,
                   set_inventory)
-import six
 
 class PonyMeta(type):
     def __new__(cls, name, bases, attrs):

@@ -7,17 +7,19 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
 import os
 import sys
 import binascii
 import traceback
+from setup import VERSION
+from celestia import PonyShell, Gui
+from docopt import docopt
 
 try:
     PRGM = os.path.basename(__file__)
 except NameError:
     PRGM = os.path.basename(sys.argv[0])
-
-VERSION = "v1.1.0"
 
 __doc__ = """
 {prgm} {ver}
@@ -51,12 +53,10 @@ Notes:
 
 Author:
   Original program by Arzaroth <lekva@arzaroth.com>, inspired by Wilfried Pasquazzo ("Evenprime") work.
-""".format(prgm=PRGM, ver=VERSION)
+""".format(prgm=PRGM, ver='.'.join(VERSION))
 
 if __name__ == '__main__':
-    from src import PonyShell, Gui
-    from docopt import docopt
-    opts = docopt(__doc__, version=VERSION)
+    opts = docopt(__doc__, version='.'.join(VERSION))
     try:
         if opts['--shell']:
             PonyShell(savefile=opts['<save_file>'],

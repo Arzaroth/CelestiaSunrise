@@ -7,6 +7,8 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
+import six
 try:
     # py3
     from tkinter import Frame, Checkbutton, Label, BooleanVar, StringVar
@@ -15,8 +17,7 @@ except ImportError:
     # py2
     from Tkinter import Frame, Checkbutton, Label, BooleanVar, StringVar
     from Tkconstants import N, S, E, W, NSEW
-from src.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
-import six
+from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
 class ZoneFrame(Frame, object):

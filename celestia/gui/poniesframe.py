@@ -7,6 +7,8 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
+import six
 try:
     # py3
     from tkinter import (Label, Scale, Checkbutton, OptionMenu,
@@ -23,10 +25,9 @@ except ImportError:
                              NSEW,
                              HORIZONTAL,
                              NORMAL, DISABLED)
-from src.utility.utility import Pony
 from .scrollframe import ScrollFrame
-from src.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
-import six
+from celestia.utility.utility import Pony
+from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
 class PonyFrame(Frame, object):
