@@ -6,8 +6,12 @@ A savegame editor for the mobile game "My Little Pony"
 ```
 Required:
 docopt==0.6.2
-RapidXml==1.0.5
+gitdb==0.6.4
+GitPython==1.0.1
+RapidXml==1.0.7
+requests==2.7.0
 six==1.9.0
+smmap==0.9.0
 ```
 
 Dependencies can be installed with the following command:
