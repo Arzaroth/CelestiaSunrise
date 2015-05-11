@@ -15,7 +15,7 @@ import binascii
 import traceback
 from setup import VERSION
 from celestia import PonyShell, Gui
-from celestia.utils.update import check_frozen
+from celestia.utility.update import check_frozen
 from docopt import docopt
 
 def get_script_name(follow_links=True):
