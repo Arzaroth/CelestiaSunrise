@@ -20,16 +20,22 @@ def check_network():
         return False
     return True
 
-def check_version():
-    if not check_network():
-        return False
-    r = requests.get('https://api.github.com/repos/Arzaroth/CelestiaSunrise/releases/latest')
-    return parse_version(r.json()['tag_name']) > parse_version('.'.join(VERSION))
-
 def check_frozen():
     return getattr(sys, 'frozen', False)
 
-def update_version():
-    if not check_version():
-        return True
-    return True
+def check_version(force=False):
+    res = {
+        "up_to_date": True,
+        "error": None,
+        "download_url": None,
+    }
+    if not check_network():
+        res["error"] = "It seems you don't have access to the internet"
+    elif not check_frozen() and not force:
+        res["error"] = "You're not running the frozen version"
+    else:
+        r = requests.get('https://api.github.com/repos/Arzaroth/CelestiaSunrise/releases/latest')
+        if parse_version(r.json()['tag_name']) > parse_version('.'.join(VERSION)):
+            res["download_url"] = r.json()['assets'][0]['browser_download_url']
+            res["up_to_date"] = False
+    return res

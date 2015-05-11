@@ -10,20 +10,21 @@ from __future__ import print_function, absolute_import, unicode_literals
 
 import binascii
 import sys
+import requests
 try:
     # py3
     from tkinter import Label, Button, Frame, Toplevel, Menu
     from tkinter.ttk import Notebook
     from tkinter.constants import N, S, E, W, NSEW
     from tkinter.filedialog import askopenfilename, asksaveasfilename
-    from tkinter.messagebox import showerror
+    from tkinter.messagebox import showerror, showinfo
 except ImportError:
     # py2
     from Tkinter import Label, Button, Frame, Toplevel, Menu
     from ttk import Notebook
     from Tkconstants import N, S, E, W, NSEW
     from tkFileDialog import askopenfilename, asksaveasfilename
-    from tkMessageBox import showerror
+    from tkMessageBox import showerror, showinfo
 from .basegui import BaseGui
 from .missingponiesframe import MissingPoniesFrame
 from .currenciesframe import CurrenciesFrame
@@ -33,6 +34,7 @@ from celestia.savemanager import (SaveManager, SaveError,
                              decompress_data, compress_data)
 from celestia.xml.xmlhandler import XmlHandler
 from celestia.utility.gluid import retrieve_gluid
+from celestia.utility.update import check_version
 
 class LoadingDialog(Toplevel):
     def __init__(self, parent):
@@ -110,6 +112,21 @@ class PonyGui(BaseGui):
             finally:
                 loadingbox.destroy()
 
+    def _check_update(self):
+        ver = check_version()
+        if ver["error"]:
+            showerror("Error", ver["error"])
+        elif ver["up_to_date"]:
+            showinfo("Up to date", "You're running the latest version")
+        else:
+            pass
+
+    def _about_popup(self):
+        from __main__ import INTRO, AUTHOR
+        showinfo("About",
+                 """{intro}
+                 {author}""".format(intro=INTRO, author=AUTHOR))
+
     def _remove_frames(self):
         BaseGui._remove_frames(self)
         self._file_frame.grid_forget()
@@ -129,11 +146,11 @@ class PonyGui(BaseGui):
         self._filemenu.add_command(label="Export XML...", command=self._export_xml)
         self._filemenu.add_command(label="Import XML...", command=self._import_xml)
         self._menu.add_cascade(label="File", menu=self._filemenu)
-        # self._aboutmenu = Menu(self)
-        # self._aboutmenu.add_command(label="Check for update", command=None)
-        # self._aboutmenu.add_separator()
-        # self._aboutmenu.add_command(label="About", command=None)
-        # self._menu.add_cascade(label="About", menu=self._aboutmenu)
+        self._aboutmenu = Menu(self)
+        self._aboutmenu.add_command(label="Check for update", command=self._check_update)
+        self._aboutmenu.add_separator()
+        self._aboutmenu.add_command(label="About", command=self._about_popup)
+        self._menu.add_cascade(label="About", menu=self._aboutmenu)
         self.config(menu=self._menu)
 
     def _create_frames(self):

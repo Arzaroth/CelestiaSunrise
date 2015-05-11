@@ -29,10 +29,16 @@ def get_script_name(follow_links=True):
 
 PRGM = os.path.basename(get_script_name())
 
-__doc__ = """
+INTRO = """
 {prgm} {ver}
 Edit your MLP saves with the power of the true goddess.
-Type help or ? to list commands.
+""".format(prgm=PRGM, ver='.'.join(VERSION))
+
+AUTHOR = """
+Original program by Arzaroth <lekva@arzaroth.com>, inspired by Wilfried Pasquazzo ("Evenprime") work."""
+
+__doc__ = """
+{intro}
 
 Usage:
   {prgm} [-d]
@@ -60,8 +66,8 @@ Notes:
   - The code of this tool is currently open source. If you experiment issues, feel free to report or improve it.
 
 Author:
-  Original program by Arzaroth <lekva@arzaroth.com>, inspired by Wilfried Pasquazzo ("Evenprime") work.
-""".format(prgm=PRGM, ver='.'.join(VERSION))
+  {author}
+""".format(intro=INTRO, author=AUTHOR, prgm=PRGM)
 
 if __name__ == '__main__':
     opts = docopt(__doc__, version='.'.join(VERSION))
@@ -70,7 +76,7 @@ if __name__ == '__main__':
             PonyShell(savefile=opts['<save_file>'],
                       gluid=opts['<encrypt_key>'],
                       dbfile=opts['<gameloft_sharing>'],
-                      legacy=opts['--legacy']).cmdloop(intro=__doc__)
+                      legacy=opts['--legacy']).cmdloop(intro=INTRO)
         else:
             Gui(savefile=opts['<save_file>'],
                 gluid=opts['<encrypt_key>'],

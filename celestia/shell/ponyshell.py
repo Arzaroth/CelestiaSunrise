@@ -18,6 +18,7 @@ from celestia.savemanager import (SaveManager, SaveError,
 from celestia.xml.xmlhandler import XmlHandler
 from celestia.utility.utility import Pony
 from celestia.utility.gluid import retrieve_gluid
+from celestia.utility.update import check_version
 from .docopt_utils import docopt_cmd, docopt_cmd_completion
 from .show import (show_currencies, show_currency,
                    show_ponies, show_pony,
@@ -69,15 +70,13 @@ class PonyShell(Cmd, object):
             'inventory': set_inventory,
         }
 
-    def cmdloop(self, intro=None):
-        if intro is None:
-            print(self.intro)
+    def cmdloop(self, intro=""):
         try:
-            Cmd.cmdloop(self, intro="")
+            Cmd.cmdloop(self, intro)
             self.postloop()
         except KeyboardInterrupt:
             print("^C")
-            self.cmdloop(intro)
+            self.cmdloop()
 
     @docopt_cmd
     def do_show(self, args):
@@ -216,6 +215,26 @@ Options:
                                     and args['<gluid>'] is None)
         except Exception as e:
             print("Was unable to write to file, reason: {}".format(str(e)))
+
+    @docopt_cmd
+    def do_check_version(self, args):
+        """Check online for a newer release
+
+Usage:
+  check_version
+
+Options:
+  -h --help     Show this help."""
+        print("Querying github API...")
+        ver = check_version(True)
+        if ver["error"]:
+            print(ver["error"])
+        elif ver["up_to_date"]:
+            print("You're running the latest version")
+        else:
+            print("A newer version is available!")
+            print("You can download it using this link:")
+            print(ver["download_url"])
 
     def do_bye(self, args):
         print("Exit")
