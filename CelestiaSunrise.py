@@ -8,18 +8,26 @@
 
 from __future__ import print_function, absolute_import, unicode_literals
 
+import inspect
 import os
 import sys
 import binascii
 import traceback
 from setup import VERSION
 from celestia import PonyShell, Gui
+from celestia.utils.update import check_frozen
 from docopt import docopt
 
-try:
-    PRGM = os.path.basename(__file__)
-except NameError:
-    PRGM = os.path.basename(sys.argv[0])
+def get_script_name(follow_links=True):
+    if check_frozen():
+        path = os.path.abspath(sys.executable)
+    else:
+        path = inspect.getabsfile(get_script_name)
+    if follow_links:
+        path = os.path.realpath(path)
+    return path
+
+PRGM = os.path.basename(get_script_name())
 
 __doc__ = """
 {prgm} {ver}

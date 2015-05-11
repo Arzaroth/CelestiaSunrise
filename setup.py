@@ -6,7 +6,7 @@
 # arzaroth@arzaroth.com
 #
 
-from __future__ import print_function, absolute_import, unicode_literals
+from __future__ import print_function, absolute_import
 
 import os
 from setuptools import setup, find_packages
