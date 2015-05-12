@@ -7,7 +7,7 @@
 #
 
 import binascii
-from celestia.utility.gluid import retrieve_gluid
+from celestia.utility.gluid import GluidError, retrieve_gluid
 
 class SaveData(object):
     def __init__(self,
@@ -23,7 +23,10 @@ class SaveData(object):
     def gluid(self):
         if not self.legacy:
             gluid = retrieve_gluid(self.dbfile) if self.usedb else self._gluid
-            gluid = binascii.a2b_base64(gluid)
+            try:
+                gluid = binascii.a2b_base64(gluid)
+            except binascii.Error:
+                raise GluidError("Bad encryption key")
         else:
             gluid = b''
         return gluid

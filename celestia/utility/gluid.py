@@ -10,7 +10,7 @@ from __future__ import print_function, absolute_import, unicode_literals
 import sqlite3
 import json
 
-class SQLError(Exception):
+class GluidError(Exception):
     pass
 
 
@@ -23,5 +23,5 @@ def retrieve_gluid(db_path):
         res = json.loads(value)
         gluid = res['data']
     except:
-        raise SQLError('Unable to retrieve GLUID from file')
+        raise GluidError('Unable to retrieve GLUID from file')
     return gluid

@@ -32,8 +32,8 @@ from .missingponiesframe import MissingPoniesFrame
 from .currenciesframe import CurrenciesFrame
 from .poniesframe import PoniesFrame
 from .zonesframe import ZonesFrame
-from .threaded import ThreadedLoad
-from .threaded import process_loadqueue
+from .threaded import ThreadedLoad, ThreadedSave
+from .threaded import process_queue
 from celestia.save import decompress_data, compress_data
 from celestia.utility.gluid import retrieve_gluid
 from celestia.utility.update import check_version
@@ -58,15 +58,14 @@ class PonyGui(BaseGui):
         self.loaded = False
         self.withdraw()
         self._load_xml()
+        self.mainloop()
 
     def _load_xml(self):
         loadingbox = LoadingDialog(self)
         queue = Queue()
-        ThreadedLoad(queue,
-                     self.savedata).start()
-
-        def error_callback():
-            self.destroy()
+        thread = ThreadedLoad(queue=queue,
+                              savedata=self.savedata)
+        thread.start()
 
         def success_callback(res):
             self.loaded = True
@@ -76,9 +75,10 @@ class PonyGui(BaseGui):
             BaseGui.init(self)
             self.deiconify()
             self.update_idletasks()
-        self.after(100, process_loadqueue,
+
+        self.after(100, process_queue,
                    self, loadingbox, queue,
-                   success_callback, error_callback)
+                   success_callback, self._unload)
 
     def _unload(self):
         self.loaded = False
@@ -87,12 +87,18 @@ class PonyGui(BaseGui):
     def _export_xml(self):
         filename = asksaveasfilename()
         if filename:
-            try:
-                with open(filename, 'w') as f:
-                    f.write(self._xml_handle.prettify())
-            except Exception as e:
-                showerror("Error",
-                          "Was unable to write to file, reason: {}".format(str(e)))
+            loadingbox = LoadingDialog(self)
+            queue = Queue()
+            thread = ThreadedSave(queue=queue,
+                                  savedata=self.savedata,
+                                  xml_handle=self._xml_handle,
+                                  save_manager=self._save_manager,
+                                  save_number=self.save_number,
+                                  xml=filename)
+            thread.start()
+
+            self.after(100, process_queue,
+                       self, loadingbox, queue)
 
     def _import_xml(self):
         filename = askopenfilename()
@@ -100,16 +106,18 @@ class PonyGui(BaseGui):
             self.withdraw()
             loadingbox = LoadingDialog(self)
             queue = Queue()
-            ThreadedLoad(queue,
-                         self.savedata,
-                         filename).start()
+            thread = ThreadedLoad(queue=queue,
+                                  savedata=self.savedata,
+                                  xml=filename)
+            thread.start()
 
             def success_callback(res):
                 self._xml_handle = res["xml_handle"]
                 BaseGui.reinit(self)
                 self.deiconify()
                 self.update_idletasks()
-            self.after(100, process_loadqueue,
+
+            self.after(100, process_queue,
                        self, loadingbox, queue,
                        success_callback)
 
@@ -183,33 +191,22 @@ class PonyGui(BaseGui):
         BaseGui._grid_widgets(self)
         self._save_button.grid(row=2, column=0, sticky=NSEW, padx=3, pady=4)
 
+    def _commit(self):
+        self._currencies_frame.commit()
+        self._ponies_frame.commit()
+        self._zones_frame.commit()
+        self._missing_ponies_frame.commit()
+
     def _save(self):
-        try:
-            if not self.legacy:
-                gluid = retrieve_gluid(self.dbfile) if self.usedb else self.gluid
-                gluid = binascii.a2b_base64(gluid)
-            else:
-                gluid = b''
-        except:
-            showerror("Error", "Bad encryption key")
-        else:
-            loadingbox = LoadingDialog(self)
-            try:
-                self._currencies_frame.commit()
-                self._ponies_frame.commit()
-                self._zones_frame.commit()
-                self._missing_ponies_frame.commit()
-                try:
-                    data = self._xml_handle.to_string().encode('utf-8')
-                except UnicodeDecodeError:
-                    data = self._xml_handle.to_string()
-                self._save_manager.save(compress_data(data),
-                                        self.savefile,
-                                        self.save_number,
-                                        gluid,
-                                        self.legacy)
-            except Exception as e:
-                showerror("Error",
-                          "Was unable to write to file, reason: {}".format(str(e)))
-            finally:
-                loadingbox.destroy()
+        loadingbox = LoadingDialog(self)
+        queue = Queue()
+        self._commit()
+        thread = ThreadedSave(queue=queue,
+                              savedata=self.savedata,
+                              xml_handle=self._xml_handle,
+                              save_manager=self._save_manager,
+                              save_number=self.save_number)
+        thread.start()
+
+        self.after(100, process_queue,
+                   self, loadingbox, queue)

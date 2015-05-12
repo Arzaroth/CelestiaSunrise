@@ -19,9 +19,7 @@ class Gui(object):
         ok = False
         while not ok:
             loading = Loading(self.savedata)
-            loading.mainloop()
             ok = not loading.go_next
             if loading.go_next:
                 ponygui = PonyGui(loading.savedata)
-                ponygui.mainloop()
                 ok = ponygui.loaded

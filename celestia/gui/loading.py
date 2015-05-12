@@ -29,6 +29,7 @@ class Loading(BaseGui):
         BaseGui.__init__(self, savedata)
         self.go_next = False
         BaseGui.init(self)
+        self.mainloop()
 
     def _remove_frames(self):
         BaseGui._remove_frames(self)
