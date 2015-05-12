@@ -13,69 +13,72 @@ import sys
 import requests
 try:
     # py3
-    from tkinter import Label, Button, Frame, Toplevel, Menu
-    from tkinter.ttk import Notebook
-    from tkinter.constants import N, S, E, W, NSEW
+    import tkinter as tk
+    import tkinter.ttk as ttk
+    from tkinter.constants import N, S, E, W, NSEW, HORIZONTAL, BOTH
     from tkinter.filedialog import askopenfilename, asksaveasfilename
     from tkinter.messagebox import showerror, showinfo
+    from queue import Queue
 except ImportError:
     # py2
-    from Tkinter import Label, Button, Frame, Toplevel, Menu
-    from ttk import Notebook
-    from Tkconstants import N, S, E, W, NSEW
+    import Tkinter as tk
+    import ttk
+    from Tkconstants import N, S, E, W, NSEW, HORIZONTAL, BOTH
     from tkFileDialog import askopenfilename, asksaveasfilename
     from tkMessageBox import showerror, showinfo
+    from Queue import Queue
 from .basegui import BaseGui
 from .missingponiesframe import MissingPoniesFrame
 from .currenciesframe import CurrenciesFrame
 from .poniesframe import PoniesFrame
 from .zonesframe import ZonesFrame
-from celestia.savemanager import (SaveManager, SaveError,
-                             decompress_data, compress_data)
-from celestia.xml.xmlhandler import XmlHandler
+from .threaded import ThreadedLoad
+from .threaded import process_loadqueue
+from celestia.save import decompress_data, compress_data
 from celestia.utility.gluid import retrieve_gluid
 from celestia.utility.update import check_version
 
-class LoadingDialog(Toplevel):
-    def __init__(self, parent):
-        Toplevel.__init__(self)
-        Label(self, text="Loading...", font=25, height=3, width=25).pack()
-        self.update()
+class LoadingDialog(tk.Toplevel):
+    def __init__(self, *args, **kwargs):
+        tk.Toplevel.__init__(self, *args, **kwargs)
+        self.transient()
+        self.title("Loading...")
+        frame = ttk.Frame(self)
+        frame.pack(expand=True, fill=BOTH)
+        self.label = ttk.Label(frame, text="Loading...", font=20)
+        self.pb = ttk.Progressbar(frame, mode="indeterminate", length=200, orient=HORIZONTAL)
+        self.label.pack(padx=10, pady=10)
+        self.pb.pack(padx=10, pady=10)
+        self.pb.start()
 
 
 class PonyGui(BaseGui):
-    def __init__(self, savefile, gluid, dbfile, usedb, legacy):
-        BaseGui.__init__(self, savefile, gluid, dbfile, usedb, legacy)
+    def __init__(self, savedata):
+        BaseGui.__init__(self, savedata)
         self.loaded = False
         self.withdraw()
         self._load_xml()
-        if self.loaded:
-            BaseGui.init(self)
-            self.deiconify()
-            self.update_idletasks()
 
     def _load_xml(self):
         loadingbox = LoadingDialog(self)
-        if not self.legacy:
-            gluid = retrieve_gluid(self.dbfile) if self.usedb else self.gluid
-            gluid = binascii.a2b_base64(gluid)
-        else:
-            gluid = b''
-        self._save_manager = SaveManager(self.savefile,
-                                         gluid)
-        try:
-            data, self.save_number = self._save_manager.load(self.legacy)
-            if not self.legacy:
-                data = decompress_data(data)
-        except Exception as e:
-            showerror("Error",
-                      "Was unable to load from file, reason: {}".format(str(e)))
+        queue = Queue()
+        ThreadedLoad(queue,
+                     self.savedata).start()
+
+        def error_callback():
             self.destroy()
-        else:
+
+        def success_callback(res):
             self.loaded = True
-            self._xml_handle = XmlHandler(data)
-            self._xml_handle.pre_load()
-            loadingbox.destroy()
+            self._save_manager = res["save_manager"]
+            self.save_number = res["save_number"]
+            self._xml_handle = res["xml_handle"]
+            BaseGui.init(self)
+            self.deiconify()
+            self.update_idletasks()
+        self.after(100, process_loadqueue,
+                   self, loadingbox, queue,
+                   success_callback, error_callback)
 
     def _unload(self):
         self.loaded = False
@@ -94,23 +97,21 @@ class PonyGui(BaseGui):
     def _import_xml(self):
         filename = askopenfilename()
         if filename:
-            try:
-                loadingbox = LoadingDialog(self)
-                with open(filename, 'rb') as f:
-                    xml_data = f.read()
-                new_xml_handle = XmlHandler(xml_data)
-                new_xml_handle.pre_load()
-            except Exception as e:
-                showerror("Error",
-                          "Was unable to load from file, reason: {}".format(str(e)))
-            else:
-                self._xml_handle = new_xml_handle
-                self.withdraw()
+            self.withdraw()
+            loadingbox = LoadingDialog(self)
+            queue = Queue()
+            ThreadedLoad(queue,
+                         self.savedata,
+                         filename).start()
+
+            def success_callback(res):
+                self._xml_handle = res["xml_handle"]
                 BaseGui.reinit(self)
                 self.deiconify()
                 self.update_idletasks()
-            finally:
-                loadingbox.destroy()
+            self.after(100, process_loadqueue,
+                       self, loadingbox, queue,
+                       success_callback)
 
     def _check_update(self):
         ver = check_version()
@@ -139,14 +140,14 @@ class PonyGui(BaseGui):
 
     def _create_widgets(self):
         BaseGui._create_widgets(self)
-        self._menu = Menu(self)
-        self._filemenu = Menu(self)
+        self._menu = tk.Menu(self)
+        self._filemenu = tk.Menu(self)
         self._filemenu.add_command(label="Open another file", command=self._unload)
         self._filemenu.add_separator()
         self._filemenu.add_command(label="Export XML...", command=self._export_xml)
         self._filemenu.add_command(label="Import XML...", command=self._import_xml)
         self._menu.add_cascade(label="File", menu=self._filemenu)
-        self._aboutmenu = Menu(self)
+        self._aboutmenu = tk.Menu(self)
         self._aboutmenu.add_command(label="Check for update", command=self._check_update)
         self._aboutmenu.add_separator()
         self._aboutmenu.add_command(label="About", command=self._about_popup)
@@ -155,7 +156,7 @@ class PonyGui(BaseGui):
 
     def _create_frames(self):
         BaseGui._create_frames(self)
-        self._notebook = Notebook(self)
+        self._notebook = ttk.Notebook(self)
         self._currencies_frame = CurrenciesFrame(self, self._xml_handle)
         self._zones_frame = ZonesFrame(self, self._xml_handle)
         self._ponies_frame = PoniesFrame(self, self._xml_handle)
@@ -168,9 +169,9 @@ class PonyGui(BaseGui):
                            text="Zones")
         self._notebook.add(self._missing_ponies_frame,
                            text="Missing ponies")
-        self._save_button = Button(self,
-                                   text="Save to file",
-                                   command=self._save)
+        self._save_button = ttk.Button(self,
+                                       text="Save to file",
+                                       command=self._save)
 
     def _grid_frames(self):
         BaseGui._grid_frames(self)

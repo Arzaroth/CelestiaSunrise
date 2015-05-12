@@ -13,8 +13,8 @@ import sys
 import six
 
 from cmd import Cmd
-from celestia.savemanager import (SaveManager, SaveError,
-                             decompress_data, compress_data)
+from celestia.save import SaveManager, SaveError
+from celestia.save import decompress_data, compress_data
 from celestia.xml.xmlhandler import XmlHandler
 from celestia.utility.utility import Pony
 from celestia.utility.gluid import retrieve_gluid
@@ -42,17 +42,15 @@ class PonyMeta(type):
 class PonyShell(Cmd, object):
     prompt = 'ponyshell> '
 
-    def __init__(self, savefile, gluid, dbfile, legacy):
+    def __init__(self, savedata):
         Cmd.__init__(self)
-        gluid = retrieve_gluid(dbfile) if dbfile is not None else gluid
-        gluid = binascii.a2b_base64(gluid) if gluid is not None else b''
-        self._save_manager = SaveManager(savefile, gluid)
-        data, self.save_number = self._save_manager.load(legacy)
-        if not legacy:
+        self._save_manager = SaveManager(savedata.savefile, savedata.gluid)
+        data, self.save_number = self._save_manager.load(savedata.legacy)
+        if not savedata.legacy:
             data = decompress_data(data)
         self._xml_handle = XmlHandler(data)
         self._xml_handle.pre_load()
-        self.legacy = legacy
+        self.savedata = savedata
         self._show_functions = {
             'currencies': show_currencies,
             'currency': show_currency,
@@ -211,7 +209,7 @@ Options:
                                     args['<file>'],
                                     self.save_number,
                                     args['<gluid>'],
-                                    (self.legacy or args['--legacy'])
+                                    (self.savedata.legacy or args['--legacy'])
                                     and args['<gluid>'] is None)
         except Exception as e:
             print("Was unable to write to file, reason: {}".format(str(e)))

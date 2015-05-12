@@ -11,20 +11,22 @@ from __future__ import print_function, absolute_import, unicode_literals
 import binascii
 try:
     # py3
-    from tkinter import Label, Button, Frame
+    import tkinter as tk
+    import tkinter.ttk as ttk
     from tkinter.constants import N, S, E, W, NSEW
     from tkinter.messagebox import showerror
 except ImportError:
     # py2
-    from Tkinter import Label, Button, Frame
+    import Tkinter as tk
+    import ttk
     from Tkconstants import N, S, E, W, NSEW
     from tkMessageBox import showerror
 from .basegui import BaseGui
 from celestia.utility.gluid import retrieve_gluid
 
 class Loading(BaseGui):
-    def __init__(self, savefile, gluid, dbfile, usedb, legacy):
-        BaseGui.__init__(self, savefile, gluid, dbfile, usedb, legacy)
+    def __init__(self, savedata):
+        BaseGui.__init__(self, savedata)
         self.go_next = False
         BaseGui.init(self)
 
@@ -40,17 +42,17 @@ class Loading(BaseGui):
 
     def _create_frames(self):
         BaseGui._create_frames(self)
-        self._disclaimer_frame = Frame(self)
+        self._disclaimer_frame = ttk.Frame(self)
 
     def _create_widgets(self):
         BaseGui._create_widgets(self)
-        self._disclaimer_label1 = Label(self._disclaimer_frame,
-                                        text='Your savegame is most likely called "mlp_save_prime.dat".')
-        self._disclaimer_label2 = Label(self._disclaimer_frame,
-                                        text="Make backups before using this tool.")
-        self._ok_button = Button(self,
-                                 text="Go !",
-                                 command=self._next)
+        self._disclaimer_label1 = ttk.Label(self._disclaimer_frame,
+                                            text='Your savegame is most likely called "mlp_save_prime.dat".')
+        self._disclaimer_label2 = ttk.Label(self._disclaimer_frame,
+                                            text="Make backups before using this tool.")
+        self._ok_button = ttk.Button(self,
+                                     text="Go !",
+                                     command=self._next)
 
     def _grid_frames(self):
         BaseGui._grid_frames(self)

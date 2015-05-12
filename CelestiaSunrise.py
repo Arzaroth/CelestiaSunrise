@@ -15,6 +15,7 @@ import binascii
 import traceback
 from setup import VERSION
 from celestia import PonyShell, Gui
+from celestia.save import SaveData
 from celestia.utility.update import check_frozen
 from docopt import docopt
 
@@ -72,16 +73,15 @@ Author:
 if __name__ == '__main__':
     opts = docopt(__doc__, version='.'.join(VERSION))
     try:
+        savedata = SaveData(savefile=opts['<save_file>'],
+                            gluid=opts['<encrypt_key>'],
+                            dbfile=opts['<gameloft_sharing>'],
+                            usedb=opts['<gameloft_sharing>'] is not None,
+                            legacy=opts['--legacy'])
         if opts['--shell']:
-            PonyShell(savefile=opts['<save_file>'],
-                      gluid=opts['<encrypt_key>'],
-                      dbfile=opts['<gameloft_sharing>'],
-                      legacy=opts['--legacy']).cmdloop(intro=INTRO)
+            PonyShell(savedata).cmdloop(intro=INTRO)
         else:
-            Gui(savefile=opts['<save_file>'],
-                gluid=opts['<encrypt_key>'],
-                dbfile=opts['<gameloft_sharing>'],
-                legacy=opts['--legacy']).start()
+            Gui(savedata).start()
     except binascii.Error:
         print("Invalid decryption key",
               file=sys.stderr)

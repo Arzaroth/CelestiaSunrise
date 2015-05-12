@@ -11,27 +11,29 @@ from __future__ import print_function, absolute_import, unicode_literals
 import six
 try:
     # py3
-    from tkinter import Frame, Label, Checkbutton, BooleanVar
+    import tkinter as tk
+    import tkinter.ttk as ttk
     from tkinter.constants import N, S, E, W, NSEW
 except ImportError:
     # py2
-    from Tkinter import Frame, Label, Checkbutton, BooleanVar
+    import Tkinter as tk
+    import ttk
     from Tkconstants import N, S, E, W, NSEW
-from .scrollframe import ScrollFrame
+from .scrolledframe import ScrolledFrame
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
-class MissingPony(Frame, object):
-    checked = TkVarDescriptor(BooleanVar)
+class MissingPony(ttk.Frame, object):
+    checked = TkVarDescriptor(tk.BooleanVar)
 
     def __init__(self, parent, name, offset):
-        Frame.__init__(self, parent)
+        ttk.Frame.__init__(self, parent)
         self.parent = parent
 
         self.checked = False
-        self._chkbox = Checkbutton(self.parent,
-                                   text="Add {} to inventory".format(name),
-                                   variable=MissingPony.checked.raw_klass(self))
+        self._chkbox = ttk.Checkbutton(self.parent,
+                                       text="Add {} to inventory".format(name),
+                                       variable=MissingPony.checked.raw_klass(self))
 
         self._chkbox.grid(row=offset, column=0, sticky=W, padx=3, pady=2)
 
@@ -50,17 +52,17 @@ class MissingEverypony(MissingPony):
             pony.checked = self.checked
 
 
-class MissingPoniesFrame(ScrollFrame):
+class MissingPoniesFrame(ScrolledFrame):
     def __init__(self, parent, xml_handle):
-        ScrollFrame.__init__(self, parent)
+        ScrolledFrame.__init__(self, parent)
         self._xml_handle = xml_handle
         self._missing_ponies = {}
 
-        Label(self._data_frame).grid(row=1, column=0)
+        ttk.Label(self.interior).grid(row=1, column=0)
         for n, (ID, name) in enumerate(self._xml_handle.missing_ponies.items()):
-            self._missing_ponies[ID] = MissingPony(self._data_frame,
+            self._missing_ponies[ID] = MissingPony(self.interior,
                                                    name, n + 2)
-        self._missing_everypony = MissingEverypony(self._missing_ponies, self._data_frame,
+        self._missing_everypony = MissingEverypony(self._missing_ponies, self.interior,
                                                    "Everypony", 0)
 
     def commit(self):

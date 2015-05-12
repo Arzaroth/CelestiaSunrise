@@ -11,25 +11,27 @@ from __future__ import print_function, absolute_import, unicode_literals
 import six
 try:
     # py3
-    from tkinter import Frame, Checkbutton, Label, BooleanVar, StringVar
+    import tkinter as tk
+    import tkinter.ttk as ttk
     from tkinter.constants import N, S, E, W, NSEW
 except ImportError:
     # py2
-    from Tkinter import Frame, Checkbutton, Label, BooleanVar, StringVar
+    import Tkinter as tk
+    import ttk
     from Tkconstants import N, S, E, W, NSEW
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
-class ZoneFrame(Frame, object):
-    clearables_checked = TkVarDescriptor(BooleanVar)
-    foes_checked = TkVarDescriptor(BooleanVar)
-    reset_checked = TkVarDescriptor(BooleanVar)
-    clearables_text = TkVarDescriptor(StringVar)
-    foes_text = TkVarDescriptor(StringVar)
-    reset_text = TkVarDescriptor(StringVar)
+class ZoneFrame(ttk.Frame, object):
+    clearables_checked = TkVarDescriptor(tk.BooleanVar)
+    foes_checked = TkVarDescriptor(tk.BooleanVar)
+    reset_checked = TkVarDescriptor(tk.BooleanVar)
+    clearables_text = TkVarDescriptor(tk.StringVar)
+    foes_text = TkVarDescriptor(tk.StringVar)
+    reset_text = TkVarDescriptor(tk.StringVar)
 
     def __init__(self, parent, zone, offset, reset_offset):
-        Frame.__init__(self, parent)
+        ttk.Frame.__init__(self, parent)
         self.parent = parent
         self.zone = zone
 
@@ -37,15 +39,15 @@ class ZoneFrame(Frame, object):
         self.foes_checked = False
         self.reset_checked = False
         self.update()
-        self._clearables_box = Checkbutton(self.parent,
-                                           textvariable=ZoneFrame.clearables_text.raw_klass(self),
-                                           variable=ZoneFrame.clearables_checked.raw_klass(self))
-        self._foes_box = Checkbutton(self.parent,
-                                     textvariable=ZoneFrame.foes_text.raw_klass(self),
-                                     variable=ZoneFrame.foes_checked.raw_klass(self))
-        self._reset_box = Checkbutton(self.parent,
-                                      textvariable=ZoneFrame.reset_text.raw_klass(self),
-                                      variable=ZoneFrame.reset_checked.raw_klass(self))
+        self._clearables_box = ttk.Checkbutton(self.parent,
+                                               textvariable=ZoneFrame.clearables_text.raw_klass(self),
+                                               variable=ZoneFrame.clearables_checked.raw_klass(self))
+        self._foes_box = ttk.Checkbutton(self.parent,
+                                         textvariable=ZoneFrame.foes_text.raw_klass(self),
+                                         variable=ZoneFrame.foes_checked.raw_klass(self))
+        self._reset_box = ttk.Checkbutton(self.parent,
+                                          textvariable=ZoneFrame.reset_text.raw_klass(self),
+                                          variable=ZoneFrame.reset_checked.raw_klass(self))
 
         options = dict(sticky=W, padx=3, pady=2)
         self._clearables_box.grid(row=(offset * 2), column=0, **options)
@@ -66,14 +68,14 @@ class ZoneFrame(Frame, object):
                                    "s" if len(self.zone.shops) > 1 else ""))
 
 
-class ZonesFrame(Frame):
+class ZonesFrame(ttk.Frame):
     def __init__(self, parent, xml_handle):
-        Frame.__init__(self, parent)
+        ttk.Frame.__init__(self, parent)
 
         self._xml_handle = xml_handle
         self._zones = {}
         reset_offset = len(self._xml_handle.zones) * 2
-        Label(self).grid(row=reset_offset, column=0)
+        ttk.Label(self).grid(row=reset_offset, column=0)
         for n, (ID, zone) in enumerate(self._xml_handle.zones.items()):
             self._zones[ID] = ZoneFrame(self, zone, n, reset_offset + 1)
 

@@ -7,31 +7,21 @@
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
+
 from .loading import Loading
 from .ponygui import PonyGui
 
 class Gui(object):
-    def __init__(self, savefile, gluid, dbfile, legacy):
-        self.savefile = savefile
-        self.gluid = gluid
-        self.dbfile = dbfile
-        self.legacy = legacy
+    def __init__(self, savedata):
+        self.savedata = savedata
 
     def start(self):
         ok = False
         while not ok:
-            loading = Loading(self.savefile,
-                              self.gluid,
-                              self.dbfile,
-                              self.dbfile is not None,
-                              self.legacy)
+            loading = Loading(self.savedata)
             loading.mainloop()
             ok = not loading.go_next
             if loading.go_next:
-                ponygui = PonyGui(loading.savefile,
-                                  loading.gluid,
-                                  loading.dbfile,
-                                  loading.usedb,
-                                  loading.legacy)
+                ponygui = PonyGui(loading.savedata)
                 ponygui.mainloop()
                 ok = ponygui.loaded
