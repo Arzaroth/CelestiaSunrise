@@ -14,7 +14,7 @@ class SaveData(object):
                  savefile, gluid, dbfile,
                  usedb, legacy):
         self.savefile = savefile
-        self._gluid = gluid
+        self._gluid = gluid if gluid else b''
         self.dbfile = dbfile
         self.usedb = usedb
         self.legacy = legacy
