@@ -6,43 +6,48 @@
 # arzaroth@arzaroth.com
 #
 
-from __future__ import print_function, absolute_import, unicode_literals
+from __future__ import print_function, absolute_import, unicode_literals, division
 
 import binascii
-import sys
-import requests
+import six
+import time
 try:
     # py3
     import tkinter as tk
     import tkinter.ttk as ttk
-    from tkinter.constants import N, S, E, W, NSEW, HORIZONTAL, BOTH
+    from tkinter.constants import N, S, E, W, NSEW, HORIZONTAL
+    from tkinter.constants import BOTH, X, Y
+    from tkinter.constants import TOP, BOTTOM, RIGHT, LEFT
     from tkinter.filedialog import askopenfilename, asksaveasfilename
-    from tkinter.messagebox import showerror, showinfo
+    from tkinter.messagebox import showinfo
     from queue import Queue
 except ImportError:
     # py2
     import Tkinter as tk
     import ttk
-    from Tkconstants import N, S, E, W, NSEW, HORIZONTAL, BOTH
+    from Tkconstants import N, S, E, W, NSEW, HORIZONTAL
+    from Tkconstants import BOTH, X, Y
+    from Tkconstants import TOP, BOTTOM, RIGHT, LEFT
     from tkFileDialog import askopenfilename, asksaveasfilename
-    from tkMessageBox import showerror, showinfo
+    from tkMessageBox import showinfo
     from Queue import Queue
 from .basegui import BaseGui
 from .missingponiesframe import MissingPoniesFrame
 from .currenciesframe import CurrenciesFrame
 from .poniesframe import PoniesFrame
 from .zonesframe import ZonesFrame
-from .threaded import ThreadedLoad, ThreadedSave
+from .threaded import ThreadedLoad, ThreadedSave, ThreadedVersion
 from .threaded import process_queue
-from celestia.save import decompress_data, compress_data
-from celestia.utility.gluid import retrieve_gluid
-from celestia.utility.update import check_version
+from celestia.utility.version import restart
+from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 class LoadingDialog(tk.Toplevel):
     def __init__(self, *args, **kwargs):
         tk.Toplevel.__init__(self, *args, **kwargs)
         self.transient()
         self.title("Loading...")
+        self.bind('<Escape>', lambda _: self.destroy())
+
         frame = ttk.Frame(self)
         frame.pack(expand=True, fill=BOTH)
         self.label = ttk.Label(frame, text="Loading...", font=20)
@@ -50,6 +55,137 @@ class LoadingDialog(tk.Toplevel):
         self.label.pack(padx=10, pady=10)
         self.pb.pack(padx=10, pady=10)
         self.pb.start()
+
+
+@six.add_metaclass(TkVarDescriptorOwner)
+class DownloadDialog(tk.Toplevel, object):
+    percent = TkVarDescriptor(tk.StringVar)
+
+    def __init__(self, download_url, *args, **kwargs):
+        tk.Toplevel.__init__(self, *args, **kwargs)
+        self.download_url = download_url
+        self.transient()
+        self.title("Downloading...")
+        self._curbytes = 0
+        self._maxbytes = 0
+        self.start = time.clock()
+        self.update_percent()
+
+        self.mainframe = ttk.Frame(self)
+        self.mainframe.pack(side=TOP, fill=BOTH, expand=True)
+
+        self.label = ttk.Label(self.mainframe,
+                               text="The new version is currently downloading, please wait...",
+                               font=20)
+        self.progressframe = ttk.Frame(self.mainframe)
+        self.pb = ttk.Progressbar(self.progressframe,
+                                  mode="determinate",
+                                  length=200,
+                                  orient=HORIZONTAL)
+        self.pblabel = ttk.Label(self.progressframe,
+                                 textvariable=DownloadDialog.percent.raw_klass(self))
+
+        options = dict(padx=3, pady=4)
+        self.label.pack(side=TOP, fill=X, expand=False, **options)
+        self.progressframe.pack(side=BOTTOM, fill=BOTH, expand=True, **options)
+        self.pb.pack(side=LEFT, **options)
+        self.pblabel.pack(side=LEFT, **options)
+
+    def update_percent(self):
+        try:
+            percent = (self.current / self.total) * 100
+        except ZeroDivisionError:
+            percent = 0
+        self.percent = "{:.2f}% ({:.2f} KiB/s)".format(percent,
+                                                       self.current /
+                                                       (time.clock() - self.start) /
+                                                       1024)
+
+    @property
+    def total(self):
+        return self._maxbytes
+
+    @total.setter
+    def total(self, value):
+        self._maxbytes = int(value)
+        self.pb["maximum"] = self._maxbytes
+        self.update_percent()
+
+    @property
+    def current(self):
+        return self._curbytes
+
+    @current.setter
+    def current(self, value):
+        self._curbytes = int(value)
+        self.pb["value"] = self._curbytes
+        self.update_percent()
+
+
+class RestartDialog(tk.Toplevel):
+    def __init__(self, *args, **kwargs):
+        tk.Toplevel.__init__(self, *args, **kwargs)
+        self.transient()
+        self.title("Success")
+        self.bind('<Escape>', lambda _: self.restart)
+        self.grab_set_global()
+
+        frame = ttk.Frame(self)
+        frame.pack(expand=True, fill=BOTH)
+        self.label = ttk.Label(frame,
+                               text=("The most recent version has successfully been downloaded, "
+                                     "the application will restart now"),
+                               font=16)
+        self.button = ttk.Button(frame, text="Ok", command=restart)
+        self.label.pack(padx=10, pady=10)
+        self.button.pack(padx=10, pady=10)
+
+
+class NewVersionDialog(tk.Toplevel):
+    def __init__(self, download_url, *args, **kwargs):
+        tk.Toplevel.__init__(self, *args, **kwargs)
+        self.download_url = download_url
+        self.transient()
+        self.title("New version!")
+        self.bind('<Escape>', lambda _: self.destroy())
+
+        self.mainframe = ttk.Frame(self)
+        self.mainframe.pack(side=TOP, fill=BOTH, expand=True)
+
+        self.label = ttk.Label(self.mainframe,
+                               text="A new version is avaible! Do you wish to download it?",
+                               font=16)
+        self.buttonframe = ttk.Frame(self.mainframe)
+        self.okbuttonframe = ttk.Frame(self.buttonframe)
+        self.nobuttonframe = ttk.Frame(self.buttonframe)
+        self.okbutton = ttk.Button(self.okbuttonframe, text="Yes", command=self.download)
+        self.nobutton = ttk.Button(self.nobuttonframe, text="No", command=self.destroy)
+
+        options = dict(padx=3, pady=4)
+        self.label.pack(side=TOP, fill=X, expand=False, **options)
+        self.buttonframe.pack(side=BOTTOM, fill=BOTH, expand=True, **options)
+        self.okbuttonframe.pack(side=LEFT, fill=X, expand=True, **options)
+        self.nobuttonframe.pack(side=RIGHT, fill=X, expand=True, **options)
+        self.okbutton.pack(side=RIGHT)
+        self.nobutton.pack(side=LEFT)
+
+    def download(self):
+        downloadbox = DownloadDialog(self.download_url, self)
+        queue = Queue()
+        thread = ThreadedVersion(queue, self.download_url)
+        thread.start()
+
+        def process_callback(res):
+            downloadbox.total = res["total"]
+            downloadbox.current = res["current"]
+
+        def success_callback(res):
+            RestartDialog(self)
+
+        self.after(100, process_queue,
+                   self, downloadbox, queue,
+                   success_callback, None,
+                   process_callback)
 
 
 class PonyGui(BaseGui):
@@ -122,13 +258,20 @@ class PonyGui(BaseGui):
                        success_callback)
 
     def _check_update(self):
-        ver = check_version()
-        if ver["error"]:
-            showerror("Error", ver["error"])
-        elif ver["up_to_date"]:
-            showinfo("Up to date", "You're running the latest version")
-        else:
-            pass
+        loadingbox = LoadingDialog(self)
+        queue = Queue()
+        thread = ThreadedVersion(queue=queue)
+        thread.start()
+
+        def success_callback(res):
+            if res["up_to_date"]:
+                showinfo("Up to date", "You're running the latest version")
+            else:
+                NewVersionDialog(res["download_url"], self)
+
+        self.after(100, process_queue,
+                   self, loadingbox, queue,
+                   success_callback)
 
     def _about_popup(self):
         from __main__ import INTRO, AUTHOR

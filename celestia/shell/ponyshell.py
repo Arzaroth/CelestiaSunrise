@@ -18,7 +18,7 @@ from celestia.save import decompress_data, compress_data
 from celestia.xml.xmlhandler import XmlHandler
 from celestia.utility.utility import Pony
 from celestia.utility.gluid import retrieve_gluid
-from celestia.utility.update import check_version
+from celestia.utility.version import check_version
 from .docopt_utils import docopt_cmd, docopt_cmd_completion
 from .show import (show_currencies, show_currency,
                    show_ponies, show_pony,

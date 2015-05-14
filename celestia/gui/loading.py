@@ -52,7 +52,7 @@ class Loading(BaseGui):
         self._disclaimer_label2 = ttk.Label(self._disclaimer_frame,
                                             text="Make backups before using this tool.")
         self._ok_button = ttk.Button(self,
-                                     text="Go !",
+                                     text="Go!",
                                      command=self._next)
 
     def _grid_frames(self):

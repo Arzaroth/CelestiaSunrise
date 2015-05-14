@@ -1,15 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# File: update.py
+# File: version.py
 # by Arzaroth Lekva
 # arzaroth@arzaroth.com
 #
 
-import requests
+import os
 import sys
+import inspect
+import requests
 from setup import VERSION
 from pkg_resources import parse_version
+
+def get_script_name(follow_links=True):
+    if check_frozen():
+        path = os.path.abspath(sys.executable)
+    else:
+        path = inspect.getabsfile(get_script_name)
+    if follow_links:
+        path = os.path.realpath(path)
+    return path
 
 def check_network():
     try:
@@ -39,3 +50,11 @@ def check_version(force=False):
             res["download_url"] = r.json()['assets'][0]['browser_download_url']
             res["up_to_date"] = False
     return res
+
+def restart():
+    exe = sys.executable
+    if check_frozen():
+        args = sys.argv[:]
+    else:
+        args = [exe] + sys.argv[:]
+    os.execvp(exe, args)

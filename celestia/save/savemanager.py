@@ -74,7 +74,7 @@ class SaveManager(object):
                     print('.', end='')
                     file.seek(0, 0)
                     results = [self._load_buffer(file) for _ in range(SaveManager.SECTIONS)]
-                print('.\nDone !')
+                print('.\nDone!')
         except Exception as e:
             raise SaveError(str(e))
         save_number = struct.unpack('I', results[0])[0] if len(results) > 1 else 10
@@ -94,7 +94,7 @@ class SaveManager(object):
                     self._save_buffer(data, file, gluid)
                     print('.', end='')
                     file.write(struct.pack('I', SaveManager.SECTIONS))
-                print('.\nDone !')
+                print('.\nDone!')
         except Exception as e:
             raise SaveError(str(e))
 

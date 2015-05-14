@@ -37,7 +37,7 @@ class BaseGui(tk.Tk, object):
         style = ttk.Style()
         style.theme_use('clam' if 'clam' in style.theme_names() else 'classic')
         self.savefile = savedata.savefile or ""
-        self.gluid = savedata.gluid or ""
+        self.gluid = savedata._gluid or ""
         self.dbfile = savedata.dbfile or ""
         self.usedb = savedata.usedb
         self.legacy = savedata.legacy

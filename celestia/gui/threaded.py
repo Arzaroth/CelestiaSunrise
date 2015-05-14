@@ -7,6 +7,9 @@
 #
 
 import threading
+import requests
+import tempfile
+import shutil
 try:
     # py3
     import queue as Queue
@@ -18,9 +21,10 @@ except ImportError:
 from celestia.save import SaveManager, SaveError
 from celestia.save import decompress_data, compress_data
 from celestia.xml.xmlhandler import XmlHandler
+from celestia.utility.version import get_script_name, check_version
 
 class ThreadedBase(threading.Thread):
-    def __init__(self, queue, savedata, pre_func=None):
+    def __init__(self, queue, savedata=None, pre_func=None):
         threading.Thread.__init__(self,
                                   target=self.worker, args=(queue,))
         self.pre_func = pre_func
@@ -59,6 +63,7 @@ class ThreadedLoad(ThreadedBase):
             xml_handle = XmlHandler(data)
             xml_handle.pre_load()
             res["xml_handle"] = xml_handle
+        res["done"] = True
         queue.put(res)
 
 
@@ -94,22 +99,68 @@ class ThreadedSave(ThreadedBase):
                     f.write(self.xml_handle.prettify())
         except Exception as e:
             res["error"] = e
+        res["done"] = True
+        queue.put(res)
+
+
+class ThreadedVersion(ThreadedBase):
+    def __init__(self, queue, download_url=None):
+        ThreadedBase.__init__(self, queue)
+        self.download_url = download_url
+
+    def worker(self, queue):
+        ThreadedBase.worker(self, queue)
+        if self.download_url:
+            res = {
+                "error": None,
+                "total": 0,
+                "current": 0,
+                "done": False
+            }
+            try:
+                response = requests.get(self.download_url, stream=True)
+                response.raise_for_status()
+            except Exception as e:
+                res["error"] = e
+            else:
+                res["total"] = int(response.headers.get('content-length') or 0)
+                queue.put(res)
+                f = tempfile.NamedTemporaryFile(delete=False)
+                if not res["total"]:
+                    f.write(response.content)
+                else:
+                    for chunk in response.iter_content(1024):
+                        res["current"] += len(chunk)
+                        f.write(chunk)
+                        queue.put(res)
+                f.close()
+                shutil.move(f.name, get_script_name())
+        else:
+            res = check_version()
+        res["done"] = True
         queue.put(res)
 
 
 def process_queue(instance, loadingbox, queue,
-                  success_callback=None, error_callback=None):
+                  success_callback=None, error_callback=None,
+                  process_callback=None):
+    empty = False
     try:
         res = queue.get_nowait()
     except Queue.Empty:
+        res = {"done": False}
+        empty = True
+    if not res["done"]:
+        if process_callback and not empty:
+            process_callback(res)
         instance.after(100, process_queue,
                        instance, loadingbox, queue,
-                       success_callback, error_callback)
+                       success_callback, error_callback,
+                       process_callback)
     else:
         loadingbox.destroy()
         if res["error"]:
-            showerror("Error",
-                      "Was unable to load from file, reason: {}".format(str(res["error"])))
+            showerror("Error", str(res["error"]))
             if error_callback:
                 error_callback()
         elif success_callback:
