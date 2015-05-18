@@ -8,7 +8,6 @@
 
 from __future__ import print_function, absolute_import, unicode_literals
 
-import os
 import sys
 import binascii
 import traceback
@@ -17,9 +16,8 @@ from setup import VERSION
 from celestia import PonyShell, Gui
 from celestia.save import SaveData
 from celestia.utility.config import Config
-from celestia.utility.version import get_script_name, restart
 
-PRGM = os.path.basename(get_script_name())
+PRGM = "CelestiaSunrise"
 
 INTRO = """
 {prgm} {ver}
