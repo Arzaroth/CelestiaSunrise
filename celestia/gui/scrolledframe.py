@@ -14,7 +14,6 @@ try:
     from tkinter.constants import (NW, VERTICAL,
                                    X, Y,
                                    LEFT, RIGHT,
-                                   TRUE, FALSE,
                                    BOTH, ALL)
 except ImportError:
     # py2
@@ -23,7 +22,6 @@ except ImportError:
     from Tkconstants import (NW, VERTICAL,
                              X, Y,
                              LEFT, RIGHT,
-                             TRUE, FALSE,
                              BOTH, ALL)
 
 class ScrolledFrame(ttk.Frame, object):
@@ -31,10 +29,10 @@ class ScrolledFrame(ttk.Frame, object):
         ttk.Frame.__init__(self, parent, *args, **kw)
 
         vscrollbar = ttk.Scrollbar(self, orient=VERTICAL)
-        vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
+        vscrollbar.pack(fill=Y, side=RIGHT, expand=False)
         canvas = tk.Canvas(self, bd=0, highlightthickness=0,
                            yscrollcommand=vscrollbar.set)
-        canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        canvas.pack(side=LEFT, fill=BOTH, expand=True)
         vscrollbar.config(command=canvas.yview)
 
         canvas.xview_moveto(0)
@@ -55,5 +53,3 @@ class ScrolledFrame(ttk.Frame, object):
             if interior.winfo_reqwidth() != canvas.winfo_width():
                 canvas.itemconfigure(interior_id, width=canvas.winfo_width())
         canvas.bind('<Configure>', _configure_canvas)
-
-        return

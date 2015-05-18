@@ -1,1 +1,1 @@
-pyinstaller --clean -Fw --noupx CelestiaSunrise.spec
+pyinstaller --clean CelestiaSunrise.spec
