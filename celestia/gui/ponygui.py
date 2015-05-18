@@ -307,11 +307,15 @@ class PonyGui(BaseGui):
 
     def _create_frames(self):
         BaseGui._create_frames(self)
-        self._notebook = ttk.Notebook(self)
-        self._currencies_frame = CurrenciesFrame(self, self._xml_handle)
-        self._zones_frame = ZonesFrame(self, self._xml_handle)
-        self._ponies_frame = PoniesFrame(self, self._xml_handle)
-        self._missing_ponies_frame = MissingPoniesFrame(self, self._xml_handle)
+        self._notebook = ttk.Notebook(self._main_frame)
+        self._currencies_frame = CurrenciesFrame(self._main_frame,
+                                                 self._xml_handle)
+        self._zones_frame = ZonesFrame(self._main_frame,
+                                       self._xml_handle)
+        self._ponies_frame = PoniesFrame(self._main_frame,
+                                         self._xml_handle)
+        self._missing_ponies_frame = MissingPoniesFrame(self._main_frame,
+                                                        self._xml_handle)
         self._notebook.add(self._currencies_frame,
                            text="Currencies")
         self._notebook.add(self._ponies_frame,
@@ -320,7 +324,7 @@ class PonyGui(BaseGui):
                            text="Zones")
         self._notebook.add(self._missing_ponies_frame,
                            text="Missing ponies")
-        self._save_button = ttk.Button(self,
+        self._save_button = ttk.Button(self._main_frame,
                                        text="Save to file",
                                        command=self._save)
 

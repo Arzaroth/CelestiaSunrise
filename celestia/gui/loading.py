@@ -43,7 +43,7 @@ class Loading(BaseGui):
 
     def _create_frames(self):
         BaseGui._create_frames(self)
-        self._disclaimer_frame = ttk.Frame(self)
+        self._disclaimer_frame = ttk.Frame(self._main_frame)
 
     def _create_widgets(self):
         BaseGui._create_widgets(self)
@@ -51,7 +51,7 @@ class Loading(BaseGui):
                                             text='Your savegame is most likely called "mlp_save_prime.dat".')
         self._disclaimer_label2 = ttk.Label(self._disclaimer_frame,
                                             text="Make backups before using this tool.")
-        self._ok_button = ttk.Button(self,
+        self._ok_button = ttk.Button(self._main_frame,
                                      text="Go!",
                                      command=self._next)
 

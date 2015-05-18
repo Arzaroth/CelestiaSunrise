@@ -14,13 +14,13 @@ try:
     import tkinter as tk
     import tkinter.ttk as ttk
     from tkinter.filedialog import askopenfilename
-    from tkinter.constants import N, S, E, W, NSEW
+    from tkinter.constants import N, S, E, W, NSEW, BOTH
 except ImportError:
     # py2
     import Tkinter as tk
     import ttk
     from tkFileDialog import askopenfilename
-    from Tkconstants import N, S, E, W, NSEW
+    from Tkconstants import N, S, E, W, NSEW, BOTH
 from celestia.save import SaveData
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
@@ -80,8 +80,9 @@ class BaseGui(tk.Tk, object):
         pass
 
     def _create_frames(self):
-        self._file_frame = ttk.Frame(self)
-        self._key_frame = ttk.Frame(self)
+        self._main_frame = ttk.Frame(self)
+        self._file_frame = ttk.Frame(self._main_frame)
+        self._key_frame = ttk.Frame(self._main_frame)
         self._key_entry_frame = ttk.Frame(self._key_frame)
         self._key_checkbox_frame = ttk.Frame(self._key_frame)
 
@@ -111,6 +112,7 @@ class BaseGui(tk.Tk, object):
                                            command=self._usedb_clicked)
 
     def _grid_frames(self):
+        self._main_frame.pack(expand=True, fill=BOTH)
         options = dict(sticky=NSEW, padx=3, pady=4)
         self._key_entry_frame.grid(row=0, column=0, **options)
         self._key_checkbox_frame.grid(row=1, column=0, **options)
