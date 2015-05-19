@@ -6,6 +6,8 @@
 # arzaroth@arzaroth.com
 #
 
+from __future__ import unicode_literals, absolute_import
+
 import os
 import sys
 import inspect
@@ -46,15 +48,9 @@ def check_version(force=False):
         res["error"] = "You're not running the frozen version"
     else:
         r = requests.get('https://api.github.com/repos/Arzaroth/CelestiaSunrise/releases/latest')
-        if parse_version(r.json()['tag_name']) > parse_version('.'.join(VERSION)):
+        res["up_to_date"] = parse_version(r.json()['tag_name']) <= parse_version('.'.join(VERSION))
+        try:
             res["download_url"] = r.json()['assets'][0]['browser_download_url']
-            res["up_to_date"] = False
+        except:
+            res["error"] = "Unable to find download url"
     return res
-
-def restart():
-    exe = sys.executable
-    if check_frozen():
-        args = sys.argv[:]
-    else:
-        args = [exe] + sys.argv[:]
-    os.execvp(exe, args)

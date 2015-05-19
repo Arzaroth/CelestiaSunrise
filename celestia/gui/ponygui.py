@@ -10,7 +10,6 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 
 import binascii
 import six
-import time
 try:
     # py3
     import tkinter as tk
@@ -31,14 +30,19 @@ except ImportError:
     from tkFileDialog import askopenfilename, asksaveasfilename
     from tkMessageBox import showinfo
     from Queue import Queue
+try:
+    from celestia.utility.monotonic import monotonic
+except RuntimeError:
+    # no suitable implementation of monotonic for this system
+    # using time.time() instead
+    from time import time as monotonic
 from .basegui import BaseGui
 from .missingponiesframe import MissingPoniesFrame
 from .currenciesframe import CurrenciesFrame
 from .poniesframe import PoniesFrame
 from .zonesframe import ZonesFrame
-from .threaded import ThreadedLoad, ThreadedSave, ThreadedVersion
+from .threaded import ThreadedLoad, ThreadedSave, ThreadedVersionCheck, ThreadedVersionDownload
 from .threaded import process_queue
-from celestia.utility.version import restart
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 class LoadingDialog(tk.Toplevel):
@@ -61,14 +65,14 @@ class LoadingDialog(tk.Toplevel):
 class DownloadDialog(tk.Toplevel, object):
     percent = TkVarDescriptor(tk.StringVar)
 
-    def __init__(self, download_url, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         tk.Toplevel.__init__(self, *args, **kwargs)
-        self.download_url = download_url
         self.transient()
         self.title("Downloading...")
+        self.protocol('WM_DELETE_WINDOW', lambda *args: None)
         self._curbytes = 0
         self._maxbytes = 0
-        self.start = time.clock()
+        self.start = monotonic()
         self.update_percent()
 
         self.mainframe = ttk.Frame(self)
@@ -98,7 +102,7 @@ class DownloadDialog(tk.Toplevel, object):
             percent = 0
         self.percent = "{:.2f}% ({:.2f} KiB/s)".format(percent,
                                                        self.current /
-                                                       (time.clock() - self.start) /
+                                                       (monotonic() - self.start) /
                                                        1024)
 
     @property
@@ -127,23 +131,21 @@ class RestartDialog(tk.Toplevel):
         tk.Toplevel.__init__(self, *args, **kwargs)
         self.transient()
         self.title("Success")
-        self.bind('<Escape>', lambda _: self.restart)
-        self.grab_set_global()
+        self.bind('<Escape>', lambda _: self.destroy())
 
         frame = ttk.Frame(self)
         frame.pack(expand=True, fill=BOTH)
         self.label = ttk.Label(frame,
-                               text=("The most recent version has successfully been downloaded, "
-                                     "the application will restart now"),
+                               text="The most recent version has successfully been downloaded",
                                font=16)
-        self.button = ttk.Button(frame, text="Ok", command=restart)
+        self.button = ttk.Button(frame, text="Ok", command=self.destroy)
         self.label.pack(padx=10, pady=10)
         self.button.pack(padx=10, pady=10)
 
 
 class NewVersionDialog(tk.Toplevel):
-    def __init__(self, download_url, *args, **kwargs):
-        tk.Toplevel.__init__(self, *args, **kwargs)
+    def __init__(self, download_url, master, *args, **kwargs):
+        tk.Toplevel.__init__(self, master, *args, **kwargs)
         self.download_url = download_url
         self.transient()
         self.title("New version!")
@@ -170,22 +172,25 @@ class NewVersionDialog(tk.Toplevel):
         self.nobutton.pack(side=LEFT)
 
     def download(self):
-        downloadbox = DownloadDialog(self.download_url, self)
-        queue = Queue()
-        thread = ThreadedVersion(queue, self.download_url)
-        thread.start()
+        filename = asksaveasfilename(initialfile="CelestiaSunrise.exe")
+        if filename:
+            downloadbox = DownloadDialog()
+            queue = Queue()
+            thread = ThreadedVersionDownload(queue, self.download_url, filename)
+            thread.start()
 
-        def process_callback(res):
-            downloadbox.total = res["total"]
-            downloadbox.current = res["current"]
+            def process_callback(res):
+                downloadbox.total = res["total"]
+                downloadbox.current = res["current"]
 
-        def success_callback(res):
-            RestartDialog(self)
+            def success_callback(res):
+                RestartDialog()
 
-        self.after(100, process_queue,
-                   self, downloadbox, queue,
-                   success_callback, None,
-                   process_callback)
+            self.master.after(100, process_queue,
+                              self.master, downloadbox, queue,
+                              success_callback, None,
+                              process_callback)
+        self.destroy()
 
 
 class PonyGui(BaseGui):
@@ -260,7 +265,7 @@ class PonyGui(BaseGui):
     def _check_update(self):
         loadingbox = LoadingDialog(self)
         queue = Queue()
-        thread = ThreadedVersion(queue=queue)
+        thread = ThreadedVersionCheck(queue=queue)
         thread.start()
 
         def success_callback(res):

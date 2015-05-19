@@ -5,13 +5,12 @@ A savegame editor for the mobile game "My Little Pony"
 
 ```
 Required:
+args==0.1.0
+clint==0.4.1
 docopt==0.6.2
-gitdb==0.6.4
-GitPython==1.0.1
 RapidXml==1.0.7
 requests==2.7.0
 six==1.9.0
-smmap==0.9.0
 ```
 
 Dependencies can be installed with the following command:
@@ -36,9 +35,10 @@ Linux
 
 Ezpz.
 ```
-> python3.4 setup.py install
+> python setup.py install
 ```
 Alternatively, you can specify the --user switch to install it locally, which doesn't require sudo privileges.
+It will work regardless of your python version.
 
 Windows
 -------------

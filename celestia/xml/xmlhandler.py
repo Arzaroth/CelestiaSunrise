@@ -114,7 +114,6 @@ class XmlHandler(object):
         ('Pony_Hayseed_Turnip_Truck', 'Hayseed Turnip Truck'),
         ('Pony_Hoity_Toity', 'Hoity Toity'),
         ('Pony_Jeff_Letrotski', 'Jeff Letrotski'),
-        ('Pony_Jesus_Pezuna', 'Jesus Pezuna'),
         ('Pony_Jet_Set', 'Jet Set'),
         ('Pony_Joe', 'Joe'),
         ('Pony_Junebug', 'Junebug'),

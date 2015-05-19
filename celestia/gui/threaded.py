@@ -8,7 +8,6 @@
 
 import threading
 import requests
-import tempfile
 import shutil
 try:
     # py3
@@ -103,40 +102,45 @@ class ThreadedSave(ThreadedBase):
         queue.put(res)
 
 
-class ThreadedVersion(ThreadedBase):
-    def __init__(self, queue, download_url=None):
+class ThreadedVersionCheck(ThreadedBase):
+    def worker(self, queue):
+        ThreadedBase.worker(self, queue)
+        res = check_version()
+        res["done"] = True
+        queue.put(res)
+
+
+class ThreadedVersionDownload(ThreadedBase):
+    def __init__(self, queue, download_url, filename):
         ThreadedBase.__init__(self, queue)
         self.download_url = download_url
+        self.filename = filename
 
     def worker(self, queue):
         ThreadedBase.worker(self, queue)
-        if self.download_url:
-            res = {
-                "error": None,
-                "total": 0,
-                "current": 0,
-                "done": False
-            }
-            try:
-                response = requests.get(self.download_url, stream=True)
-                response.raise_for_status()
-            except Exception as e:
-                res["error"] = e
-            else:
-                res["total"] = int(response.headers.get('content-length') or 0)
-                queue.put(res)
-                f = tempfile.NamedTemporaryFile(delete=False)
+        res = {
+            "error": None,
+            "total": 0,
+            "current": 0,
+            "done": False
+        }
+        try:
+            response = requests.get(self.download_url, stream=True)
+            response.raise_for_status()
+            res["total"] = int(response.headers.get('content-length') or 0)
+            queue.put(res)
+            partfile = "{}.part".format(self.filename)
+            with open(partfile, 'wb') as tmp:
                 if not res["total"]:
-                    f.write(response.content)
+                    tmp.write(response.content)
                 else:
                     for chunk in response.iter_content(1024):
                         res["current"] += len(chunk)
-                        f.write(chunk)
+                        tmp.write(chunk)
                         queue.put(res)
-                f.close()
-                shutil.move(f.name, get_script_name())
-        else:
-            res = check_version()
+            shutil.move(partfile, self.filename)
+        except Exception as e:
+            res["error"] = e
         res["done"] = True
         queue.put(res)
 
