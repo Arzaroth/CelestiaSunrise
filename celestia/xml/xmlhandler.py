@@ -366,7 +366,7 @@ class XmlHandler(object):
         self.actions
 
     def to_string(self):
-        return self.xmlobj.unparse()
+        return self.xmlobj.unparse(raw=True)
 
     def prettify(self):
-        return self.xmlobj.unparse(pretty=True)
+        return self.xmlobj.unparse(pretty=True, raw=True)

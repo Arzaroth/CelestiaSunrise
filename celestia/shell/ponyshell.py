@@ -141,21 +141,18 @@ Options:
         """Dump the actual XML tree.
 
 Usage:
-  dump_xml [<file>]
+  dump_xml <file>
 
 Arguments:
-  file          If present, write to file instead of standard output.
+  file          Write to specified file.
 
 Options:
   -h --help     Show this help."""
-        if args['<file>']:
-            try:
-                with open(args['<file>'], 'w') as f:
-                    f.write(self._xml_handle.prettify())
-            except Exception as e:
-                print("Was unable to write to file, reason: {}".format(str(e)))
-        else:
-            print(self._xml_handle.prettify())
+        try:
+            with open(args['<file>'], 'wb') as f:
+                f.write(self._xml_handle.prettify())
+        except Exception as e:
+            print("Was unable to write to file, reason: {}".format(str(e)))
 
     @docopt_cmd
     def do_import_xml(self, args):
@@ -201,11 +198,7 @@ Options:
                 print("Invalid encryption key")
                 return
         try:
-            try:
-                data = self._xml_handle.to_string().encode('utf-8')
-            except UnicodeDecodeError:
-                data = self._xml_handle.to_string()
-            self._save_manager.save(compress_data(data),
+            self._save_manager.save(compress_data(self._xml_handle.to_string()),
                                     args['<file>'],
                                     self.save_number,
                                     args['<gluid>'],

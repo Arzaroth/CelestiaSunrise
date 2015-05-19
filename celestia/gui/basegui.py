@@ -75,6 +75,7 @@ class BaseGui(tk.Tk, object):
         self._key_entry.grid_forget()
         self._key_button.grid_forget()
         self._key_dbfile.grid_forget()
+        self._main_frame.pack_forget()
 
     def _create_variables(self):
         pass

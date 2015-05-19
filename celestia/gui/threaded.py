@@ -84,17 +84,13 @@ class ThreadedSave(ThreadedBase):
         }
         try:
             if not self.xml:
-                try:
-                    data = self.xml_handle.to_string().encode('utf-8')
-                except UnicodeError:
-                    data = self.xml_handle.to_string()
-                self.save_manager.save(compress_data(data),
+                self.save_manager.save(compress_data(self.xml_handle.to_string()),
                                        self.savedata.savefile,
                                        self.save_number,
                                        self.savedata.gluid,
                                        self.savedata.legacy)
             else:
-                with open(self.xml, 'w') as f:
+                with open(self.xml, 'wb') as f:
                     f.write(self.xml_handle.prettify())
         except Exception as e:
             res["error"] = e
