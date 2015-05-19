@@ -100,10 +100,11 @@ class DownloadDialog(tk.Toplevel, object):
             percent = (self.current / self.total) * 100
         except ZeroDivisionError:
             percent = 0
-        self.percent = "{:.2f}% ({:.2f} KiB/s)".format(percent,
-                                                       self.current /
-                                                       (monotonic() - self.start) /
-                                                       1024)
+        try:
+            kbps = self.current / (monotonic() - self.start) / 1024
+        except ZeroDivisionError:
+            kbps = 0
+        self.percent = "{:.2f}% ({:.2f} KiB/s)".format(percent, kbps)
 
     @property
     def total(self):
