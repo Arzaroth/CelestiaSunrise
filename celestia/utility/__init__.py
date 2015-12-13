@@ -9,10 +9,12 @@
 from .defaultordereddict import DefaultOrderedDict
 from .enum import enum
 from .tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
+from .ponies import PONY_LIST
 
 __all__ = [
     'DefaultOrderedDict',
     'enum',
     'TkVarDescriptor',
     'TkVarDescriptorOwner',
+    'PONY_LIST',
 ]
