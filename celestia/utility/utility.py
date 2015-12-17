@@ -244,8 +244,9 @@ class Pony(StoredItem):
 
 
 class Currency(object):
-    def __init__(self, name, tag, limit=None):
+    def __init__(self, name, real_name, tag, limit=None):
         self.name = name
+        self.real_name = real_name
         self.limit = limit
         self._tag = tag[name]
 
@@ -257,15 +258,16 @@ class Currency(object):
     def value(self, new_val):
         new_val = int(new_val)
         if new_val < 0:
-            raise ValueError("Can't set a negative currency value for %s" % self.name)
+            raise ValueError("Can't set a negative currency value for %s" % self.real_name)
         if self.limit is not None and new_val > int(self.limit):
-            raise ValueError("Value above the limit for %s" % self.name)
+            raise ValueError("Value above the limit for %s" % self.real_name)
         self._tag.value = str(new_val)
 
     def __repr__(self):
-        return ('%s(ID: %s, Value: %s, Limit: %s)'
+        return ('%s(ID: %s, Name: %s, Value: %s, Limit: %s)'
                 % (self.__class__.__name__,
                    self.name,
+                   self.real_name,
                    self.value,
                    self.limit))
 

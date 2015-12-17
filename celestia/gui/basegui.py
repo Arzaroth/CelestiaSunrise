@@ -15,12 +15,19 @@ try:
     import tkinter.ttk as ttk
     from tkinter.filedialog import askopenfilename
     from tkinter.constants import N, S, E, W, NSEW, BOTH
+    from tkinter.messagebox import showinfo
+    from queue import Queue
 except ImportError:
     # py2
     import Tkinter as tk
     import ttk
     from tkFileDialog import askopenfilename
     from Tkconstants import N, S, E, W, NSEW, BOTH
+    from tkMessageBox import showinfo
+    from Queue import Queue
+from .threaded import ThreadedVersionCheck
+from .threaded import process_queue
+from .dialogs import LoadingDialog, NewVersionDialog
 from celestia.save import SaveData
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
@@ -46,6 +53,7 @@ class BaseGui(tk.Tk, object):
         self.resizable(False, False)
         self.bind('<Escape>', lambda _: self.destroy())
         self._create_variables()
+        self.unload = False
 
     def init(self):
         self._create_frames()
@@ -59,6 +67,32 @@ class BaseGui(tk.Tk, object):
         self._remove_widgets()
         self._remove_frames()
         self.init()
+
+    def _unload(self):
+        self.unload = True
+        self.destroy()
+
+    def _check_update(self):
+        loadingbox = LoadingDialog(self)
+        queue = Queue()
+        thread = ThreadedVersionCheck(queue=queue)
+        thread.start()
+
+        def success_callback(res):
+            if res["up_to_date"]:
+                showinfo("Up to date", "You're running the latest version")
+            else:
+                NewVersionDialog(res["download_url"], self)
+
+        self.after(100, process_queue,
+                   self, loadingbox, queue,
+                   success_callback)
+
+    def _about_popup(self):
+        from __main__ import INTRO, AUTHOR
+        showinfo("About",
+                 """{intro}
+                 {author}""".format(intro=INTRO, author=AUTHOR))
 
     def _remove_frames(self):
         self._file_frame.grid_forget()
@@ -111,6 +145,16 @@ class BaseGui(tk.Tk, object):
                                            text="Use gameloft_sharing database file",
                                            variable=BaseGui.usedb.raw_klass(self),
                                            command=self._usedb_clicked)
+        self._menu = tk.Menu(self)
+        self._filemenu = tk.Menu(self)
+        self._filemenu.add_command(label="Open another file", command=self._unload)
+        self._menu.add_cascade(label="File", menu=self._filemenu)
+        self._aboutmenu = tk.Menu(self)
+        self._aboutmenu.add_command(label="Check for update", command=self._check_update)
+        self._aboutmenu.add_separator()
+        self._aboutmenu.add_command(label="About", command=self._about_popup)
+        self._menu.add_cascade(label="About", menu=self._aboutmenu)
+        self.config(menu=self._menu)
 
     def _grid_frames(self):
         self._main_frame.pack(expand=True, fill=BOTH)

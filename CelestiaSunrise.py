@@ -15,7 +15,6 @@ from docopt import docopt
 from setup import VERSION
 from celestia import PonyShell, Gui
 from celestia.save import SaveData
-from celestia.utility.config import Config
 
 PRGM = "CelestiaSunrise"
 

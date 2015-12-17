@@ -12,7 +12,7 @@ from clint import resources
 
 CONFIG_FILE = "config.json"
 BASE_CONFIG = {
-    "startup_check": False
+    "startup_check": False,
 }
 
 class ClassProperty(property):

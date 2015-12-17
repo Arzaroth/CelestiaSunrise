@@ -8,7 +8,6 @@
 
 from __future__ import print_function, absolute_import, unicode_literals
 
-import sys
 import rapidxml
 
 from collections import OrderedDict, defaultdict
@@ -103,26 +102,44 @@ class XmlHandler(object):
         playerdata = self.xmlobj['MLP_Save']['PlayerData']
         res = DefaultOrderedDict(OrderedDict)
         main = res['Main currencies']
-        main['Bits'] = Currency('@Coins', playerdata)
-        main['Gems'] = Currency('@Hearts', playerdata)
-        main['Hearts'] = Currency('@Social', playerdata)
-        try:
-            main['Sapphires'] = Currency('@BossEventCurrency', playerdata)
-        except:
-            pass
-        main['Wheels'] = Currency('@Wheels', playerdata['Minecart'], 5)
+        main['Bits'] = Currency('@Coins', 'Bits', playerdata)
+        main['Gems'] = Currency('@Hearts', 'Gems', playerdata)
+        main['Hearts'] = Currency('@Social', 'Hearts', playerdata)
         shards = playerdata['Shards']
         for i in ('Loyalty', 'Honesty', 'Kindness', 'Generosity', 'Laughter', 'Magic'):
-            res['Shards'][i + ' shards'] = Currency('@' + i, shards, 999)
+            res['Shards'][i + ' shards'] = Currency('@' + i, i + ' shards', shards, 999)
         try:
+            # Minecart Update (1.8)
+            main['Wheels'] = Currency('@Wheels', 'Wheels', playerdata['Minecart'], 5)
+        except:
+            pass
+        try:
+            # Dragon Update (2.3)
+            main['Sapphires'] = Currency('@BossEventCurrency', 'Sapphires', playerdata)
+        except:
+            pass
+        try:
+            # Everfree Update (2.1)
             ingredients = playerdata['Ingredients']
             zecora = res['Zecora ingredients']
-            zecora['Black Iris'] = Currency('@BlackIris', ingredients, 5)
-            zecora['Garlic'] = Currency('@Garlic', ingredients, 5)
-            zecora['Sticky Sap'] = Currency('@GlueTree', ingredients, 5)
-            zecora['Joke Plant'] = Currency('@PoisonJokePlant', ingredients, 5)
-            zecora['Purple Mushrooms'] = Currency('@PurpleGlowingMushrooms', ingredients, 5)
-            zecora['Red Orchid'] = Currency('@RedOrchid', ingredients, 5)
+            zecora['Black Iris'] = Currency('@BlackIris', 'Black Iris', ingredients, 5)
+            zecora['Garlic'] = Currency('@Garlic', 'Garlic', ingredients, 5)
+            zecora['Sticky Sap'] = Currency('@GlueTree', 'Sticky Sap', ingredients, 5)
+            zecora['Joke Plant'] = Currency('@PoisonJokePlant', 'Joke Plant', ingredients, 5)
+            zecora['Purple Mushrooms'] = Currency('@PurpleGlowingMushrooms', 'Purple Mushrooms',
+                                                  ingredients, 5)
+            zecora['Red Orchid'] = Currency('@RedOrchid', 'Red Orchid', ingredients, 5)
+        except:
+            pass
+        try:
+            # Boutique Update (2.6)
+            popcurrency = playerdata['PopCurrency']
+            boutique = res['Boutique ingredients']
+            boutique['Flower'] = Currency('@PopCurrency1', 'Flower', popcurrency, 999)
+            boutique['Button'] = Currency('@PopCurrency2', 'Button', popcurrency, 999)
+            boutique['Thread'] = Currency('@PopCurrency3', 'Thread', popcurrency, 999)
+            boutique['Fabric'] = Currency('@PopCurrency4', 'Fabric', popcurrency, 999)
+            boutique['Ribbon'] = Currency('@PopCurrency5', 'Ribbon', popcurrency, 999)
         except:
             pass
         return res

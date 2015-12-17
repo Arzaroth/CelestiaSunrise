@@ -11,7 +11,7 @@ from __future__ import print_function, absolute_import
 import os
 from setuptools import setup, find_packages
 
-VERSION = ("v1", "2", "6")
+VERSION = ("v1", "3", "0")
 
 if __name__ == '__main__':
     setup(
