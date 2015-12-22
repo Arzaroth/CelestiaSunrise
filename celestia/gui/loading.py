@@ -23,12 +23,15 @@ except ImportError:
     from tkMessageBox import showerror
 from .basegui import BaseGui
 from celestia.utility.gluid import retrieve_gluid
+from celestia.utility.config import Config
 
 class Loading(BaseGui):
     def __init__(self, savedata):
         BaseGui.__init__(self, savedata)
         self.go_next = False
         BaseGui.init(self)
+        if Config.config["startup_check"]:
+            self._check_update(True)
         self.mainloop()
 
     def _remove_frames(self):
@@ -54,6 +57,8 @@ class Loading(BaseGui):
         self._ok_button = ttk.Button(self._main_frame,
                                      text="Go!",
                                      command=self._next)
+        self._filemenu.add_command(label="Exit", command=self.destroy)
+        self._editmenu.add_command(label="Preferences", command=self._preferences_popup)
 
     def _grid_frames(self):
         BaseGui._grid_frames(self)

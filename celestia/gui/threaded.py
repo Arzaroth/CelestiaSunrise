@@ -9,6 +9,7 @@
 import threading
 import requests
 import shutil
+import os
 try:
     # py3
     import queue as Queue
@@ -107,10 +108,11 @@ class ThreadedVersionCheck(ThreadedBase):
 
 
 class ThreadedVersionDownload(ThreadedBase):
-    def __init__(self, queue, download_url, filename):
-        ThreadedBase.__init__(self, queue)
+    def __init__(self, progress_queue, download_url, filename, cancel_queue):
+        ThreadedBase.__init__(self, progress_queue)
         self.download_url = download_url
         self.filename = filename
+        self.cancel_queue = cancel_queue
 
     def worker(self, queue):
         ThreadedBase.worker(self, queue)
@@ -120,30 +122,37 @@ class ThreadedVersionDownload(ThreadedBase):
             "current": 0,
             "done": False
         }
+        partfile = "{}.part".format(self.filename)
         try:
             response = requests.get(self.download_url, stream=True)
             response.raise_for_status()
             res["total"] = int(response.headers.get('content-length') or 0)
             queue.put(res)
-            partfile = "{}.part".format(self.filename)
             with open(partfile, 'wb') as tmp:
                 if not res["total"]:
                     tmp.write(response.content)
                 else:
                     for chunk in response.iter_content(1024):
+                        try:
+                            cancel = self.cancel_queue.get_nowait()
+                            raise RuntimeError("The download was canceled.")
+                        except Queue.Empty:
+                            pass
                         res["current"] += len(chunk)
                         tmp.write(chunk)
                         queue.put(res)
-            shutil.move(partfile, self.filename)
+            shutil.copy(partfile, self.filename)
         except Exception as e:
             res["error"] = e
+        finally:
+            os.unlink(partfile)
         res["done"] = True
         queue.put(res)
 
 
-def process_queue(instance, loadingbox, queue,
+def process_queue(instance, queue, loadingbox=None,
                   success_callback=None, error_callback=None,
-                  process_callback=None):
+                  process_callback=None, show_error=True):
     empty = False
     try:
         res = queue.get_nowait()
@@ -154,13 +163,15 @@ def process_queue(instance, loadingbox, queue,
         if process_callback and not empty:
             process_callback(res)
         instance.after(100, process_queue,
-                       instance, loadingbox, queue,
+                       instance, queue, loadingbox,
                        success_callback, error_callback,
-                       process_callback)
+                       process_callback, show_error)
     else:
-        loadingbox.destroy()
+        if loadingbox is not None:
+            loadingbox.destroy()
         if res["error"]:
-            showerror("Error", str(res["error"]))
+            if show_error:
+                showerror("Error", str(res["error"]))
             if error_callback:
                 error_callback()
         elif success_callback:

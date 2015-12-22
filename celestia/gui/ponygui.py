@@ -46,8 +46,12 @@ class PonyGui(BaseGui):
         self._load_xml()
         self.mainloop()
 
+    def _unload(self):
+        self.loaded = False
+        self.destroy()
+
     def _load_xml(self):
-        loadingbox = LoadingDialog(self)
+        loadingbox = LoadingDialog(self, False)
         queue = Queue()
         thread = ThreadedLoad(queue=queue,
                               savedata=self.savedata)
@@ -63,7 +67,7 @@ class PonyGui(BaseGui):
             self.update_idletasks()
 
         self.after(100, process_queue,
-                   self, loadingbox, queue,
+                   self, queue, loadingbox,
                    success_callback, self._unload)
 
     def _export_xml(self):
@@ -80,13 +84,13 @@ class PonyGui(BaseGui):
             thread.start()
 
             self.after(100, process_queue,
-                       self, loadingbox, queue)
+                       self, queue, loadingbox)
 
     def _import_xml(self):
         filename = askopenfilename()
         if filename:
             self.withdraw()
-            loadingbox = LoadingDialog(self)
+            loadingbox = LoadingDialog(self, False)
             queue = Queue()
             thread = ThreadedLoad(queue=queue,
                                   savedata=self.savedata,
@@ -100,7 +104,7 @@ class PonyGui(BaseGui):
                 self.update_idletasks()
 
             self.after(100, process_queue,
-                       self, loadingbox, queue,
+                       self, queue, loadingbox,
                        success_callback)
 
     def _remove_frames(self):
@@ -115,9 +119,13 @@ class PonyGui(BaseGui):
 
     def _create_widgets(self):
         BaseGui._create_widgets(self)
+        self._filemenu.add_command(label="Open another file", command=self._unload)
         self._filemenu.add_separator()
-        self._filemenu.add_command(label="Export XML...", command=self._export_xml)
-        self._filemenu.add_command(label="Import XML...", command=self._import_xml)
+        self._filemenu.add_command(label="Exit", command=self.destroy)
+        self._editmenu.add_command(label="Export XML...", command=self._export_xml)
+        self._editmenu.add_command(label="Import XML...", command=self._import_xml)
+        self._editmenu.add_separator()
+        self._editmenu.add_command(label="Preferences", command=self._preferences_popup)
 
     def _create_frames(self):
         BaseGui._create_frames(self)
@@ -175,4 +183,4 @@ class PonyGui(BaseGui):
             thread.start()
 
             self.after(100, process_queue,
-                       self, loadingbox, queue)
+                       self, queue, loadingbox)

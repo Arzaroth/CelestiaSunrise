@@ -10,6 +10,7 @@ from __future__ import unicode_literals, absolute_import
 
 import os
 import sys
+import socket
 import inspect
 import requests
 from setup import VERSION
@@ -24,12 +25,11 @@ def get_script_name(follow_links=True):
         path = os.path.realpath(path)
     return path
 
-def check_network():
+def check_network(host="8.8.8.8", port=53):
     try:
-        res = requests.get('http://74.125.224.72/',
-                           timeout=1,
-                           headers={"pragma": "no-cache"})
-    except requests.exceptions.Timeout:
+        socket.setdefaulttimeout(1)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+    except Exception:
         return False
     return True
 

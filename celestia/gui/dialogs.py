@@ -16,7 +16,9 @@ try:
     from tkinter.constants import N, S, E, W, NSEW, HORIZONTAL
     from tkinter.constants import BOTH, X, Y
     from tkinter.constants import TOP, BOTTOM, RIGHT, LEFT
+    from tkinter.messagebox import askyesno, showinfo
     from tkinter.filedialog import asksaveasfilename
+    from tkinter.font import Font
     from queue import Queue
 except ImportError:
     # py2
@@ -25,7 +27,9 @@ except ImportError:
     from Tkconstants import N, S, E, W, NSEW, HORIZONTAL
     from Tkconstants import BOTH, X, Y
     from Tkconstants import TOP, BOTTOM, RIGHT, LEFT
+    from tkMessageBox import askyesno, showinfo
     from tkFileDialog import asksaveasfilename
+    from tkFont import Font
     from Queue import Queue
 try:
     from celestia.utility.monotonic import monotonic
@@ -36,53 +40,100 @@ except RuntimeError:
 from .threaded import ThreadedVersionDownload
 from .threaded import process_queue
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
+from celestia.utility.config import Config
 
-class LoadingDialog(tk.Toplevel):
-    def __init__(self, *args, **kwargs):
-        tk.Toplevel.__init__(self, *args, **kwargs)
-        self.transient()
-        self.title("Loading...")
-        self.bind('<Escape>', lambda _: self.destroy())
+class BaseDiablog(tk.Toplevel, object):
+    def __init__(self, master, title, exit_on_esc=False, transient=True):
+        tk.Toplevel.__init__(self, master)
+        self.master = master
+        if transient:
+            self.transient(master)
+            self.grab_set()
+        else:
+            self.transient()
+        self.title(title)
+        if exit_on_esc:
+            self.bind('<Escape>', lambda _: self.destroy())
+        self.body = ttk.Frame(self)
+        self.body.pack(fill=BOTH, expand=True)
 
-        frame = ttk.Frame(self)
-        frame.pack(expand=True, fill=BOTH)
-        self.label = ttk.Label(frame, text="Loading...", font=20)
-        self.pb = ttk.Progressbar(frame, mode="indeterminate", length=200, orient=HORIZONTAL)
-        self.label.pack(padx=10, pady=10)
-        self.pb.pack(padx=10, pady=10)
+
+class LoadingDialog(BaseDiablog):
+    def __init__(self, master, transient=True):
+        BaseDiablog.__init__(self, master, "Loading...", transient=transient)
+        self.protocol('WM_DELETE_WINDOW', lambda *args: None)
+        self.label = ttk.Label(self.body, text="Loading...", font=20)
+        self.pb = ttk.Progressbar(self.body, mode="indeterminate", length=200, orient=HORIZONTAL)
+        options = dict(padx=7, pady=7)
+        self.label.pack(**options)
+        self.pb.pack(**options)
         self.pb.start()
 
 
 @six.add_metaclass(TkVarDescriptorOwner)
-class DownloadDialog(tk.Toplevel, object):
-    percent = TkVarDescriptor(tk.StringVar)
+class PreferencesDialog(BaseDiablog):
+    startup_check = TkVarDescriptor(tk.BooleanVar)
 
-    def __init__(self, *args, **kwargs):
-        tk.Toplevel.__init__(self, *args, **kwargs)
-        self.transient()
-        self.title("Downloading...")
+    def __init__(self, master):
+        BaseDiablog.__init__(self, master, "Preferences", exit_on_esc=True)
+        self.startup_check = Config.config["startup_check"]
+        self.general_label = ttk.Label(self.body,
+                                       text="General")
+        font = Font(self.general_label, self.general_label.cget("font"))
+        font.configure(underline=True)
+        self.general_label.configure(font=font)
+        self.config_frame = ttk.Frame(self)
+        self.startup_check_checkbtn = ttk.Checkbutton(self.config_frame,
+                                                      text="Check for update at launch",
+                                                      variable=PreferencesDialog.startup_check.raw_klass(self),
+                                                      command=self._startup_check_clicked)
+        self.buttons_frame = ttk.Frame(self)
+        self.close_button = ttk.Button(self.buttons_frame,
+                                       text="Close",
+                                       command=self.destroy)
+        options = dict(padx=5, pady=5)
+        self.general_label.pack(side=LEFT, **options)
+        self.config_frame.pack(fill=BOTH, expand=True, **options)
+        self.startup_check_checkbtn.pack(side=LEFT, **options)
+        self.buttons_frame.pack(side=BOTTOM, fill=BOTH, expand=True, **options)
+        self.close_button.pack(side=RIGHT, expand=False)
+
+    def _startup_check_clicked(self):
+        Config.config["startup_check"] = self.startup_check
+        Config.commit()
+
+
+@six.add_metaclass(TkVarDescriptorOwner)
+class DownloadDialog(BaseDiablog):
+    percent = TkVarDescriptor(tk.StringVar)
+    cancel = TkVarDescriptor(tk.BooleanVar)
+
+    def __init__(self, master):
+        BaseDiablog.__init__(self, master, "Downloading...")
         self.protocol('WM_DELETE_WINDOW', lambda *args: None)
         self._curbytes = 0
         self._maxbytes = 0
         self.start = monotonic()
         self.update_percent()
+        self.cancel = False
 
-        self.mainframe = ttk.Frame(self)
-        self.mainframe.pack(side=TOP, fill=BOTH, expand=True)
-
-        self.label = ttk.Label(self.mainframe,
+        self.label = ttk.Label(self.body,
                                text="The new version is currently downloading, please wait...",
                                font=20)
-        self.progressframe = ttk.Frame(self.mainframe)
+        self.progressframe = ttk.Frame(self.body)
         self.pb = ttk.Progressbar(self.progressframe,
                                   mode="determinate",
-                                  length=200,
+                                  length=250,
                                   orient=HORIZONTAL)
         self.pblabel = ttk.Label(self.progressframe,
                                  textvariable=DownloadDialog.percent.raw_klass(self))
+        self.cancel_button = ttk.Button(self.body,
+                                        text="Cancel",
+                                        command=lambda: DownloadDialog.cancel.__set__(self, True))
 
         options = dict(padx=3, pady=4)
         self.label.pack(side=TOP, fill=X, expand=False, **options)
+        self.cancel_button.pack(side=BOTTOM, expand=False, **options)
         self.progressframe.pack(side=BOTTOM, fill=BOTH, expand=True, **options)
         self.pb.pack(side=LEFT, **options)
         self.pblabel.pack(side=LEFT, **options)
@@ -119,68 +170,33 @@ class DownloadDialog(tk.Toplevel, object):
         self.update_percent()
 
 
-class RestartDialog(tk.Toplevel):
-    def __init__(self, *args, **kwargs):
-        tk.Toplevel.__init__(self, *args, **kwargs)
-        self.transient()
-        self.title("Success")
-        self.bind('<Escape>', lambda _: self.destroy())
-
-        frame = ttk.Frame(self)
-        frame.pack(expand=True, fill=BOTH)
-        self.label = ttk.Label(frame,
-                               text="The most recent version has successfully been downloaded",
-                               font=16)
-        self.button = ttk.Button(frame, text="Ok", command=self.destroy)
-        self.label.pack(padx=10, pady=10)
-        self.button.pack(padx=10, pady=10)
-
-
-class NewVersionDialog(tk.Toplevel):
+class NewVersionDialog(object):
     def __init__(self, download_url, master, *args, **kwargs):
-        tk.Toplevel.__init__(self, master, *args, **kwargs)
         self.download_url = download_url
-        self.transient()
-        self.title("New version!")
-        self.bind('<Escape>', lambda _: self.destroy())
-
-        self.mainframe = ttk.Frame(self)
-        self.mainframe.pack(side=TOP, fill=BOTH, expand=True)
-
-        self.label = ttk.Label(self.mainframe,
-                               text="A new version is avaible! Do you wish to download it?",
-                               font=16)
-        self.buttonframe = ttk.Frame(self.mainframe)
-        self.okbuttonframe = ttk.Frame(self.buttonframe)
-        self.nobuttonframe = ttk.Frame(self.buttonframe)
-        self.okbutton = ttk.Button(self.okbuttonframe, text="Yes", command=self.download)
-        self.nobutton = ttk.Button(self.nobuttonframe, text="No", command=self.destroy)
-
-        options = dict(padx=3, pady=4)
-        self.label.pack(side=TOP, fill=X, expand=False, **options)
-        self.buttonframe.pack(side=BOTTOM, fill=BOTH, expand=True, **options)
-        self.okbuttonframe.pack(side=LEFT, fill=X, expand=True, **options)
-        self.nobuttonframe.pack(side=RIGHT, fill=X, expand=True, **options)
-        self.okbutton.pack(side=RIGHT)
-        self.nobutton.pack(side=LEFT)
+        self.master = master
+        if askyesno("New version!", "A new version is available!\nDo you wish to download it?"):
+            self.download()
 
     def download(self):
         filename = asksaveasfilename(initialfile="CelestiaSunrise.exe")
         if filename:
-            downloadbox = DownloadDialog()
-            queue = Queue()
-            thread = ThreadedVersionDownload(queue, self.download_url, filename)
+            downloadbox = DownloadDialog(self.master)
+            progress_queue = Queue()
+            cancel_queue = Queue()
+            thread = ThreadedVersionDownload(progress_queue, self.download_url,
+                                             filename, cancel_queue)
             thread.start()
 
             def process_callback(res):
+                if downloadbox.cancel:
+                    cancel_queue.put(True)
                 downloadbox.total = res["total"]
                 downloadbox.current = res["current"]
 
             def success_callback(res):
-                RestartDialog()
+                showinfo("Success", "The latest version has been successfully downloaded")
 
             self.master.after(100, process_queue,
-                              self.master, downloadbox, queue,
+                              self.master, progress_queue, downloadbox,
                               success_callback, None,
                               process_callback)
-        self.destroy()

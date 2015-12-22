@@ -30,10 +30,10 @@ class Config(object):
             config = resources.user.read(CONFIG_FILE)
             if config is None:
                 config = BASE_CONFIG
-                cls.commit()
             else:
                 config = json.loads(config)
             cls._config = config
+            cls.commit()
         return cls._config
 
     @classmethod

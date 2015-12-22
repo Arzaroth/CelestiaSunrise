@@ -27,7 +27,7 @@ except ImportError:
     from Queue import Queue
 from .threaded import ThreadedVersionCheck
 from .threaded import process_queue
-from .dialogs import LoadingDialog, NewVersionDialog
+from .dialogs import LoadingDialog, NewVersionDialog, PreferencesDialog
 from celestia.save import SaveData
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
@@ -43,6 +43,7 @@ class BaseGui(tk.Tk, object):
         tk.Tk.__init__(self)
         style = ttk.Style()
         style.theme_use('clam' if 'clam' in style.theme_names() else 'classic')
+        self.option_add('*tearOff', False)
         self.savefile = savedata.savefile or ""
         self.gluid = savedata._gluid or ""
         self.dbfile = savedata.dbfile or ""
@@ -53,7 +54,6 @@ class BaseGui(tk.Tk, object):
         self.resizable(False, False)
         self.bind('<Escape>', lambda _: self.destroy())
         self._create_variables()
-        self.unload = False
 
     def init(self):
         self._create_frames()
@@ -68,25 +68,28 @@ class BaseGui(tk.Tk, object):
         self._remove_frames()
         self.init()
 
-    def _unload(self):
-        self.unload = True
-        self.destroy()
-
-    def _check_update(self):
-        loadingbox = LoadingDialog(self)
+    def _check_update(self, background=False):
+        if not background:
+            loadingbox = LoadingDialog(self)
+        else:
+            loadingbox = None
         queue = Queue()
         thread = ThreadedVersionCheck(queue=queue)
         thread.start()
 
         def success_callback(res):
-            if res["up_to_date"]:
-                showinfo("Up to date", "You're running the latest version")
-            else:
+            if not res["up_to_date"]:
                 NewVersionDialog(res["download_url"], self)
+            elif not background:
+                showinfo("Up to date", "You're running the latest version")
 
         self.after(100, process_queue,
-                   self, loadingbox, queue,
-                   success_callback)
+                   self, queue, loadingbox,
+                   success_callback, None,
+                   None, not background)
+
+    def _preferences_popup(self):
+        PreferencesDialog(self)
 
     def _about_popup(self):
         from __main__ import INTRO, AUTHOR
@@ -147,13 +150,14 @@ class BaseGui(tk.Tk, object):
                                            command=self._usedb_clicked)
         self._menu = tk.Menu(self)
         self._filemenu = tk.Menu(self)
-        self._filemenu.add_command(label="Open another file", command=self._unload)
+        self._editmenu = tk.Menu(self)
+        self._helpmenu = tk.Menu(self)
+        self._helpmenu.add_command(label="Check for update", command=self._check_update)
+        self._helpmenu.add_separator()
+        self._helpmenu.add_command(label="About", command=self._about_popup)
         self._menu.add_cascade(label="File", menu=self._filemenu)
-        self._aboutmenu = tk.Menu(self)
-        self._aboutmenu.add_command(label="Check for update", command=self._check_update)
-        self._aboutmenu.add_separator()
-        self._aboutmenu.add_command(label="About", command=self._about_popup)
-        self._menu.add_cascade(label="About", menu=self._aboutmenu)
+        self._menu.add_cascade(label="Edit", menu=self._editmenu)
+        self._menu.add_cascade(label="Help", menu=self._helpmenu)
         self.config(menu=self._menu)
 
     def _grid_frames(self):
