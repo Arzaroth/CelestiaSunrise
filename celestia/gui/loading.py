@@ -26,13 +26,12 @@ from celestia.utility.gluid import retrieve_gluid
 from celestia.utility.config import Config
 
 class Loading(BaseGui):
-    def __init__(self, savedata):
-        BaseGui.__init__(self, savedata)
+    def __init__(self, *args):
+        BaseGui.__init__(self, *args)
         self.go_next = False
         BaseGui.init(self)
         if Config.config["startup_check"]:
             self._check_update(True)
-        self.mainloop()
 
     def _remove_frames(self):
         BaseGui._remove_frames(self)

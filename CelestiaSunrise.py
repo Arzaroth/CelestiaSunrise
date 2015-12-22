@@ -69,7 +69,7 @@ if __name__ == '__main__':
         if opts['--shell']:
             PonyShell(savedata).cmdloop(intro=INTRO)
         else:
-            Gui(savedata).start()
+            Gui(savedata)
     except binascii.Error:
         print("Invalid decryption key",
               file=sys.stderr)

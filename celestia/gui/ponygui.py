@@ -39,12 +39,11 @@ from .threaded import process_queue
 from .dialogs import LoadingDialog
 
 class PonyGui(BaseGui):
-    def __init__(self, savedata):
-        BaseGui.__init__(self, savedata)
+    def __init__(self, *args):
+        BaseGui.__init__(self, *args)
         self.loaded = False
         self.withdraw()
         self._load_xml()
-        self.mainloop()
 
     def _unload(self):
         self.loaded = False

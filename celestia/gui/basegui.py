@@ -32,15 +32,15 @@ from celestia.save import SaveData
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
-class BaseGui(tk.Tk, object):
+class BaseGui(tk.Toplevel, object):
     savefile = TkVarDescriptor(tk.StringVar)
     gluid = TkVarDescriptor(tk.StringVar)
     dbfile = TkVarDescriptor(tk.StringVar)
     usedb = TkVarDescriptor(tk.BooleanVar)
     legacy = TkVarDescriptor(tk.BooleanVar)
 
-    def __init__(self, savedata):
-        tk.Tk.__init__(self)
+    def __init__(self, master, savedata):
+        tk.Toplevel.__init__(self, master)
         style = ttk.Style()
         style.theme_use('clam' if 'clam' in style.theme_names() else 'classic')
         self.option_add('*tearOff', False)
