@@ -8,6 +8,11 @@
 
 from __future__ import print_function, absolute_import, unicode_literals
 
+def show_player(xml_handle, args):
+    for typ in xml_handle.player_infos.values():
+        if not args['<player_data>'] or args['<player_data>'] == typ.name:
+            print(typ)
+
 def show_currencies(xml_handle, args):
     for name, typ in xml_handle.currencies.items():
         print('{}:'.format(name))

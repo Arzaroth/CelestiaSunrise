@@ -20,10 +20,11 @@ from celestia.utility.utility import Pony
 from celestia.utility.gluid import retrieve_gluid
 from celestia.utility.version import check_version
 from .docopt_utils import docopt_cmd, docopt_cmd_completion
-from .show import (show_currencies, show_currency,
+from .show import (show_player,
+                   show_currencies, show_currency,
                    show_ponies, show_pony,
                    show_zones, show_zone)
-from .set import (set_currency,
+from .set import (set_player, set_currency,
                   set_ponies, set_pony,
                   set_zones, set_zone,
                   set_inventory)
@@ -52,6 +53,7 @@ class PonyShell(Cmd, object):
         self._xml_handle.pre_load()
         self.savedata = savedata
         self._show_functions = {
+            'player': show_player,
             'currencies': show_currencies,
             'currency': show_currency,
             'ponies': show_ponies,
@@ -60,6 +62,7 @@ class PonyShell(Cmd, object):
             'zone': show_zone,
         }
         self._set_functions = {
+            'player': set_player,
             'currency': set_currency,
             'ponies': set_ponies,
             'pony': set_pony,
@@ -81,6 +84,7 @@ class PonyShell(Cmd, object):
         """Show what you requested.
 
 Usage:
+  show player [<player_data>]
   show currencies
   show currency <currency_id>...
   show ponies [-i|-o]
@@ -89,6 +93,7 @@ Usage:
   show zone <zone_id>...
 
 Arguments:
+  player_data   Id of a player_data item. Can be retrieved with "show player".
   currency_id   Id of a currency. Can be retrieved with "show currencies".
   pony_id       Id of a pony. Can be retrieved with "show ponies".
   zone_id       Id of a zone. Can be retrieved with "show zones".
@@ -107,6 +112,7 @@ Options:
         """Set what you requested.
 
 Usage:
+  set player <player_data> <value>
   set currency <value> <currency_id>...
   set ponies (level|shards) (up|down)
   set ponies (level|shards) <value>
@@ -121,6 +127,7 @@ Usage:
   set inventory add <not_owned_pony_id>...
 
 Arguments:
+  player_data           Id of a player_data item. Can be retrieved with "show player".
   currency_id           Id of a currency. Can be retrieved with "show currencies".
   pony_id               Id of a pony. Can be retrieved with "show ponies".
   zone_id               Id of a zone. Can be retrieved with "show zones".

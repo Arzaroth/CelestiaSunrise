@@ -249,6 +249,8 @@ class Currency(object):
         self.real_name = real_name
         self.limit = limit
         self._tag = tag[name]
+        if self.limit is not None and self.value > self.limit:
+            self.value = self.limit
 
     @property
     def value(self):
@@ -270,6 +272,10 @@ class Currency(object):
                    self.real_name,
                    self.value,
                    self.limit))
+
+
+class PlayerData(Currency):
+    pass
 
 
 class Clearables(object):

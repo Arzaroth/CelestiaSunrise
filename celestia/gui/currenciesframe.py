@@ -20,6 +20,7 @@ except ImportError:
     import Tkinter as tk
     import ttk
     from Tkconstants import N, S, E, W, NSEW
+from .scrolledframe import ScrolledFrame
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
@@ -42,16 +43,16 @@ class CurrencyFrame(ttk.Frame, object):
         self._limit.grid(row=offset, column=2, sticky=NSEW, **options)
 
 
-class CurrenciesFrame(ttk.Frame):
+class CurrenciesFrame(ScrolledFrame):
     def __init__(self, parent, xml_handle):
-        ttk.Frame.__init__(self, parent)
+        ScrolledFrame.__init__(self, parent)
 
         self._xml_handle = xml_handle
         self._currencies = defaultdict(dict)
         n = 0
         for name, typ in xml_handle.currencies.items():
             for cur, val in typ.items():
-                self._currencies[name][cur] = CurrencyFrame(self,
+                self._currencies[name][cur] = CurrencyFrame(self.interior,
                                                             cur,
                                                             val.value,
                                                             val.limit, n)

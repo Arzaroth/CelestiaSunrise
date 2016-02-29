@@ -32,6 +32,7 @@ except ImportError:
 from .basegui import BaseGui
 from .missingponiesframe import MissingPoniesFrame
 from .currenciesframe import CurrenciesFrame
+from .playerframe import PlayerFrame
 from .poniesframe import PoniesFrame
 from .zonesframe import ZonesFrame
 from .threaded import ThreadedLoad, ThreadedSave
@@ -70,7 +71,10 @@ class PonyGui(BaseGui):
                    success_callback, self._unload)
 
     def _export_xml(self):
-        filename = asksaveasfilename()
+        filename = asksaveasfilename(defaultextension='.xml',
+                                     filetypes=[('XML files', '.xml'),
+                                                ('All files', '*')],
+                                     parent=self)
         if filename:
             loadingbox = LoadingDialog(self)
             queue = Queue()
@@ -86,7 +90,10 @@ class PonyGui(BaseGui):
                        self, queue, loadingbox)
 
     def _import_xml(self):
-        filename = askopenfilename()
+        filename = askopenfilename(defaultextension='.xml',
+                                   filetypes=[('XML files', '.xml'),
+                                              ('All files', '*')],
+                                   parent=self)
         if filename:
             self.withdraw()
             loadingbox = LoadingDialog(self, False)
@@ -129,6 +136,8 @@ class PonyGui(BaseGui):
     def _create_frames(self):
         BaseGui._create_frames(self)
         self._notebook = ttk.Notebook(self._main_frame)
+        self._player_frame = PlayerFrame(self._main_frame,
+                                         self._xml_handle)
         self._currencies_frame = CurrenciesFrame(self._main_frame,
                                                  self._xml_handle)
         self._zones_frame = ZonesFrame(self._main_frame,
@@ -137,6 +146,8 @@ class PonyGui(BaseGui):
                                          self._xml_handle)
         self._missing_ponies_frame = MissingPoniesFrame(self._main_frame,
                                                         self._xml_handle)
+        self._notebook.add(self._player_frame,
+                           text="Player")
         self._notebook.add(self._currencies_frame,
                            text="Currencies")
         self._notebook.add(self._ponies_frame,
@@ -160,6 +171,7 @@ class PonyGui(BaseGui):
         self._save_button.grid(row=2, column=0, sticky=NSEW, padx=3, pady=4)
 
     def _commit(self):
+        self._player_frame.commit()
         self._currencies_frame.commit()
         self._ponies_frame.commit()
         self._zones_frame.commit()

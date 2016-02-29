@@ -3,19 +3,9 @@ CelestiaSunrise
 
 A savegame editor for the mobile game "My Little Pony"
 
-```
-Required:
-args==0.1.0
-clint==0.4.1
-docopt==0.6.2
-RapidXml==1.0.7
-requests==2.7.0
-six==1.9.0
-```
-
 Dependencies can be installed with the following command:
 ```
-> pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Basic usage: python CelestiaSunrise.py
@@ -35,16 +25,17 @@ Linux
 
 Ezpz.
 ```
-> python setup.py install
+python setup.py install
 ```
-Alternatively, you can specify the --user switch to install it locally, which doesn't require sudo privileges.
-It will work regardless of your python version.
+Alternatively, you can specify the --user switch to install it locally, which doesn't require sudo privileges.  
+It will work regardless of your python version.  
 
 Windows
 -------------
 
 * Grab the latest release executable.
 * Run it.
+* ???
 * Profit.
 
 Project Current State

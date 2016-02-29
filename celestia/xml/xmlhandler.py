@@ -15,7 +15,7 @@ from six import add_metaclass
 from celestia.utility import PONY_LIST
 from celestia.utility.defaultordereddict import DefaultOrderedDict
 from celestia.utility.utility import (Pony, Inventory, MissingPonies,
-                                      Currency, Clearables,
+                                      Currency, PlayerData, Clearables,
                                       Foes, Zone, Shops)
 
 class XmlDescriptor(object):
@@ -42,6 +42,7 @@ class XmlHandler(object):
     inventory = XmlDescriptor()
     missing_ponies = XmlDescriptor()
     currencies = XmlDescriptor()
+    player_infos = XmlDescriptor()
     actions = XmlDescriptor()
     zones = XmlDescriptor()
     _mapzones = XmlDescriptor()
@@ -144,6 +145,18 @@ class XmlHandler(object):
             pass
         return res
 
+    def _get_player_infos(self):
+        playerdata = self.xmlobj['MLP_Save']['PlayerData']
+        res = OrderedDict()
+        res['Level'] = PlayerData('@Level', 'Level', playerdata, 120)
+        res['XP'] = PlayerData('@XP', 'XP', playerdata)
+        try:
+            # VIP Update (2.7)
+            res['VIP Points'] = PlayerData('@vip_points', 'VIP Points', playerdata['vip'])
+        except:
+            pass
+        return res
+
     def _get_zones(self):
         mapzones_spec = OrderedDict((
             ("0", {"name": "Ponyville",
@@ -204,6 +217,7 @@ class XmlHandler(object):
         return {'Global': glob, 'Ponies': actions}
 
     def pre_load(self):
+        self.player_infos
         self.currencies
         self.ponies
         self.inventory

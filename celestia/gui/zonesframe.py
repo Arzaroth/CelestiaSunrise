@@ -19,6 +19,7 @@ except ImportError:
     import Tkinter as tk
     import ttk
     from Tkconstants import N, S, E, W, NSEW
+from .scrolledframe import ScrolledFrame
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
@@ -68,16 +69,16 @@ class ZoneFrame(ttk.Frame, object):
                                    "s" if len(self.zone.shops) > 1 else ""))
 
 
-class ZonesFrame(ttk.Frame):
+class ZonesFrame(ScrolledFrame):
     def __init__(self, parent, xml_handle):
-        ttk.Frame.__init__(self, parent)
+        ScrolledFrame.__init__(self, parent)
 
         self._xml_handle = xml_handle
         self._zones = {}
         reset_offset = len(self._xml_handle.zones) * 2
-        ttk.Label(self).grid(row=reset_offset, column=0)
+        ttk.Label(self.interior).grid(row=reset_offset, column=0)
         for n, (ID, zone) in enumerate(self._xml_handle.zones.items()):
-            self._zones[ID] = ZoneFrame(self, zone, n, reset_offset + 1)
+            self._zones[ID] = ZoneFrame(self.interior, zone, n, reset_offset + 1)
 
     def commit(self):
         for ID, zone in self._xml_handle.zones.items():

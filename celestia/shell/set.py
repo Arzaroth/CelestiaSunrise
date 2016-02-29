@@ -8,6 +8,14 @@
 
 from __future__ import print_function, absolute_import, unicode_literals
 
+def set_player(xml_handle, args):
+    for typ in xml_handle.player_infos.values():
+        if args['<player_data>'] == typ.name:
+            try:
+                typ.value = args['<value>']
+            except ValueError as e:
+                print(str(e))
+
 def set_currency(xml_handle, args):
     for currency_id in args['<currency_id>']:
         for typ in xml_handle.currencies.values():
