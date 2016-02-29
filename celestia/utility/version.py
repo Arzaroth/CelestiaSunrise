@@ -3,7 +3,7 @@
 #
 # File: version.py
 # by Arzaroth Lekva
-# arzaroth@arzaroth.com
+# lekva@arzaroth.com
 #
 
 from __future__ import unicode_literals, absolute_import

@@ -3,7 +3,7 @@
 #
 # File: __init__.py
 # by Arzaroth Lekva
-# arzaroth@arzaroth.com
+# lekva@arzaroth.com
 #
 
 from celestia.shell import PonyShell

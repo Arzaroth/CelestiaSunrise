@@ -3,7 +3,7 @@
 #
 # File: ponies.py
 # by Arzaroth Lekva
-# arzaroth@arzaroth.com
+# lekva@arzaroth.com
 #
 
 from collections import OrderedDict

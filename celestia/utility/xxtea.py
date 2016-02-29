@@ -3,7 +3,7 @@
 #
 # File: xxtea.py
 # by Arzaroth Lekva
-# arzaroth@arzaroth.com
+# lekva@arzaroth.com
 #
 # Deeply inspired by Yue Du <ifduyue@gmail.com>
 # https://github.com/ifduyue/xxtea

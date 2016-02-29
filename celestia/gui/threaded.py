@@ -3,7 +3,7 @@
 #
 # File: threaded.py
 # by Arzaroth Lekva
-# arzaroth@arzaroth.com
+# lekva@arzaroth.com
 #
 
 import threading

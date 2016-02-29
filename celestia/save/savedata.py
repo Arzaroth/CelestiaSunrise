@@ -3,7 +3,7 @@
 #
 # File: savedata.py
 # by Arzaroth Lekva
-# arzaroth@arzaroth.com
+# lekva@arzaroth.com
 #
 
 import binascii

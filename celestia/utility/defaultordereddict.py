@@ -3,7 +3,7 @@
 #
 # File: defaultordereddict.py
 # by Arzaroth Lekva
-# arzaroth@arzaroth.com
+# lekva@arzaroth.com
 #
 # Source: http://stackoverflow.com/a/6190500/562769
 

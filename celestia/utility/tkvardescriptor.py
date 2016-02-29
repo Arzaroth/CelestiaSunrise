@@ -3,7 +3,7 @@
 #
 # File: tkvardescriptor.py
 # by Arzaroth Lekva
-# arzaroth@arzaroth.com
+# lekva@arzaroth.com
 #
 
 class TkVarDescriptor(object):

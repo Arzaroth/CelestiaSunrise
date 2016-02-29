@@ -3,7 +3,7 @@
 #
 # File: config.py
 # by Arzaroth Lekva
-# arzaroth@arzaroth.com
+# lekva@arzaroth.com
 #
 
 import sys

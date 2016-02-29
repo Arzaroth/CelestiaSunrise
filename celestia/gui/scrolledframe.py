@@ -3,7 +3,7 @@
 #
 # File: scrollframe.py
 # by Arzaroth Lekva
-# arzaroth@arzaroth.com
+# lekva@arzaroth.com
 #
 
 from __future__ import print_function, absolute_import, unicode_literals
