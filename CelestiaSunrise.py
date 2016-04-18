@@ -51,7 +51,7 @@ Options:
   -h, --help                            Show this help and exit.
 
 Notes:
-  - This tool might have compatibility issues with recent versions of save files. It was tested with save files generated from the 2.5.x version of the game.
+  - This tool might have compatibility issues with recent versions of save files. It was tested with save files generated from the 2.8.x version of the game.
   - The code of this tool is currently open source. If you experiment issues, feel free to report or improve it.
 
 Author:

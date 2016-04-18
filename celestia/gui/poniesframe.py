@@ -31,7 +31,7 @@ from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwn
 
 @six.add_metaclass(TkVarDescriptorOwner)
 class PonyFrame(ttk.Frame, object):
-    level = TkVarDescriptor(tk.IntVar)
+    level = TkVarDescriptor(tk.DoubleVar)
     level_up = TkVarDescriptor(tk.BooleanVar)
     next_game = TkVarDescriptor(tk.StringVar)
     reset_next_game = TkVarDescriptor(tk.BooleanVar)
@@ -48,7 +48,7 @@ class PonyFrame(ttk.Frame, object):
         self.level = level
         self._level_frame = ttk.Frame(self.parent)
         self._level_label = ttk.Label(self._level_frame,
-                                      text=self.level)
+                                      text=int(self.level))
         self._level_scale = ttk.Scale(self._level_frame,
                                       from_=0, to=5,
                                       orient=HORIZONTAL,
@@ -61,6 +61,7 @@ class PonyFrame(ttk.Frame, object):
         self.next_game = next_game
         self._option_next = ttk.OptionMenu(self.parent,
                                            PonyFrame.next_game.raw_klass(self),
+                                           self.next_game,
                                            Pony.GameTypes.rmap[Pony.GameTypes.Ball],
                                            Pony.GameTypes.rmap[Pony.GameTypes.Apple],
                                            Pony.GameTypes.rmap[Pony.GameTypes.Book])
@@ -78,9 +79,10 @@ class PonyFrame(ttk.Frame, object):
         self._reset_checkbox.grid(row=offset, column=4, **options)
 
     def _level_change(self, *args):
+        self.level = int(self.level)
         self._shards.configure(state=(DISABLED if self.level == 5 else NORMAL))
         self.level_up = self.level_up and self.level != 5
-        self._level_label.config(text=self.level)
+        self._level_label.config(text=int(self.level))
 
 
 class EveryponyFrame(PonyFrame):

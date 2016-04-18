@@ -143,6 +143,11 @@ class XmlHandler(object):
             boutique['Ribbon'] = Currency('@PopCurrency5', 'Ribbon', popcurrency, 999)
         except:
             pass
+        try:
+            # Party Update (2.8)
+            main['Party Keys'] = Currency('@SpecialCurrency', 'Party Keys', playerdata)
+        except:
+            pass
         return res
 
     def _get_player_infos(self):
