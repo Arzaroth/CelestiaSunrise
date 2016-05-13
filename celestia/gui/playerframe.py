@@ -23,7 +23,7 @@ from celestia.gui.currenciesframe import CurrencyFrame
 from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
 @six.add_metaclass(TkVarDescriptorOwner)
-class PlayerFrame(ttk.Frame):
+class PlayerFrame(ttk.Frame, object):
     complete_quests = TkVarDescriptor(tk.BooleanVar)
 
     def __init__(self, parent, xml_handle):
