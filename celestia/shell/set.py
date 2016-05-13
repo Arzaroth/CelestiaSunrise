@@ -89,3 +89,8 @@ def set_inventory(xml_handle, args):
         if pony_id in xml_handle.missing_ponies:
             xml_handle.inventory.append(pony_id)
             xml_handle.missing_ponies.remove(pony_id)
+
+def set_quests(xml_handle, args):
+    if args['complete']:
+        for quest in xml_handle.quests:
+            quest.complete()

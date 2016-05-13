@@ -56,3 +56,8 @@ def show_zone(xml_handle, args):
     for zone_id in args['<zone_id>']:
         if zone_id in xml_handle.zones:
             print(xml_handle.zones[zone_id])
+
+def show_quests(xml_handle, args):
+    print('Quests:')
+    for quest in xml_handle.quests:
+        print('  {}'.format(quest))

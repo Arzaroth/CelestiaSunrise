@@ -23,11 +23,12 @@ from .docopt_utils import docopt_cmd, docopt_cmd_completion
 from .show import (show_player,
                    show_currencies, show_currency,
                    show_ponies, show_pony,
-                   show_zones, show_zone)
+                   show_zones, show_zone,
+                   show_quests)
 from .set import (set_player, set_currency,
                   set_ponies, set_pony,
                   set_zones, set_zone,
-                  set_inventory)
+                  set_inventory, set_quests)
 
 class PonyMeta(type):
     def __new__(cls, name, bases, attrs):
@@ -60,15 +61,17 @@ class PonyShell(Cmd, object):
             'pony': show_pony,
             'zones': show_zones,
             'zone': show_zone,
+            'quests': show_quests,
         }
         self._set_functions = {
             'player': set_player,
             'currency': set_currency,
             'ponies': set_ponies,
             'pony': set_pony,
+            'inventory': set_inventory,
             'zones': set_zones,
             'zone': set_zone,
-            'inventory': set_inventory,
+            'quests': set_quests,
         }
 
     def cmdloop(self, intro=""):
@@ -91,6 +94,7 @@ Usage:
   show pony <pony_id>...
   show zones
   show zone <zone_id>...
+  show quests
 
 Arguments:
   player_data   Id of a player_data item. Can be retrieved with "show player".
@@ -120,11 +124,12 @@ Usage:
   set pony (level|shards) (up|down) <pony_id>...
   set pony (level|shards|next_game) <value> <pony_id>...
   set pony reset_game_timer <pony_id>...
+  set inventory add <not_owned_pony_id>...
   set zones clear [clearables|foes]
   set zones reset_shops_timer
   set zone clear [clearables|foes] <zone_id>...
   set zone reset_shops_timer <zone_id>...
-  set inventory add <not_owned_pony_id>...
+  set quests complete
 
 Arguments:
   player_data           Id of a player_data item. Can be retrieved with "show player".

@@ -20,8 +20,12 @@ except ImportError:
     import ttk
     from Tkconstants import N, S, E, W, NSEW
 from celestia.gui.currenciesframe import CurrencyFrame
+from celestia.utility.tkvardescriptor import TkVarDescriptor, TkVarDescriptorOwner
 
+@six.add_metaclass(TkVarDescriptorOwner)
 class PlayerFrame(ttk.Frame):
+    complete_quests = TkVarDescriptor(tk.BooleanVar)
+
     def __init__(self, parent, xml_handle):
         ttk.Frame.__init__(self, parent, height=400)
         self.grid_propagate(0)
@@ -31,7 +35,15 @@ class PlayerFrame(ttk.Frame):
         for n, (name, typ) in enumerate(xml_handle.player_infos.items()):
             self._player_infos[name] = CurrencyFrame(self, name, typ.value,
                                                      typ.limit, n)
+        self.complete_quests = False
+        self._quests_box = ttk.Checkbutton(self,
+                                           text="Complete current quests",
+                                           variable=PlayerFrame.complete_quests.raw_klass(self))
+        self._quests_box.grid(row=(n + 1), column=0, sticky=W, padx=3, pady=2)
 
     def commit(self):
         for name, typ in self._xml_handle.player_infos.items():
             typ.value = self._player_infos[name].value
+        if self.complete_quests:
+            for quest in self._xml_handle.quests:
+                quest.complete()
