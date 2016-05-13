@@ -146,7 +146,7 @@ class XmlHandler(object):
             pass
         try:
             # Party Update (2.8)
-            main['Party Keys'] = Currency('@SpecialCurrency', 'Party Keys', playerdata)
+            main['Party Points'] = Currency('@SpecialCurrency', 'Party Points', playerdata)
         except:
             pass
         return res
