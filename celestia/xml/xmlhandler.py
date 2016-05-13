@@ -16,7 +16,7 @@ from celestia.utility import PONY_LIST
 from celestia.utility.defaultordereddict import DefaultOrderedDict
 from celestia.utility.utility import (Pony, Inventory, MissingPonies,
                                       Currency, PlayerData, Clearables,
-                                      Foes, Zone, Shops)
+                                      Foes, Zone, Shops, Quest)
 
 class XmlDescriptor(object):
     def __init__(self):
@@ -45,6 +45,7 @@ class XmlHandler(object):
     player_infos = XmlDescriptor()
     actions = XmlDescriptor()
     zones = XmlDescriptor()
+    quests = XmlDescriptor()
     _mapzones = XmlDescriptor()
 
     def __init__(self, xml_data):
@@ -221,6 +222,10 @@ class XmlHandler(object):
                 populate_dict(glob, key='@Category', suffix=suffix)
         return {'Global': glob, 'Ponies': actions}
 
+    def _get_quests(self):
+        activequestlist = self.xmlobj['MLP_Save']['QuestData']['ActiveQuestList']
+        return [Quest(quest) for quest in activequestlist]
+
     def pre_load(self):
         self.player_infos
         self.currencies
@@ -228,6 +233,7 @@ class XmlHandler(object):
         self.inventory
         self.missing_ponies
         self.zones
+        self.quests
         self.actions
 
     def to_string(self):

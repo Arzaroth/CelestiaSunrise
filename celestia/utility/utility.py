@@ -313,8 +313,10 @@ class Shops(object):
 
     def reset_shops_timer(self):
         for shop in self._shops:
-            shop['ShopProduction']['@TimeA'].value = ZERO
-            shop['ShopProduction']['@TimeB'].value = ZERO
+            if '@TimeA' in shop['ShopProduction']:
+                shop['ShopProduction']['@TimeA'].value = ZERO
+            if '@TimeB' in shop['ShopProduction']:
+                shop['ShopProduction']['@TimeB'].value = ZERO
 
     def __len__(self):
         return len(self._shops)
@@ -341,3 +343,22 @@ class Zone(object):
                    self.ID,
                    self.name,
                    self.cleared()))
+
+
+class Quest(object):
+    def __init__(self, tag):
+        self.ID = tag["@ID"].value
+        self.tasks = [task for task in tag['TasksComplete']]
+
+    def completed(self):
+        return all(task["@Done"].value != "0" for task in self.tasks)
+
+    def complete(self):
+        for task in self.tasks:
+            task["@Done"].value = "1";
+
+    def __repr__(self):
+        return ('%s(ID: %s, Completed: %s)'
+                % (self.__class__.__name__,
+                   self.ID,
+                   self.completed()))
