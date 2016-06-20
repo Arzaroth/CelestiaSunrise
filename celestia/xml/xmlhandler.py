@@ -154,7 +154,7 @@ class XmlHandler(object):
     def _get_player_infos(self):
         playerdata = self.xmlobj['MLP_Save']['PlayerData']
         res = OrderedDict()
-        res['Level'] = PlayerData('@Level', 'Level', playerdata, 125)
+        res['Level'] = PlayerData('@Level', 'Level', playerdata, 130)
         res['XP'] = PlayerData('@XP', 'XP', playerdata)
         try:
             # VIP Update (2.7)
