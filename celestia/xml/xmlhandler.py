@@ -149,12 +149,25 @@ class XmlHandler(object):
             main['Party Points'] = Currency('@SpecialCurrency', 'Party Points', playerdata)
         except:
             pass
+        try:
+            # Countess Coloratura Update (3.0)
+            tasktokens = playerdata['TaskTokens']
+            tokens = res['Tokens']
+            tokens['Camera'] = Currency('@Token_Camera', 'Camera', tasktokens)
+            tokens['Leather Jacket'] = Currency('@Token_Leather_Jacket', 'Leather Jacket', tasktokens)
+            tokens['Hair Dye'] = Currency('@Token_Hair_dye', 'Hair Dye', tasktokens)
+            tokens['Note'] = Currency('@Token_Note', 'Note', tasktokens)
+            tokens['Glasses'] = Currency('@Token_Glasses', 'Glasses', tasktokens)
+            tokens['Microphone'] = Currency('@Token_Microphone', 'Microphone', tasktokens)
+            tokens['Cap'] = Currency('@Token_Cap', 'Cap', tasktokens)
+        except:
+            pass
         return res
 
     def _get_player_infos(self):
         playerdata = self.xmlobj['MLP_Save']['PlayerData']
         res = OrderedDict()
-        res['Level'] = PlayerData('@Level', 'Level', playerdata, 130)
+        res['Level'] = PlayerData('@Level', 'Level', playerdata, 135)
         res['XP'] = PlayerData('@XP', 'XP', playerdata)
         try:
             # VIP Update (2.7)
